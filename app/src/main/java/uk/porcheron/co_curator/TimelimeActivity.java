@@ -53,33 +53,37 @@ public class TimelimeActivity extends Activity {
         mLayoutBelow.setPadding(Style.layoutBelowPadX, 0, 0, 0);
 
         //testing
-        User user0 = mUsers.add();
-        User user1 = mUsers.add();
-        User user2 = mUsers.add();
-        User user3 = mUsers.add();
-        User user4 = mUsers.add();
-        User user5 = mUsers.add();
-        mItems.add(ItemType.NOTE, user0, "testing1");
-        mItems.add(ItemType.NOTE, user3, "testing2");
-        mItems.add(ItemType.NOTE, user1, "testing3");
-        mItems.add(ItemType.NOTE, user2, "testing4");
-        mItems.add(ItemType.NOTE, user3, "testing5");
-        mItems.add(ItemType.NOTE, user0, "testing6");
-        mItems.add(ItemType.NOTE, user0, "testing7");
-        mItems.add(ItemType.NOTE, user4, "testing1");
-        mItems.add(ItemType.NOTE, user0, "testing2");
-        mItems.add(ItemType.NOTE, user2, "testing3");
-        mItems.add(ItemType.NOTE, user5, "testing4");
-        mItems.add(ItemType.NOTE, user1, "testing5");
-        mItems.add(ItemType.NOTE, user0, "testing6");
-        mItems.add(ItemType.NOTE, user0, "testing7");
-        mItems.add(ItemType.NOTE, user1, "testing1");
-        mItems.add(ItemType.NOTE, user4, "testing2");
-        mItems.add(ItemType.NOTE, user1, "testing3");
-        mItems.add(ItemType.NOTE, user2, "testing4");
-        mItems.add(ItemType.NOTE, user3, "testing5");
-        mItems.add(ItemType.NOTE, user2, "testing6");
-        mItems.add(ItemType.NOTE, user0, "testing7");
+        User[] users = new User[5];
+        for(int i = 0; i < 5; i++) {
+            users[i] = mUsers.add();
+        }
+
+        for(int i = 0; i < users.length; i++) {
+            User user = users[i];
+            for(int j = 0; j < 3; j++) {
+                mItems.add(ItemType.NOTE, user, "User = " + i + "; Test = " + j + "; uOffset = " + user.offset);
+            }
+        }
+//        mItems.add(ItemType.NOTE, user3, "testing2");
+//        mItems.add(ItemType.NOTE, user2, "testing3");
+//        mItems.add(ItemType.NOTE, user2, "testing4");
+//        mItems.add(ItemType.NOTE, user3, "testing5");
+//        mItems.add(ItemType.NOTE, user0, "testing6");
+//        mItems.add(ItemType.NOTE, user0, "testing7");
+//        mItems.add(ItemType.NOTE, user4, "testing8");
+//        mItems.add(ItemType.NOTE, user0, "testing9");
+//        mItems.add(ItemType.NOTE, user2, "testing10");
+//        mItems.add(ItemType.NOTE, user5, "testing11");
+//        mItems.add(ItemType.NOTE, user1, "testing12");
+//        mItems.add(ItemType.NOTE, user0, "testing13");
+//        mItems.add(ItemType.NOTE, user0, "testing14");
+//        mItems.add(ItemType.NOTE, user1, "testing15");
+//        mItems.add(ItemType.NOTE, user4, "testing16");
+//        mItems.add(ItemType.NOTE, user1, "testing17");
+//        mItems.add(ItemType.NOTE, user2, "testing18");
+//        mItems.add(ItemType.NOTE, user3, "testing19");
+//        mItems.add(ItemType.NOTE, user2, "testing20");
+//        mItems.add(ItemType.NOTE, user0, "testing21");
     }
     
 }

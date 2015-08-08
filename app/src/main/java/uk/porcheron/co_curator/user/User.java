@@ -14,6 +14,7 @@ public class User {
     public Paint paint;
 
     public User(int userId) {
+        this.userId = userId;
         this.offset = (float) Math.ceil(userId % 2 == 0 ? -userId/2f : userId/2f) * Style.userOffset;
         this.colour = Style.userColours[userId];
 

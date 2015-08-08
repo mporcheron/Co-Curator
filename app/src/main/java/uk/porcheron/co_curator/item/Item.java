@@ -30,6 +30,9 @@ public abstract class Item extends View {
         super(context);
         mUser = user;
 
+//        boolean above = user.offset <= 0;
+        Log.d(TAG, "id = " + user.userId + "; offset = " + user.offset);
+
         mItemX1 = 0;
         mItemX2 = mItemX1 + Style.itemWidth;
         mItemY1 = Style.itemPadY;
@@ -40,19 +43,29 @@ public abstract class Item extends View {
         mNotchX1 = (Style.itemWidth / 2) - halfLineWidth;
         mNotchX2 = mNotchX1 + Style.lineWidth;
 
-        mNotchY1 = Style.itemFullHeight - Style.notchHeight;
-        mNotchY2 = mNotchY1 + (Style.notchHeight - mUser.offset);
+        if(above) {
+            mNotchY1 = Style.itemFullHeight - Style.notchHeight - Style.layoutAboveOverlap;
+            mNotchY2 = mNotchY1 + Style.notchHeight;
 
-        if(!above) {
-            mNotchY1 = mNotchY1 - Style.itemFullHeight + Style.notchHeight;
-            mNotchY2 = mNotchY2 - Style.itemFullHeight + Style.notchHeight;
+            if(mUser.offset < 0) {
+                mNotchY2 = mNotchY2 + mUser.offset;
+            } else if(mUser.offset > 0) {
+                mNotchY2 = mNotchY1 + Style.notchHeight - (2 * -mUser.offset);
+                Log.d(TAG, "y1 = " + mNotchY1 + "; y2 = " + mNotchY2);
+            }
+        } else {
+            mNotchY1 = mUser.offset;
+            mNotchY2 = Style.notchHeight - mNotchY1;
+
+
+            //mNotchY1 = mNotchY1 - Style.itemFullHeight + Style.notchHeight;
+            //mNotchY2 = mNotchY2 - Style.itemFullHeight + Style.notchHeight;
         }
 
     }
 
     @Override
     public void onDraw(Canvas canvas) {
-        Log.d(TAG, "Draw Notch from (" + mNotchX1 + "," + mNotchY1 + ") to (" + mNotchX2 + "," + mNotchY2 + ")");
         canvas.drawRect(mNotchX1, mNotchY1, mNotchX2, mNotchY2, mUser.paint);
     }
 

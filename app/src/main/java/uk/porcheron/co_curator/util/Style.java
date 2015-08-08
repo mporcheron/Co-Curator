@@ -24,6 +24,8 @@ public class Style {
 
     public static int layoutAbovePadX;
     public static int layoutBelowPadX;
+    public static int layoutAboveOverlap;
+    public static int layoutBelowOverlap;
 
     public static float itemScale;
     public static int itemWidth;
@@ -80,13 +82,15 @@ public class Style {
         itemWidth = (int) defItemSize;
         itemHeight = (int) defItemSize;
         itemFullWidth = itemWidth + itemPadX;
-        itemFullHeight = (int) (midY - (lineWidth / 2));
+        itemFullHeight = (int) (midY - (lineWidth / 2)) + Style.layoutAboveOverlap;
 
         itemPadY =  (int) (midY - itemHeight) / 2;
         itemPadX = (int) defItemPad;
 
         layoutAbovePadX = itemPadX;
         layoutBelowPadX = itemPadX + (itemFullWidth / 2);
+        layoutAboveOverlap = 2 * (int) userOffset;
+        layoutBelowOverlap = -2 * (int) userOffset;
 
         noteLines = res.getInteger(R.integer.noteLines);
         notePadding = res.getDimension(R.dimen.notePadding);
