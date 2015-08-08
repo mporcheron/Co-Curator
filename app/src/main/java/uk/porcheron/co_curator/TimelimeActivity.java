@@ -2,24 +2,33 @@ package uk.porcheron.co_curator;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.SurfaceView;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import uk.porcheron.co_curator.centreline.CentrelineHandler;
 import uk.porcheron.co_curator.item.Item;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.NoteItem;
-import uk.porcheron.co_curator.item.Style;
+import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.user.UserList;
+import uk.porcheron.co_curator.util.Style;
 
 public class TimelimeActivity extends Activity {
-
     private static final String TAG = "CC:TimelineActivity";
 
-    private List<Item> mItems = new ItemList();
+    private UserList mUsers;
+    private ItemList mItems;
+
+    private CentrelineHandler mCentrelineHandler;
+    private SurfaceView mSurface;
     private LinearLayout mLayoutAbove;
     private LinearLayout mLayoutBelow;
 
@@ -31,74 +40,41 @@ public class TimelimeActivity extends Activity {
 
         Style.loadStyleAttrs(this);
 
+        mSurface = (SurfaceView) findViewById(R.id.surface);
         mLayoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
         mLayoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
 
-        mLayoutAbove.setPadding(Style.mLayoutAbovePadX, Style.mItemPadY, 0, Style.mItemPadY);
-        mLayoutBelow.setPadding(Style.mLayoutBelowPadX, Style.mItemPadY, 0, Style.mItemPadY);
+        mUsers = new UserList(mSurface);
+        mItems = new ItemList(this, mLayoutAbove, mLayoutBelow);
+
+        mCentrelineHandler = new CentrelineHandler(mUsers);
+        mSurface.getHolder().addCallback(mCentrelineHandler);
+        mLayoutAbove.setPadding(Style.layoutAbovePadX, Style.itemPadY, 0, Style.itemPadY);
+        mLayoutBelow.setPadding(Style.layoutBelowPadX, Style.itemPadY, 0, Style.itemPadY);
 
         //testing
-        addItem(ItemType.NOTE, "testing1");
-        addItem(ItemType.NOTE, "testing2");
-        addItem(ItemType.NOTE, "testing3");
-        addItem(ItemType.NOTE, "testing4");
-        addItem(ItemType.NOTE, "testing5");
-        addItem(ItemType.NOTE, "testing6");
-        addItem(ItemType.NOTE, "testing7");
-        addItem(ItemType.NOTE, "testing1");
-        addItem(ItemType.NOTE, "testing2");
-        addItem(ItemType.NOTE, "testing3");
-        addItem(ItemType.NOTE, "testing4");
-        addItem(ItemType.NOTE, "testing5");
-        addItem(ItemType.NOTE, "testing6");
-        addItem(ItemType.NOTE, "testing7");
-        addItem(ItemType.NOTE, "testing1");
-        addItem(ItemType.NOTE, "testing2");
-        addItem(ItemType.NOTE, "testing3");
-        addItem(ItemType.NOTE, "testing4");
-        addItem(ItemType.NOTE, "testing5");
-        addItem(ItemType.NOTE, "testing6");
-        addItem(ItemType.NOTE, "testing7");
+        User user0 = mUsers.add(0, Style.userColours[0], 0);
+        mItems.add(ItemType.NOTE, user0, "testing1");
+        mItems.add(ItemType.NOTE, user0, "testing2");
+        mItems.add(ItemType.NOTE, user0, "testing3");
+        mItems.add(ItemType.NOTE, user0, "testing4");
+        mItems.add(ItemType.NOTE, user0, "testing5");
+        mItems.add(ItemType.NOTE, user0, "testing6");
+        mItems.add(ItemType.NOTE, user0, "testing7");
+        mItems.add(ItemType.NOTE, user0, "testing1");
+        mItems.add(ItemType.NOTE, user0, "testing2");
+        mItems.add(ItemType.NOTE, user0, "testing3");
+        mItems.add(ItemType.NOTE, user0, "testing4");
+        mItems.add(ItemType.NOTE, user0, "testing5");
+        mItems.add(ItemType.NOTE, user0, "testing6");
+        mItems.add(ItemType.NOTE, user0, "testing7");
+        mItems.add(ItemType.NOTE, user0, "testing1");
+        mItems.add(ItemType.NOTE, user0, "testing2");
+        mItems.add(ItemType.NOTE, user0, "testing3");
+        mItems.add(ItemType.NOTE, user0, "testing4");
+        mItems.add(ItemType.NOTE, user0, "testing5");
+        mItems.add(ItemType.NOTE, user0, "testing6");
+        mItems.add(ItemType.NOTE, user0, "testing7");
     }
-
-    /**
-     * @param type Type of item
-     * @param data Resource information
-     */
-    public void addItem(ItemType type, String data) {
-        Item item = null;
-        if(type == ItemType.NOTE) {
-            item = createNote(data);
-        } else {
-            //...
-        }
-
-        if(item == null) {
-            Log.e(TAG, "Unsupported item type: " + type.mLabel);
-            return;
-        }
-
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.weight = 1.0f;
-
-        mItems.add(item);
-        if (mItems.size() % 2 == 1) {
-            params.gravity = Gravity.BOTTOM;
-            item.setLayoutParams(params);
-            mLayoutAbove.addView(item);
-        } else {
-            params.gravity = Gravity.TOP;
-            item.setLayoutParams(params);
-            mLayoutBelow.addView(item);
-        }
-    }
-
-    private NoteItem createNote(String text) {
-        NoteItem note = new NoteItem(this);
-        note.setText(text);
-        return note;
-    }
-
-
+    
 }
