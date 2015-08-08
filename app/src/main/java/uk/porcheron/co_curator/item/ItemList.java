@@ -49,12 +49,12 @@ public class ItemList extends ArrayList<Item> {
 
         add(item);
         if (above) {
-            params.gravity = Gravity.BOTTOM;
-            item.setLayoutParams(params);
+            //params.gravity = Gravity.TOP;
+            //item.setLayoutParams(params);
             mLayoutAbove.addView(item);
         } else {
-            params.gravity = Gravity.TOP;
-            item.setLayoutParams(params);
+            //params.gravity = Gravity.TOP;
+            //item.setLayoutParams(params);
             mLayoutBelow.addView(item);
         }
     }

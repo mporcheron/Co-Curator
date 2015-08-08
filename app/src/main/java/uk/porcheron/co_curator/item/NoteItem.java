@@ -21,11 +21,13 @@ import uk.porcheron.co_curator.util.EllipsizingTextView;
 public class NoteItem extends Item {
     private static final String TAG = "CC:Item:Note";
 
-    private int mNoteWidth = 0;
-    private int mNoteHeight = 0;
+    private int mShadowX1;
+    private int mShadowY1;
+    private int mShadowX2;
+    private int mShadowY2;
 
-    private int mShadowWidth = 0;
-    private int mShadowHeight = 0;
+    private float mTextX;
+    private float mTextY;
 
     private String mText;
     private Paint mPaintNotch;
@@ -51,14 +53,19 @@ public class NoteItem extends Item {
         mPaintFg.setColor(Style.noteFg);
         mPaintFg.setTextSize(Style.noteFontSize);
 
-        mNoteWidth = Style.itemWidth - Style.noteShadowSize;
-        mNoteHeight = Style.itemHeight - Style.noteShadowSize;
+        mItemX2 = mItemX2 - Style.noteShadowSize;
+        mItemY2 = mItemY2 - Style.noteShadowSize;
 
-        mShadowWidth = mNoteWidth + Style.noteShadowSize;
-        mShadowHeight = mNoteHeight + Style.noteShadowSize;
+        mShadowX1 = Style.noteShadowOffset;
+        mShadowY1 = Style.itemPadY + Style.noteShadowOffset;
+        mShadowX2 = mItemX2 + Style.noteShadowSize;
+        mShadowY2 = mItemY2 + Style.noteShadowSize;
 
-        int width = (int) (mNoteWidth - (2 * Style.notePadding));
-        int height = (int) (mNoteHeight - (2 * Style.notePadding));
+        mTextX = mItemX1 + Style.notePadding;
+        mTextY = mItemY1 + Style.notePadding;
+
+        int width = (int) (mItemX2 - (2 * Style.notePadding));
+        int height = (int) (mItemY2 - (2 * Style.notePadding));
 
         mTextView = new EllipsizingTextView(getContext());
         mTextView.layout(0, 0, width, height);
@@ -72,15 +79,17 @@ public class NoteItem extends Item {
 
     @Override
     public void onDraw(Canvas canvas) {
-        canvas.drawRect(Style.noteShadowOffset, Style.noteShadowOffset,
-                mShadowWidth, mShadowHeight, mPaintSh);
+        super.onDraw(canvas);
 
-        canvas.drawRect(0, 0, mNoteWidth, mNoteHeight, mPaintBg);
+        canvas.drawRect(mShadowX1, mShadowY1, mShadowX2, mShadowY2, mPaintSh);
+
+        canvas.drawRect(mItemX1, mItemY1, mItemX2, mItemY2, mPaintBg);
 
         mTextView.setDrawingCacheEnabled(true);
-        canvas.drawBitmap(mTextView.getDrawingCache(), Style.notePadding, Style.notePadding, mPaintFg);
+        canvas.drawBitmap(mTextView.getDrawingCache(), mTextX, mTextY, mPaintFg);
         mTextView.setDrawingCacheEnabled(false);
     }
+
 
     public void setText(String text) {
         mText = text;

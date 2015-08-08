@@ -49,8 +49,8 @@ public class TimelimeActivity extends Activity {
 
         mCentrelineHandler = new CentrelineHandler(mUsers);
         mSurface.getHolder().addCallback(mCentrelineHandler);
-        mLayoutAbove.setPadding(Style.layoutAbovePadX, Style.itemPadY, 0, Style.itemPadY);
-        mLayoutBelow.setPadding(Style.layoutBelowPadX, Style.itemPadY, 0, Style.itemPadY);
+        mLayoutAbove.setPadding(Style.layoutAbovePadX, 0, 0, 0);
+        mLayoutBelow.setPadding(Style.layoutBelowPadX, 0, 0, 0);
 
         //testing
         User user0 = mUsers.add(0, Style.userColours[0], 0);

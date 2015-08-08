@@ -76,7 +76,7 @@ public class Style {
         itemWidth = (int) defItemSize;
         itemHeight = (int) defItemSize;
         itemFullWidth = itemWidth + itemPadX;
-        itemFullHeight = itemHeight;
+        itemFullHeight = (int) (midY - (lineWidth / 2));
 
         itemPadY =  (int) (midY - itemHeight) / 2;
         itemPadX = (int) defItemPad;
