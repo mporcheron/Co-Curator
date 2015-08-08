@@ -15,7 +15,9 @@ import uk.porcheron.co_curator.R;
  */
 public class Style {
     public static int backgroundColour;
+
     public static int[] userColours = new int[6];
+    public static float userOffset;
 
     public static float lineWidth;
     public static float notchHeight;
@@ -56,12 +58,14 @@ public class Style {
 
         // Get style settings
         backgroundColour = res.getColor(R.color.background);
-        userColours[0] = res.getColor(R.color.user1);
-        userColours[1] = res.getColor(R.color.user2);
-        userColours[2] = res.getColor(R.color.user3);
-        userColours[3] = res.getColor(R.color.user4);
-        userColours[4] = res.getColor(R.color.user5);
-        userColours[5] = res.getColor(R.color.user6);
+
+        userColours[0] = res.getColor(R.color.user0);
+        userColours[1] = res.getColor(R.color.user1);
+        userColours[2] = res.getColor(R.color.user2);
+        userColours[3] = res.getColor(R.color.user3);
+        userColours[4] = res.getColor(R.color.user4);
+        userColours[5] = res.getColor(R.color.user5);
+        userOffset = res.getDimension(R.dimen.userOffset);
 
         lineWidth = res.getDimension(R.dimen.lineWidth);
         notchHeight = res.getDimension(R.dimen.notchHeight);

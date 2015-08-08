@@ -18,17 +18,12 @@ public class UserList extends ArrayList<User> {
         mSurface = surface;
     }
 
-    public User add(int userId, int colour, int offset) {
-        User user = new User();
-        user.user = userId;
-        user.colour = colour;
-        user.offset = offset;
+    public User add() {
+        return add(size());
+    }
 
-        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(colour);
-        user.paint = paint;
-
+    public User add(int userId) {
+        User user = new User(userId);
         add(userId, user);
         mSurface.invalidate();
 

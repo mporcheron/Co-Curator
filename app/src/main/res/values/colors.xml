@@ -2,12 +2,12 @@
 <resources>
     <color name="background">#FFF1F1F1</color>
 
-    <color name="user1">#FFE82840</color>
-    <color name="user2">#FFE98F3D</color>
-    <color name="user3">#FFEADB18</color>
-    <color name="user4">#FF35A965</color>
-    <color name="user5">#FF337FC9</color>
-    <color name="user6">#FFA57DB9</color>
+    <color name="user0">#FFE82840</color>
+    <color name="user1">#FF35A965</color>
+    <color name="user2">#FFA57DB9</color>
+    <color name="user3">#FFE98F3D</color>
+    <color name="user4">#FF337FC9</color>
+    <color name="user5">#FFEADB18</color>
 
     <color name="noteBg">#FFF0FA9E</color>
     <color name="noteSh">#FF83857A</color>

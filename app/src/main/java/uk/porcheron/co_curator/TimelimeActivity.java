@@ -53,27 +53,32 @@ public class TimelimeActivity extends Activity {
         mLayoutBelow.setPadding(Style.layoutBelowPadX, 0, 0, 0);
 
         //testing
-        User user0 = mUsers.add(0, Style.userColours[0], 0);
+        User user0 = mUsers.add();
+        User user1 = mUsers.add();
+        User user2 = mUsers.add();
+        User user3 = mUsers.add();
+        User user4 = mUsers.add();
+        User user5 = mUsers.add();
         mItems.add(ItemType.NOTE, user0, "testing1");
-        mItems.add(ItemType.NOTE, user0, "testing2");
-        mItems.add(ItemType.NOTE, user0, "testing3");
-        mItems.add(ItemType.NOTE, user0, "testing4");
-        mItems.add(ItemType.NOTE, user0, "testing5");
+        mItems.add(ItemType.NOTE, user3, "testing2");
+        mItems.add(ItemType.NOTE, user1, "testing3");
+        mItems.add(ItemType.NOTE, user2, "testing4");
+        mItems.add(ItemType.NOTE, user3, "testing5");
         mItems.add(ItemType.NOTE, user0, "testing6");
         mItems.add(ItemType.NOTE, user0, "testing7");
-        mItems.add(ItemType.NOTE, user0, "testing1");
+        mItems.add(ItemType.NOTE, user4, "testing1");
         mItems.add(ItemType.NOTE, user0, "testing2");
-        mItems.add(ItemType.NOTE, user0, "testing3");
-        mItems.add(ItemType.NOTE, user0, "testing4");
-        mItems.add(ItemType.NOTE, user0, "testing5");
+        mItems.add(ItemType.NOTE, user2, "testing3");
+        mItems.add(ItemType.NOTE, user5, "testing4");
+        mItems.add(ItemType.NOTE, user1, "testing5");
         mItems.add(ItemType.NOTE, user0, "testing6");
         mItems.add(ItemType.NOTE, user0, "testing7");
-        mItems.add(ItemType.NOTE, user0, "testing1");
-        mItems.add(ItemType.NOTE, user0, "testing2");
-        mItems.add(ItemType.NOTE, user0, "testing3");
-        mItems.add(ItemType.NOTE, user0, "testing4");
-        mItems.add(ItemType.NOTE, user0, "testing5");
-        mItems.add(ItemType.NOTE, user0, "testing6");
+        mItems.add(ItemType.NOTE, user1, "testing1");
+        mItems.add(ItemType.NOTE, user4, "testing2");
+        mItems.add(ItemType.NOTE, user1, "testing3");
+        mItems.add(ItemType.NOTE, user2, "testing4");
+        mItems.add(ItemType.NOTE, user3, "testing5");
+        mItems.add(ItemType.NOTE, user2, "testing6");
         mItems.add(ItemType.NOTE, user0, "testing7");
     }
     
