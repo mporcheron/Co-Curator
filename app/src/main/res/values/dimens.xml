@@ -1,0 +1,18 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="lineWidth">2dp</dimen>
+
+    <dimen name="itemShadowOffset">5dp</dimen>
+    <dimen name="itemShadowSize">2dp</dimen>
+    <integer name="itemScale">7</integer>
+
+    <dimen name="notchHeight">10dp</dimen>
+    <dimen name="notePadding">10dp</dimen>
+    <integer name="noteLines">5</integer>
+    <integer name="noteFontSize">12</integer>
+    <integer name="noteLineSpacing">12</integer>
+
+</resources>
