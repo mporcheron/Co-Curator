@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.LinearLayout;
 
 import java.util.List;
@@ -33,10 +34,24 @@ public class TimelimeActivity extends Activity {
         mLayoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
         mLayoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
 
-        mLayoutBelow.setPadding(Style.mLayoutBottomIndent, 0, 0, 0);
-
+        mLayoutAbove.setPadding(Style.mLayoutAbovePadX, Style.mItemPadY, 0, Style.mItemPadY);
+        mLayoutBelow.setPadding(Style.mLayoutBelowPadX, Style.mItemPadY, 0, Style.mItemPadY);
 
         //testing
+        addItem(ItemType.NOTE, "testing1");
+        addItem(ItemType.NOTE, "testing2");
+        addItem(ItemType.NOTE, "testing3");
+        addItem(ItemType.NOTE, "testing4");
+        addItem(ItemType.NOTE, "testing5");
+        addItem(ItemType.NOTE, "testing6");
+        addItem(ItemType.NOTE, "testing7");
+        addItem(ItemType.NOTE, "testing1");
+        addItem(ItemType.NOTE, "testing2");
+        addItem(ItemType.NOTE, "testing3");
+        addItem(ItemType.NOTE, "testing4");
+        addItem(ItemType.NOTE, "testing5");
+        addItem(ItemType.NOTE, "testing6");
+        addItem(ItemType.NOTE, "testing7");
         addItem(ItemType.NOTE, "testing1");
         addItem(ItemType.NOTE, "testing2");
         addItem(ItemType.NOTE, "testing3");
@@ -63,10 +78,18 @@ public class TimelimeActivity extends Activity {
             return;
         }
 
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.weight = 1.0f;
+
         mItems.add(item);
         if (mItems.size() % 2 == 1) {
+            params.gravity = Gravity.BOTTOM;
+            item.setLayoutParams(params);
             mLayoutAbove.addView(item);
         } else {
+            params.gravity = Gravity.TOP;
+            item.setLayoutParams(params);
             mLayoutBelow.addView(item);
         }
     }

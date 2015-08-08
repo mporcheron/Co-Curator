@@ -26,16 +26,16 @@ public class Style {
     protected static float mItemScale = 0.0f;
     protected static int mItemWidth = 0;
     protected static int mItemHeight = 0;
-    protected static float mItemAboveY = 0.0f;
-    protected static float mItemBelowY = 0.0f;
-    protected static int mItemBetweenPad = 0;
+    protected static int mItemPadX = 0;
     protected static int mItemShadowOffset = 0;
     protected static int mItemShadowSize = 0;
 
     protected static int mItemFullWidth = 0;
     protected static int mItemFullHeight = 0;
 
-    public static int mLayoutBottomIndent = 0;
+    public static int mItemPadY = 0;
+    public static int mLayoutAbovePadX = 0;
+    public static int mLayoutBelowPadX = 0;
 
     protected static int mNoteLines;
     protected static float mNotePadding = 0.0f;
@@ -75,14 +75,14 @@ public class Style {
 
         mItemWidth = (int) defItemSize;
         mItemHeight = (int) defItemSize;
-        mItemAboveY =  defItemPad;
-        mItemBelowY = midY + defItemPad;
-        mItemBetweenPad = (int) defItemPad;
+        mItemPadY =  (int) (midY - mItemHeight) / 2;
+        mItemPadX = (int) defItemPad;
 
-        mItemFullWidth = mItemWidth + mItemBetweenPad;
+        mItemFullWidth = mItemWidth + mItemPadX;
         mItemFullHeight = mItemHeight;
 
-        mLayoutBottomIndent = mItemFullWidth / 2;
+        mLayoutAbovePadX = mItemPadX;
+        mLayoutBelowPadX = mItemFullWidth / 2;
 
         mNoteLines = res.getInteger(R.integer.noteLines);
         mNotePadding = res.getDimension(R.dimen.notePadding);
