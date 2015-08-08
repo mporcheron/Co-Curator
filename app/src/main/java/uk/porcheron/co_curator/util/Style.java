@@ -82,7 +82,7 @@ public class Style {
         itemPadX = (int) defItemPad;
 
         layoutAbovePadX = itemPadX;
-        layoutBelowPadX = itemFullWidth / 2;
+        layoutBelowPadX = itemPadX + (itemFullWidth / 2);
 
         noteLines = res.getInteger(R.integer.noteLines);
         notePadding = res.getDimension(R.dimen.notePadding);
