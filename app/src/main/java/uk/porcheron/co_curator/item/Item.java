@@ -1,6 +1,7 @@
 package uk.porcheron.co_curator.item;
 
 import android.content.Context;
+import android.graphics.RectF;
 import android.util.Log;
 import android.view.View;
 
@@ -14,29 +15,40 @@ import uk.porcheron.co_curator.util.Style;
 public abstract class Item extends View {
     private static final String TAG = "CC:Item";
 
-    protected int mItemX1;
-    protected int mItemX2;
-    protected int mItemY1;
-    protected int mItemY2;
+    private RectF mBounds;
+    private ItemContainer mContainer;
+    private User mUser;
 
-    protected User mUser;
-
-    public Notch mNotch;
-
-    public Item(Context context, User user) {
+    public Item(Context context) {
         super(context);
 
-        mUser = user;
-
-        mItemX1 = 0;
-        mItemX2 = mItemX1 + Style.itemWidth;
-        mItemY1 = 0;
-        mItemY2 = mItemY1 + Style.itemHeight;
+        mBounds = new RectF(0, 0, Style.itemWidth, Style.itemHeight);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(Style.itemWidth, Style.itemHeight);
-        Log.d(TAG, "Container = (" + Style.itemWidth + "," + Style.itemHeight + ")");
+        setMeasuredDimension((int) mBounds.width(), (int) mBounds.height());
+    }
+
+    protected final void setContainer(ItemContainer container) {
+        mContainer = container;
+        mUser = container.getUser();
+        this.onCreate();
+    }
+
+    protected RectF getBounds() {
+        return mBounds;
+    }
+
+    protected ItemContainer getContainer() {
+        return mContainer;
+    }
+
+    protected User getUser() {
+        return mUser;
+    }
+
+    protected void onCreate() {
+
     }
 }

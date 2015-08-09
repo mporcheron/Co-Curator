@@ -2,6 +2,7 @@ package uk.porcheron.co_curator.line;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.view.View;
 
 import uk.porcheron.co_curator.user.User;
@@ -13,27 +14,24 @@ import uk.porcheron.co_curator.util.Style;
 public class Notch extends View {
     private static final String TAG = "CC:Notch";
 
-    protected User mUser;
-
-    protected float mNotchX1;
-    protected float mNotchY1;
-    protected float mNotchX2;
-    protected float mNotchY2;
+    private User mUser;
+    private RectF mBounds;
 
     public Notch(Context context, User user, boolean above) {
         super(context);
 
         mUser = user;
 
-        mNotchX1 = (Style.itemWidth / 2) - (Style.lineWidth / 2);
-        mNotchX2 = mNotchX1 + Style.lineWidth;
+        mBounds = new RectF();
+        mBounds.left = (Style.itemWidth / 2) - (Style.lineWidth / 2);
+        mBounds.right = mBounds.left + Style.lineWidth;
 
         if(above) {
-            mNotchY1 = 0;
-            mNotchY2 = (Style.layoutCentreHeight / 2) + user.offset;
+            mBounds.top = 0;
+            mBounds.bottom = (Style.layoutCentreHeight / 2) + user.offset;
         } else {
-            mNotchY1 = (Style.layoutCentreHeight / 2) + user.offset;
-            mNotchY2 = Style.layoutCentreHeight;
+            mBounds.top = (Style.layoutCentreHeight / 2) + user.offset;
+            mBounds.bottom = Style.layoutCentreHeight;
         }
     }
 
@@ -44,6 +42,6 @@ public class Notch extends View {
 
     @Override
     public void onDraw(Canvas canvas) {
-        canvas.drawRect(mNotchX1, mNotchY1, mNotchX2, mNotchY2, mUser.paint);
+        canvas.drawRect(mBounds.left, mBounds.top, mBounds.right, mBounds.bottom, mUser.paint);
     }
 }

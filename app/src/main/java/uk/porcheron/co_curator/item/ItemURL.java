@@ -24,25 +24,20 @@ import uk.porcheron.co_curator.util.Style;
 public class ItemURL extends ItemNote implements View.OnClickListener {
     private static final String TAG = "CC:ItemURL";
 
-    public ItemURL(Context context, User user) {
-        super(context, user);
+    public ItemURL(Context context) {
+        super(context);
 
-        Resources res = context.getResources();
-
-        mPaintBg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaintBg.setStyle(Paint.Style.FILL);
-        mPaintBg.setColor(Style.urlBg);
-
-        this.setOnClickListener(this);
+        setNoteBackgroundColor(Style.urlBg);
+        setOnClickListener(this);
     }
 
     public void setURL(String url) {
-        super.setText(url);
+        setText(url);
     }
 
     @Override
     public void onClick(View v) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mText));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getText()));
         getContext().startActivity(browserIntent);
     }
 }

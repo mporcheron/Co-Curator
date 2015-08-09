@@ -46,7 +46,7 @@ public class ItemList extends ArrayList<ItemContainer> {
         ItemContainer container = new ItemContainer(mContext, item, user, above);
 
         add(container);
-        mLayoutCentre.addView(container.mNotch);
+        mLayoutCentre.addView(container.getNotch());
         if (above) {
             mLayoutAbove.addView(container);
         } else {
@@ -55,13 +55,13 @@ public class ItemList extends ArrayList<ItemContainer> {
     }
 
     private ItemNote createNote(String text, User user) {
-        ItemNote note = new ItemNote(mContext, user);
+        ItemNote note = new ItemNote(mContext);
         note.setText(text);
         return note;
     }
 
     private ItemURL createURL(String url, User user) {
-        ItemURL note = new ItemURL(mContext, user);
+        ItemURL note = new ItemURL(mContext);
         note.setURL(url);
         return note;
     }

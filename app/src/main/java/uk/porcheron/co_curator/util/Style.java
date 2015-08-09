@@ -88,7 +88,6 @@ public class Style {
         itemWidth = (int) defItemSize;
         itemHeight = (int) defItemSize;
         itemFullWidth = itemWidth + itemPadX;
-        Log.d(TAG, "midY = " + midY + ", cH = " + layoutCentreHeight);
         itemFullHeight = (int) (midY - (layoutCentreHeight / 2));
 
         itemPadX = (int) defItemPad;
