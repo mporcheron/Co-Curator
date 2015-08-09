@@ -2,27 +2,24 @@ package uk.porcheron.co_curator.util;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Paint;
 import android.graphics.Point;
-import android.util.Log;
 import android.view.Display;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import uk.porcheron.co_curator.R;
 
 /**
- * Created by map on 08/08/15.
+ * Style properties for the application.
  */
 public class Style {
     private static final String TAG = "CC:Style";
 
-    public static int backgroundColour;
+    public static int backgroundColor;
 
     public static int layoutCentreHeight;
     public static float notchHeight;
 
-    public static int[] userColours = new int[6];
+    public static int[] userColors = new int[6];
     public static float userOffset;
 
     public static float lineWidth;
@@ -49,8 +46,6 @@ public class Style {
     public static int noteFg;
     public static int urlBg;
 
-    public static ViewGroup.LayoutParams mLayoutParams;
-
     public static void loadStyleAttrs(Context context) {
         Resources res = context.getResources();
 
@@ -59,18 +54,17 @@ public class Style {
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        int width = size.x;
         int height = size.y;
 
         // Get style settings
-        backgroundColour = res.getColor(R.color.background);
+        backgroundColor = res.getColor(R.color.background);
 
-        userColours[0] = res.getColor(R.color.user0);
-        userColours[1] = res.getColor(R.color.user1);
-        userColours[2] = res.getColor(R.color.user2);
-        userColours[3] = res.getColor(R.color.user3);
-        userColours[4] = res.getColor(R.color.user4);
-        userColours[5] = res.getColor(R.color.user5);
+        userColors[0] = res.getColor(R.color.user0);
+        userColors[1] = res.getColor(R.color.user1);
+        userColors[2] = res.getColor(R.color.user2);
+        userColors[3] = res.getColor(R.color.user3);
+        userColors[4] = res.getColor(R.color.user4);
+        userColors[5] = res.getColor(R.color.user5);
 
         layoutCentreHeight = (int) res.getDimension(R.dimen.layoutCentreHeight);
         notchHeight = res.getDimension(R.dimen.notchHeight);

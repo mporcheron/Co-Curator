@@ -26,7 +26,7 @@ public class Centrelines implements SurfaceHolder.Callback {
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
         Canvas canvas = holder.lockCanvas();
-        canvas.drawColor(Style.backgroundColour);
+        canvas.drawColor(Style.backgroundColor);
 
         int w = canvas.getWidth();
         int h = canvas.getHeight();

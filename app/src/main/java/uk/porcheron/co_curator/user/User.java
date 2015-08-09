@@ -18,7 +18,7 @@ public class User {
     public User(int userId) {
         this.userId = userId;
         this.offset = (float) Math.ceil(userId % 2 == 0 ? -userId/2f : userId/2f) * Style.userOffset;
-        this.color = Style.userColours[userId];
+        this.color = Style.userColors[userId];
 
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setStyle(Paint.Style.FILL);
