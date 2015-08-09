@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">Co-Curator</string>
+    <string name="app_name" translatable="false">Co-Curator</string>
+
+    <string name="dialog_loading">Loading timeline items…</string>
 
     <string name="resource_photo_library">Photo</string>
     <string name="resource_photo_camera">Photo from Camera</string>

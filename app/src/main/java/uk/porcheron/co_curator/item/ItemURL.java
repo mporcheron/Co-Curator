@@ -24,8 +24,8 @@ import uk.porcheron.co_curator.util.Style;
 public class ItemURL extends ItemNote implements View.OnClickListener {
     private static final String TAG = "CC:ItemURL";
 
-    public ItemURL(Context context) {
-        super(context);
+    public ItemURL(Context context, int itemId, User user) {
+        super(context, itemId, user);
 
         setNoteBackgroundColor(Style.urlBg);
         setOnClickListener(this);

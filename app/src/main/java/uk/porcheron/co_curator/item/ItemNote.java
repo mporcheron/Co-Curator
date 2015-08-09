@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 
+import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.util.EllipsizingTextView;
 
@@ -43,8 +44,8 @@ public class ItemNote extends Item {
     private TextPaint mPaintFg;
     private TextView mTextView;
 
-    public ItemNote(Context context) {
-        super(context);
+    public ItemNote(Context context, int itemId, User user) {
+        super(context, user, itemId);
 
         mPaintBg = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaintBg.setStyle(Paint.Style.FILL);

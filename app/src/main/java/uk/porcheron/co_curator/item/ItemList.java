@@ -29,16 +29,16 @@ public class ItemList extends ArrayList<ItemContainer> {
         mLayoutBelow = layoutBelow;
     }
 
-    public void add(ItemType type, User user, String data) {
+    public void add(int itemId, ItemType type, User user, String data) {
         Item item = null;
         if(type == ItemType.NOTE) {
-            item = createNote(data, user);
+            item = createNote(itemId, user, data);
         } else if(type == ItemType.URL) {
-            item = createURL(data, user);
+            item = createURL(itemId, user, data);
         }
 
         if(item == null) {
-            Log.e(TAG, "Unsupported item type: " + type.mLabel);
+            Log.e(TAG, "Unsupported item type: " + type.getLabel());
             return;
         }
 
@@ -54,14 +54,14 @@ public class ItemList extends ArrayList<ItemContainer> {
         }
     }
 
-    private ItemNote createNote(String text, User user) {
-        ItemNote note = new ItemNote(mContext);
+    private ItemNote createNote(int itemId, User user, String text) {
+        ItemNote note = new ItemNote(mContext, itemId, user);
         note.setText(text);
         return note;
     }
 
-    private ItemURL createURL(String url, User user) {
-        ItemURL note = new ItemURL(mContext);
+    private ItemURL createURL(int itemId, User user, String url) {
+        ItemURL note = new ItemURL(mContext, itemId, user);
         note.setURL(url);
         return note;
     }

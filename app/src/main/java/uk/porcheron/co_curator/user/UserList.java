@@ -4,6 +4,8 @@ import android.graphics.Paint;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import uk.porcheron.co_curator.item.Item;
 
@@ -14,18 +16,16 @@ public class UserList extends ArrayList<User> {
     private static final String TAG = "CC:UserList";
 
     private SurfaceView mSurface;
+    private Map<Integer,User> mGlobalUserIds = new HashMap<Integer,User>();
 
     public UserList(SurfaceView surface) {
         mSurface = surface;
     }
 
-    public User add() {
-        return add(size());
-    }
-
-    public User add(int userId) {
-        User user = new User(userId);
+    public User add(int globalUserId, int userId) {
+        User user = new User(globalUserId, userId);
         add(userId, user);
+        mGlobalUserIds.put(globalUserId, user);
         mSurface.invalidate();
 
         return user;
@@ -38,6 +38,10 @@ public class UserList extends ArrayList<User> {
             mSurface.invalidate();
         }
         return resp;
+    }
+
+    public User getByGlobalUserId(int globalUserId) {
+        return mGlobalUserIds.get(globalUserId);
     }
 
 

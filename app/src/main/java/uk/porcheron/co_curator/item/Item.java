@@ -15,13 +15,17 @@ import uk.porcheron.co_curator.util.Style;
 public abstract class Item extends View {
     private static final String TAG = "CC:Item";
 
-    private RectF mBounds;
     private ItemContainer mContainer;
     private User mUser;
+    private int mItemId;
 
-    public Item(Context context) {
+    private RectF mBounds;
+
+    public Item(Context context, User user, int itemId) {
         super(context);
 
+        mUser = user;
+        mItemId = itemId;
         mBounds = new RectF(0, 0, Style.itemWidth, Style.itemHeight);
     }
 
@@ -32,7 +36,6 @@ public abstract class Item extends View {
 
     protected final void setContainer(ItemContainer container) {
         mContainer = container;
-        mUser = container.getUser();
         this.onCreate();
     }
 
@@ -46,6 +49,10 @@ public abstract class Item extends View {
 
     protected User getUser() {
         return mUser;
+    }
+
+    protected int getItemId() {
+        return mItemId;
     }
 
     protected void onCreate() {

@@ -11,12 +11,14 @@ public class User {
     private static final String TAG = "CC:User";
 
     public int userId = 0;
+    public int globalUserId = 0;
     public int color = 0;
     public float offset = 0;
     public Paint paint;
 
-    public User(int userId) {
+    public User(int globalUserId, int userId) {
         this.userId = userId;
+        this.globalUserId = globalUserId;
         this.offset = (float) Math.ceil(userId % 2 == 0 ? -userId/2f : userId/2f) * Style.userOffset;
         this.color = Style.userColors[userId];
 
