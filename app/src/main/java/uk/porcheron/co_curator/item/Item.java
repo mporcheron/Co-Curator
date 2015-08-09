@@ -23,22 +23,20 @@ public abstract class Item extends View {
 
     public Notch mNotch;
 
-    public Item(Context context, User user, boolean above) {
+    public Item(Context context, User user) {
         super(context);
 
         mUser = user;
 
         mItemX1 = 0;
         mItemX2 = mItemX1 + Style.itemWidth;
-        mItemY1 = Style.itemPadY;
+        mItemY1 = 0;
         mItemY2 = mItemY1 + Style.itemHeight;
-
-        mNotch = new Notch(context, user, above);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension(Style.itemFullWidth, Style.itemFullHeight);
-        //Log.d(TAG, "W:" + Style.itemFullWidth + "; H:" + Style.itemFullHeight);
+        setMeasuredDimension(Style.itemWidth, Style.itemHeight);
+        Log.d(TAG, "Container = (" + Style.itemWidth + "," + Style.itemHeight + ")");
     }
 }

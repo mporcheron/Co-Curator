@@ -36,8 +36,8 @@ public class ItemNote extends Item {
     private TextPaint mPaintFg;
     private TextView mTextView;
 
-    public ItemNote(Context context, User user, boolean above) {
-        super(context, user, above);
+    public ItemNote(Context context, User user) {
+        super(context, user);
 
         Resources res = context.getResources();
 
@@ -57,7 +57,7 @@ public class ItemNote extends Item {
         mItemY2 = mItemY2 - Style.noteShadowSize;
 
         mShadowX1 = Style.noteShadowOffset;
-        mShadowY1 = Style.itemPadY + Style.noteShadowOffset;
+        mShadowY1 = Style.noteShadowOffset;
         mShadowX2 = mItemX2 + Style.noteShadowSize;
         mShadowY2 = mItemY2 + Style.noteShadowSize;
 

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.SurfaceView;
 import android.widget.LinearLayout;
 
+import java.util.Random;
+
 import uk.porcheron.co_curator.line.Centrelines;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
@@ -54,14 +56,18 @@ public class TimelimeActivity extends Activity {
             users[i] = mUsers.add();
         }
 
-        for(int i = 0; i < users.length; i++) {
-            User user = users[i];
-            for(int j = 0; j < 3; j++) {
-                for(int k = 0; k < 3; k++) {
-                    mItems.add(ItemType.NOTE, user, "User = " + i + "; Test = " + j);
-                }
-                for(int k = 0; k < 3; k++) {
-                    mItems.add(ItemType.URL, user, "http://www.google.com");
+        Random r = new Random();
+        int i = 0;
+        for(int j = 0; j < r.nextInt(5) + 5; j++) {
+            for (int k = 0; k <  users.length; k++) {
+                User user = users[k];
+                for (int l = 0; l < r.nextInt(10) + 2; l++) {
+                    if (r.nextInt(2) == 0) {
+                        mItems.add(ItemType.NOTE, user, "User = " + k + "; Test = " + i);
+                    } else {
+                        mItems.add(ItemType.URL, user, "http://www.google.com");
+                    }
+                    i++;
                 }
             }
         }
