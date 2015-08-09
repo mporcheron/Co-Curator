@@ -29,10 +29,10 @@ public class ItemNote extends Item {
     private float mTextX;
     private float mTextY;
 
-    private String mText;
-    private Paint mPaintNotch;
-    private Paint mPaintBg;
-    private Paint mPaintSh;
+    protected String mText;
+    protected Paint mPaintNotch;
+    protected Paint mPaintBg;
+    protected Paint mPaintSh;
     private TextPaint mPaintFg;
     private TextView mTextView;
 
@@ -89,8 +89,7 @@ public class ItemNote extends Item {
         canvas.drawBitmap(mTextView.getDrawingCache(), mTextX, mTextY, mPaintFg);
         mTextView.setDrawingCacheEnabled(false);
     }
-
-
+    
     public void setText(String text) {
         mText = text;
         mTextView.setText(text);

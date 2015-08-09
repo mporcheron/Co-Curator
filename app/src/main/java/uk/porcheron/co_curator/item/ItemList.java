@@ -34,8 +34,8 @@ public class ItemList extends ArrayList<Item> {
         Item item = null;
         if(type == ItemType.NOTE) {
             item = createNote(data, user, above);
-        } else {
-            //...
+        } else if(type == ItemType.URL) {
+            item = createURL(data, user, above);
         }
 
         if(item == null) {
@@ -58,4 +58,9 @@ public class ItemList extends ArrayList<Item> {
         return note;
     }
 
+    private ItemURL createURL(String url, User user, boolean above) {
+        ItemURL note = new ItemURL(mContext, user, above);
+        note.setURL(url);
+        return note;
+    }
 }

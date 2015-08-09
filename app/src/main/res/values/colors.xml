@@ -12,6 +12,7 @@
     <color name="noteBg">#FFF0FA9E</color>
     <color name="noteSh">#FF83857A</color>
     <color name="noteFg">#FF000000</color>
+    <color name="urlBg">#FF5FCCE8</color>
 
     <color name="chartreuse">#ffb6e9b5</color>
     <color name="seafoam">#ffc6f9e5</color>

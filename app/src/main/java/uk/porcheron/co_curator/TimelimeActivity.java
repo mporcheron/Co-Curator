@@ -57,7 +57,12 @@ public class TimelimeActivity extends Activity {
         for(int i = 0; i < users.length; i++) {
             User user = users[i];
             for(int j = 0; j < 3; j++) {
-                mItems.add(ItemType.NOTE, user, "User = " + i + "; Test = " + j);
+                for(int k = 0; k < 3; k++) {
+                    mItems.add(ItemType.NOTE, user, "User = " + i + "; Test = " + j);
+                }
+                for(int k = 0; k < 3; k++) {
+                    mItems.add(ItemType.URL, user, "http://www.google.com");
+                }
             }
         }
     }

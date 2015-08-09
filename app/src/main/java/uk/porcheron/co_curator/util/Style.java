@@ -44,9 +44,10 @@ public class Style {
     public static float noteLineSpacing = 0.0f;
     public static int noteShadowOffset = 0;
     public static int noteShadowSize = 0;
-    public static int noteFg;
-    public static int noteSh;
     public static int noteBg;
+    public static int noteSh;
+    public static int noteFg;
+    public static int urlBg;
 
     public static ViewGroup.LayoutParams mLayoutParams;
 
@@ -105,5 +106,7 @@ public class Style {
         noteBg = res.getColor(R.color.noteBg);
         noteSh = res.getColor(R.color.noteSh);
         noteFg = res.getColor(R.color.noteFg);
+        urlBg = res.getColor(R.color.urlBg);
+
     }
 }
