@@ -18,8 +18,8 @@ import uk.porcheron.co_curator.util.EllipsizingTextView;
  * <p/>
  * Created by map on 06/08/15.
  */
-public class NoteItem extends Item {
-    private static final String TAG = "CC:Item:Note";
+public class ItemNote extends Item {
+    private static final String TAG = "CC:ItemNote";
 
     private int mShadowX1;
     private int mShadowY1;
@@ -36,7 +36,7 @@ public class NoteItem extends Item {
     private TextPaint mPaintFg;
     private TextView mTextView;
 
-    public NoteItem(Context context, User user, boolean above) {
+    public ItemNote(Context context, User user, boolean above) {
         super(context, user, above);
 
         Resources res = context.getResources();

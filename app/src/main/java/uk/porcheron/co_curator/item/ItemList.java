@@ -2,7 +2,6 @@ package uk.porcheron.co_curator.item;
 
 import android.content.Context;
 import android.util.Log;
-import android.view.Gravity;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -19,11 +18,13 @@ public class ItemList extends ArrayList<Item> {
 
     private Context mContext;
     private LinearLayout mLayoutAbove;
+    private LinearLayout mLayoutCentre;
     private LinearLayout mLayoutBelow;
 
-    public ItemList(Context context, LinearLayout layoutAbove,  LinearLayout layoutBelow) {
+    public ItemList(Context context, LinearLayout layoutAbove,  LinearLayout layoutCentre, LinearLayout layoutBelow) {
         mContext = context;
         mLayoutAbove = layoutAbove;
+        mLayoutCentre = layoutCentre;
         mLayoutBelow = layoutBelow;
     }
 
@@ -42,25 +43,17 @@ public class ItemList extends ArrayList<Item> {
             return;
         }
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.weight = 1.0f;
-
-
         add(item);
+        mLayoutCentre.addView(item.mNotch);
         if (above) {
-            //params.gravity = Gravity.TOP;
-            //item.setLayoutParams(params);
             mLayoutAbove.addView(item);
         } else {
-            //params.gravity = Gravity.TOP;
-            //item.setLayoutParams(params);
             mLayoutBelow.addView(item);
         }
     }
 
-    private NoteItem createNote(String text, User user, boolean above) {
-        NoteItem note = new NoteItem(mContext, user, above);
+    private ItemNote createNote(String text, User user, boolean above) {
+        ItemNote note = new ItemNote(mContext, user, above);
         note.setText(text);
         return note;
     }

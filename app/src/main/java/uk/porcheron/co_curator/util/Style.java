@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.util.Log;
 import android.view.Display;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -14,18 +15,20 @@ import uk.porcheron.co_curator.R;
  * Created by map on 08/08/15.
  */
 public class Style {
+    private static final String TAG = "CC:Style";
+
     public static int backgroundColour;
+
+    public static int layoutCentreHeight;
+    public static float notchHeight;
 
     public static int[] userColours = new int[6];
     public static float userOffset;
 
     public static float lineWidth;
-    public static float notchHeight;
 
     public static int layoutAbovePadX;
     public static int layoutBelowPadX;
-    public static int layoutAboveOverlap;
-    public static int layoutBelowOverlap;
 
     public static float itemScale;
     public static int itemWidth;
@@ -67,10 +70,12 @@ public class Style {
         userColours[3] = res.getColor(R.color.user3);
         userColours[4] = res.getColor(R.color.user4);
         userColours[5] = res.getColor(R.color.user5);
-        userOffset = res.getDimension(R.dimen.userOffset);
+
+        layoutCentreHeight = (int) res.getDimension(R.dimen.layoutCentreHeight);
+        notchHeight = res.getDimension(R.dimen.notchHeight);
 
         lineWidth = res.getDimension(R.dimen.lineWidth);
-        notchHeight = res.getDimension(R.dimen.notchHeight);
+        userOffset = res.getDimension(R.dimen.userOffset);
 
         itemScale = res.getInteger(R.integer.itemScale) / 100f;
 
@@ -82,15 +87,14 @@ public class Style {
         itemWidth = (int) defItemSize;
         itemHeight = (int) defItemSize;
         itemFullWidth = itemWidth + itemPadX;
-        itemFullHeight = (int) (midY - (lineWidth / 2)) + Style.layoutAboveOverlap;
+        Log.d(TAG, "midY = " + midY + ", cH = " + layoutCentreHeight);
+        itemFullHeight = (int) (midY - (layoutCentreHeight / 2));
 
-        itemPadY =  (int) (midY - itemHeight) / 2;
         itemPadX = (int) defItemPad;
+        itemPadY = (itemFullHeight - itemHeight) / 2;
 
         layoutAbovePadX = itemPadX;
         layoutBelowPadX = itemPadX + (itemFullWidth / 2);
-        layoutAboveOverlap = 2 * (int) userOffset;
-        layoutBelowOverlap = -2 * (int) userOffset;
 
         noteLines = res.getInteger(R.integer.noteLines);
         notePadding = res.getDimension(R.dimen.notePadding);

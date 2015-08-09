@@ -31,14 +31,26 @@
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"></LinearLayout>
+                android:layout_weight="1"
+                android:layout_margin="0dp"
+                android:padding="0dp"></LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutCentre"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/layoutCentreHeight"
+                android:layout_margin="0dp"
+                android:padding="0dp"></LinearLayout>
 
             <LinearLayout
                 android:id="@+id/layoutBelowCentre"
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"></LinearLayout>
+                android:layout_weight="1"
+                android:layout_margin="0dp"
+                android:padding="0dp"></LinearLayout>
 
         </LinearLayout>
 

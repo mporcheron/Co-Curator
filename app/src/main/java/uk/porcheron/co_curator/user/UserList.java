@@ -11,6 +11,7 @@ import uk.porcheron.co_curator.item.Item;
  * Created by map on 07/08/15.
  */
 public class UserList extends ArrayList<User> {
+    private static final String TAG = "CC:UserList";
 
     private SurfaceView mSurface;
 

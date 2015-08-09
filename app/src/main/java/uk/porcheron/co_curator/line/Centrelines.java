@@ -1,9 +1,7 @@
-package uk.porcheron.co_curator.centreline;
+package uk.porcheron.co_curator.line;
 
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
-
-import java.util.List;
 
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
@@ -12,11 +10,12 @@ import uk.porcheron.co_curator.util.Style;
 /**
  * Created by map on 08/08/15.
  */
-public class CentrelineHandler implements SurfaceHolder.Callback {
+public class Centrelines implements SurfaceHolder.Callback {
+    private static final String TAG = "CC:Centrelines";
 
     private UserList mUsers;
 
-    public CentrelineHandler(UserList users) {
+    public Centrelines(UserList users) {
         mUsers = users;
     }
 

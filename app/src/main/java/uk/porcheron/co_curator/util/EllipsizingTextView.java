@@ -18,6 +18,8 @@ import android.widget.TextView;
  * Created by map on 07/08/15.
  */
 public class EllipsizingTextView extends TextView {
+    private static final String TAG = "CC:EllipsizingTV";
+
     private static final String ELLIPSIS = "…";
 
     public interface EllipsizeListener {
