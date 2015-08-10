@@ -106,7 +106,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     @Override
     public boolean onLongClick(View v) {
-        NewItem.prompt(this, v, UData.users.isEmpty());
+        NewItem.prompt(this, v, UData.items.isEmpty());
         return true;
     }
 

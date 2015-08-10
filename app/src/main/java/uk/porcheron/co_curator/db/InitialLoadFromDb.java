@@ -54,7 +54,7 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean result) {
         mActivity.finishLoading();
-        if (!result.booleanValue()) {
+        if (UData.items.isEmpty()) {
             mActivity.promptAdd();
         }
     }

@@ -105,7 +105,8 @@ public class NewItem {
 
     private static void url(final Context context, final View view, final boolean promptOnCancel) {
         final EditText editText = new EditText(context);
-        editText.setSingleLine(false);
+        editText.setSingleLine(true);
+        editText.setInputType(EditorInfo.TYPE_TEXT_VARIATION_URI);
 
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setTitle(context.getString(R.string.dialog_url_title))
@@ -139,6 +140,11 @@ public class NewItem {
     }
 
     private static boolean newURL(String url) {
+        String insertUrl = url;
+        if(!url.startsWith("http")) {
+            insertUrl = "http://" + url;
+        }
+
         return UData.items.add(UData.items.size(), ItemType.URL, UData.user(), url);
     }
 }

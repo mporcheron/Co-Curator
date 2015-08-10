@@ -14,7 +14,7 @@
         android:layout_height="match_parent"/>
 
     <HorizontalScrollView
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:id="@+id/horizontalScrollView"
         android:scrollbars="none"
@@ -22,7 +22,7 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:weightSum="2">
 

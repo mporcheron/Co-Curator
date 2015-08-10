@@ -23,7 +23,7 @@ public class Notch extends View {
         mUser = user;
 
         mBounds = new RectF();
-        mBounds.left = (Style.itemWidth / 2) - (Style.lineWidth / 2);
+        mBounds.left = (Style.itemWidth / 2) - Style.lineWidth;
         mBounds.right = mBounds.left + Style.lineWidth;
 
         if(above) {
