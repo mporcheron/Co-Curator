@@ -7,16 +7,13 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.io.FileInputStream;
 
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.util.EllipsizingTextView;
 import uk.porcheron.co_curator.util.Style;
 
 /**
@@ -27,22 +24,18 @@ import uk.porcheron.co_curator.util.Style;
 public class ItemImage extends Item {
     private static final String TAG = "CC:ItemImage";
 
-    private float mNoteLeft;
-    private float mNoteTop;
-    private float mNoteRight;
-    private float mNoteBottom;
+    private float mImageLeft;
+    private float mImageTop;
+    private float mImageRight;
+    private float mImageBottom;
 
     private float mShadowLeft;
     private float mShadowTop;
     private float mShadowRight;
     private float mShadowBottom;
 
-    private float mTextLeft;
-    private float mTextTop;
-    private float mTextRight;
-    private float mTextBottom;
-
     private Bitmap mBitmap = null;
+    private Bitmap mBitmapThumbnail = null;
     private String mImagePath;
 
     private Paint mPaintBg;
@@ -64,28 +57,20 @@ public class ItemImage extends Item {
         setTextStyle(Style.noteFg, Style.noteFontSize);
 
         RectF b = getBounds();
-        mNoteLeft = b.left;
-        mNoteTop = b.top;
-        mNoteRight = b.right - Style.noteShadowSize;
-        mNoteBottom = b.bottom - Style.noteShadowSize;
+        mImageLeft = b.left;
+        mImageTop = b.top;
+        mImageRight = b.right - Style.noteShadowSize;
+        mImageBottom = b.bottom - Style.noteShadowSize;
 
         mShadowLeft = Style.noteShadowOffset;
         mShadowTop = Style.noteShadowOffset;
         mShadowRight = b.right;
         mShadowBottom = b.bottom;
-
-        mTextLeft = mNoteLeft + Style.notePadding;
-        mTextTop = mNoteTop + Style.notePadding;
-        mTextRight = (b.right - (2 * Style.notePadding));
-        mTextBottom = (b.bottom - (2 * Style.notePadding));
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        canvas.drawRect(mShadowLeft, mShadowTop, mShadowRight, mShadowBottom, mPaintSh);
-        canvas.drawRect(mNoteLeft, mNoteTop, mNoteRight, mNoteBottom, mPaintBg);
 
         if(mBitmap == null) {
             try{
@@ -100,7 +85,23 @@ public class ItemImage extends Item {
             }
         }
 
-        canvas.drawBitmap(mBitmap, mNoteLeft, mNoteTop, mPaintFg);
+
+        if(mBitmapThumbnail == null) {
+            Log.d(TAG, "Creating image thumbnail");
+
+            float ratio = (float) mBitmap.getHeight() / (float) mBitmap.getWidth() ;//, mBitmap.getHeight()/mBitmap.getWidth());
+            int width = (int) mImageRight;
+            int height = (int) (mImageBottom * ratio);
+
+            mBitmapThumbnail = Bitmap.createScaledBitmap(mBitmap, width, height,                    false);
+
+            mShadowRight = mShadowLeft + width + Style.noteShadowOffset;
+            mShadowBottom = mShadowTop + height + Style.noteShadowOffset;
+        }
+
+        canvas.drawRect(mShadowLeft, mShadowTop, mShadowRight, mShadowBottom, mPaintSh);
+
+        canvas.drawBitmap(mBitmapThumbnail, mImageLeft, mImageTop, mPaintFg);
     }
 
     public Bitmap getBitmap() {

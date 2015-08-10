@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -138,10 +139,22 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             try {
                 Log.v(TAG, "Opening input stream of photo");
 
-                InputStream inputStream = getContentResolver().openInputStream(data.getData());
-                NewItem.newImage(inputStream);
-            } catch(FileNotFoundException e) {
-                Log.e(TAG, "Could not find file: " + e.getMessage());
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String picturePath = cursor.getString(columnIndex);
+
+                cursor.close();
+//                InputStream inputStream = getContentResolver().openInputStream(data.getData());
+
+                Log.v(TAG, "Decoding the stream into a bitmap");
+                NewItem.newImage(BitmapFactory.decodeFile(picturePath));
+            } catch(Exception e) {
+                Log.e(TAG, "Error loading image: " + e.getMessage());
             }
             //Now you can do whatever you want with your inpustream, save it as file, upload to a server, decode a bitmap...
         }

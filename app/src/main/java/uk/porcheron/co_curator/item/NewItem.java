@@ -169,9 +169,7 @@ public class NewItem {
         return UData.items.add(UData.items.size(), ItemType.URL, UData.user(), url);
     }
 
-    public static boolean newImage(InputStream inputStream) {
-        Log.v(TAG, "Decoding the stream into a bitmap");
-        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+    public static boolean newImage(Bitmap bitmap) {
         return UData.items.add(UData.items.size(), ItemType.PHOTO, UData.user(), bitmap);
     }
 }
