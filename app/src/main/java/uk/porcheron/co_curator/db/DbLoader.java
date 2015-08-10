@@ -2,6 +2,8 @@ package uk.porcheron.co_curator.db;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -16,13 +18,13 @@ import uk.porcheron.co_curator.util.UData;
 /**
  * Created by map on 10/08/15.
  */
-public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
+public class DbLoader extends AsyncTask<Object, Void, Boolean> {
     private static final String TAG = "CC:InitialDB";
 
     private TimelineActivity mActivity;
     private DbHelper mDbHelper;
 
-    public InitialLoadFromDb(TimelineActivity activity) {
+    public DbLoader(TimelineActivity activity) {
         mActivity = activity;
         mDbHelper = activity.getDbHelper();
     }
@@ -102,6 +104,7 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
 
         // Current user doesn't exist?
         if(UData.user() == null) {
+            Log.d(TAG, "Create current user in DB");
             UData.users.add(UData.globalUserId, UData.userId, false);
         }
     }
@@ -147,19 +150,22 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
                 int cItemId = c.getInt(0);
                 int cGlobalUserId = c.getInt(1);
                 int cTypeId = c.getInt(2);
-                String cData = c.getString(3);
 
                 user = UData.users.getByGlobalUserId(cGlobalUserId);
                 if (user == null) {
                     UData.users.add(cGlobalUserId, UData.users.size(), false);
-                    Log.e(TAG, "Could not find user with globalUserId " + cGlobalUserId + ", creating");
-                    continue;
                 }
 
                 type = ItemType.get(cTypeId);
 
-                Log.v(TAG, "Save Item[" + i + "] with itemId = " + cItemId + ", data = '" + cData + "'");
-                UData.items.add(c.getInt(0), type, user, cData, true);
+                String cData = c.getString(3);
+
+                if(cData != null) {
+                    Log.v(TAG, "Save Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ",data='" + cData + "')");
+                    UData.items.add(cItemId, type, user, cData, true);
+                } else {
+                    Log.e(TAG, "Error: Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ") is NULL");
+                }
 
                 c.moveToNext();
             }

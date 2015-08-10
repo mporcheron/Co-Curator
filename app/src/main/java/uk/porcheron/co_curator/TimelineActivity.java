@@ -2,26 +2,26 @@ package uk.porcheron.co_curator;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import java.util.Random;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
-import uk.porcheron.co_curator.db.InitialLoadFromDb;
-import uk.porcheron.co_curator.db.TableItem;
+import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.NewItem;
-import uk.porcheron.co_curator.item.NewItemCreator;
 import uk.porcheron.co_curator.line.Centrelines;
 import uk.porcheron.co_curator.item.ItemList;
-import uk.porcheron.co_curator.item.ItemType;
-import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.db.DbHelper;
@@ -40,6 +40,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private LinearLayout mLayoutAbove;
     private LinearLayout mLayoutCentre;
     private LinearLayout mLayoutBelow;
+
+    public static final int PICK_IMAGE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mLayoutCentre.setOnLongClickListener(this);
         mLayoutBelow.setOnLongClickListener(this);
 
-        new InitialLoadFromDb(this).execute("Go");
+        new DbLoader(this).execute("Go");
 
         //testing
 //        User[] users = new User[5];
@@ -122,5 +124,31 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         return mDbHelper;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "Received ActivityResult (requestCode=" + requestCode + ",resultCode=" + resultCode + ")");
 
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
+            if (data == null) {
+                Log.e(TAG, "No data retrieved...");
+                return;
+            }
+
+            try {
+                Log.v(TAG, "Opening input stream of photo");
+
+                Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
+                        getContentResolver(), data.getData().toString(),
+                        MediaStore.Images.Thumbnails.MINI_KIND,
+                        (BitmapFactory.Options) null );
+
+                InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                NewItem.newImage(inputStream);
+            } catch(FileNotFoundException e) {
+                Log.e(TAG, "Could not find file: " + e.getMessage());
+            }
+            //Now you can do whatever you want with your inpustream, save it as file, upload to a server, decode a bitmap...
+        }
+    }
 }

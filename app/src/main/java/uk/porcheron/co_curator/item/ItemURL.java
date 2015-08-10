@@ -24,6 +24,8 @@ import uk.porcheron.co_curator.util.Style;
 public class ItemURL extends ItemNote implements View.OnClickListener {
     private static final String TAG = "CC:ItemURL";
 
+    private String mURL;
+
     public ItemURL(Context context, int itemId, User user) {
         super(context, itemId, user);
 
@@ -32,12 +34,13 @@ public class ItemURL extends ItemNote implements View.OnClickListener {
     }
 
     public void setURL(String url) {
-        setText(url);
+        mURL = url;
+        setText(url.replace("http://", ""));
     }
 
     @Override
     public void onClick(View v) {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(getText()));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mURL));
         getContext().startActivity(browserIntent);
     }
 }

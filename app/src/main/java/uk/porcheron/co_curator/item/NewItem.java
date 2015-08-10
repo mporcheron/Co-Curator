@@ -1,11 +1,16 @@
 package uk.porcheron.co_curator.item;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -13,7 +18,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.InputStream;
+
 import uk.porcheron.co_curator.R;
+import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.UData;
@@ -24,7 +32,7 @@ import uk.porcheron.co_curator.util.UData;
 public class NewItem {
     private static final String TAG = "CC:NewItem";
 
-    public static void prompt(final Context context, final View view, final boolean forceAdd) {
+    public static void prompt(final Activity context, final View view, final boolean forceAdd) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.dialog_add_message);
 
@@ -54,7 +62,7 @@ public class NewItem {
                 ItemType type = types[which];
                 switch (type) {
                     case PHOTO:
-                        Toast.makeText(context, "Photo", Toast.LENGTH_SHORT).show();
+                        NewItem.photo(context);
                         break;
 
                     case NOTE:
@@ -72,7 +80,7 @@ public class NewItem {
         dialog.show();
     }
 
-    private static void note(final Context context, final View view, final boolean promptOnCancel) {
+    private static void note(final Activity context, final View view, final boolean promptOnCancel) {
         final EditText editText = new EditText(context);
         editText.setSingleLine(false);
 
@@ -103,7 +111,7 @@ public class NewItem {
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
-    private static void url(final Context context, final View view, final boolean promptOnCancel) {
+    private static void url(final Activity context, final View view, final boolean promptOnCancel) {
         final EditText editText = new EditText(context);
         editText.setSingleLine(true);
         editText.setInputType(EditorInfo.TYPE_TEXT_VARIATION_URI);
@@ -135,6 +143,19 @@ public class NewItem {
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
+    private static void photo(Activity activity) {
+        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        getIntent.setType("image/*");
+
+        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+
+        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+        activity.startActivityForResult(chooserIntent, TimelineActivity.PICK_IMAGE);
+    }
+
     private static boolean newNote(String text) {
         return UData.items.add(UData.items.size(), ItemType.NOTE, UData.user(), text);
     }
@@ -146,5 +167,11 @@ public class NewItem {
         }
 
         return UData.items.add(UData.items.size(), ItemType.URL, UData.user(), url);
+    }
+
+    public static boolean newImage(InputStream inputStream) {
+        Log.v(TAG, "Decoding the stream into a bitmap");
+        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+        return UData.items.add(UData.items.size(), ItemType.PHOTO, UData.user(), bitmap);
     }
 }

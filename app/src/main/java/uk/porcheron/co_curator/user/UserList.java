@@ -43,23 +43,24 @@ public class UserList extends ArrayList<User> {
     }
 
     public User add(int globalUserId, int userId, boolean localOnly) {
-        Log.d(TAG, "Add User (globalUserId = " + globalUserId + ", userId = " + userId + ")");
+        Log.d(TAG, "Add User (globalUserId=" + globalUserId + ",userId=" + userId + ")");
 
         User user = new User(globalUserId, userId);
-        add(userId, user);
+        add(user);
         mGlobalUserIds.put(globalUserId, user);
 
-        mSurface.invalidate();
+        //mSurface.invalidate();
 
         // Local Database
         if(localOnly) {
+            Log.v(TAG, "User not created in DB, as requested");
             return user;
         }
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(TableUser.COL_GLOBAL_USER_ID, user.globalUserId);
+        values.put(TableUser.COL_GLOBAL_USER_ID, globalUserId);
         values.put(TableUser.COL_USER_ID, userId);
 
         long newRowId;

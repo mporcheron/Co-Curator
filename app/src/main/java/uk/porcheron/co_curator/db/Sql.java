@@ -8,6 +8,7 @@ public class Sql {
 
     protected static final String TYPE_TEXT = " TEXT";
     protected static final String TYPE_INT = " INTEGER";
+    protected static final String TYPE_BLOB = " BLOB";
     protected static final String TYPE_DT = " DATETIME";
 
     protected static final String COMMA = ", ";
