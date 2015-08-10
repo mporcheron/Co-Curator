@@ -15,6 +15,8 @@ import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.util.Random;
+
 import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.db.TableUser;
 import uk.porcheron.co_curator.item.NewItem;
@@ -30,6 +32,7 @@ import uk.porcheron.co_curator.db.DbHelper;
 public class TimelineActivity extends Activity implements View.OnLongClickListener, NewItemCreator {
     private static final String TAG = "CC:TimelineActivity";
 
+    private boolean mCreated = false;
     private int mGlobalUserId = 1;
 
     private UserList mUsers;
@@ -47,7 +50,13 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        if(mCreated) {
+            return;
+        }
+        mCreated = true;
+
+        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_timelime);
 
         mProgressDialog = ProgressDialog.show(this, "", getText(R.string.dialog_loading), true);
@@ -83,11 +92,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
 
         //testing
-//        User[] users = new User[5];
-//        for(int i = 0; i < 5; i++) {
-//            users[i] = mUsers.add();
+//        User[] users = new User[1];
+//        for(int i = 0; i < users.length; i++) {
+//            users[i] = mUsers.add(i, i);
 //        }
-//
+
 //        Random r = new Random();
 //        int i = 0;
 //        for(int j = 0; j < r.nextInt(5) + 5; j++) {
@@ -95,14 +104,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 //                User user = users[k];
 //                for (int l = 0; l < r.nextInt(10) + 2; l++) {
 //                    if (r.nextInt(2) == 0) {
-//                        mItems.add(ItemType.NOTE, user, "User = " + k + "; Test = " + i);
+//                        mItems.add(i++,ItemType.NOTE,  user, "User = " + k + "; Test = " + i);
 //                    } else {
-//                        mItems.add(ItemType.URL, user, "http://www.google.com");
+//                        mItems.add(i++,ItemType.URL, user, "http://www.google.com");
 //                    }
-//                    i++;
 //                }
 //            }
 //        }
+//        mProgressDialog.hide();
     }
 
     @Override
@@ -263,6 +272,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
                     i++;
                     mItems.add(c.getInt(0), type, user, c.getString(3));
+                    Log.v(TAG, "Add item");
                 }
 
                 Log.d(TAG, i + " items loaded from DB");
