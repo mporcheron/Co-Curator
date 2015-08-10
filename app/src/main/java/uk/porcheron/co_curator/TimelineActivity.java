@@ -138,11 +138,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             try {
                 Log.v(TAG, "Opening input stream of photo");
 
-                Bitmap bitmap = MediaStore.Images.Thumbnails.getThumbnail(
-                        getContentResolver(), data.getData().toString(),
-                        MediaStore.Images.Thumbnails.MINI_KIND,
-                        (BitmapFactory.Options) null );
-
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
                 NewItem.newImage(inputStream);
             } catch(FileNotFoundException e) {
