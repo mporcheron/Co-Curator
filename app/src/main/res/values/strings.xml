@@ -9,9 +9,12 @@
     <string name="resource_url">Website Address</string>
 
     <string name="dialog_note_title">Create Note</string>
-    <string name="dialog_note_hint">Your text here</string>
     <string name="dialog_note_positive">Add Note</string>
     <string name="dialog_note_negative">Cancel</string>
+
+    <string name="dialog_url_title">Create URL</string>
+    <string name="dialog_url_positive">Add URL</string>
+    <string name="dialog_url_negative">Cancel</string>
 
     <string name="dialog_add_message">What would you like to add?</string>
     <string name="dialog_add_positive">Add</string>

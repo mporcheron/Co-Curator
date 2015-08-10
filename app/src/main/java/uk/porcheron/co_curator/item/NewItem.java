@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import uk.porcheron.co_curator.R;
+import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.user.UserList;
 
 /**
  * Created by map on 09/08/15.
@@ -21,7 +23,17 @@ import uk.porcheron.co_curator.R;
 public class NewItem {
     private static final String TAG = "CC:NewItem";
 
-    public static void prompt(final Context context, final View view, final NewItemCreator creator, final boolean forceAdd) {
+    private static int mGlobalUserId;
+    private static UserList mUsers;
+    private static ItemList mItems;
+
+    public static void setLists(int globalUserId, UserList users, ItemList items) {
+        mGlobalUserId = globalUserId;
+        mUsers = users;
+        mItems = items;
+    }
+
+    public static void prompt(final Context context, final View view, final boolean forceAdd) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.dialog_add_message);
 
@@ -29,7 +41,7 @@ public class NewItem {
             builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    NewItem.prompt(context, view, creator, forceAdd);
+                    NewItem.prompt(context, view, forceAdd);
                 }
             });
         } else {
@@ -55,11 +67,11 @@ public class NewItem {
                         break;
 
                     case NOTE:
-                        NewItem.note(context, view, creator, forceAdd);
+                        NewItem.note(context, view, forceAdd);
                         break;
 
                     case URL:
-                        Toast.makeText(context, "URL", Toast.LENGTH_SHORT).show();
+                        NewItem.url(context, view, forceAdd);
                         break;
                 }
             }
@@ -69,7 +81,7 @@ public class NewItem {
         dialog.show();
     }
 
-    private static void note(final Context context, final View view, final NewItemCreator creator, final boolean promptOnCancel) {
+    private static void note(final Context context, final View view, final boolean promptOnCancel) {
         final EditText editText = new EditText(context);
         editText.setSingleLine(false);
 
@@ -79,15 +91,15 @@ public class NewItem {
                 .setPositiveButton(context.getString(R.string.dialog_note_positive), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String text = editText.getText().toString();
-                        if(!creator.newNote(text)) {
-                            NewItem.prompt(context, view, creator, promptOnCancel);
+                        if(!NewItem.newNote(text)) {
+                            NewItem.prompt(context, view, promptOnCancel);
                         }
                     }
                 })
                 .setNegativeButton(context.getString(R.string.dialog_note_negative), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         if(promptOnCancel) {
-                            NewItem.prompt(context, view, creator, true);
+                            NewItem.prompt(context, view, true);
                         }
                     }
                 })
@@ -98,5 +110,44 @@ public class NewItem {
 
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
+
+    private static void url(final Context context, final View view, final boolean promptOnCancel) {
+        final EditText editText = new EditText(context);
+        editText.setSingleLine(false);
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.dialog_url_title))
+                .setView(editText)
+                .setPositiveButton(context.getString(R.string.dialog_url_positive), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        String text = editText.getText().toString();
+                        if(!NewItem.newURL(text)) {
+                            NewItem.prompt(context, view, promptOnCancel);
+                        }
+                    }
+                })
+                .setNegativeButton(context.getString(R.string.dialog_url_negative), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        if(promptOnCancel) {
+                            NewItem.prompt(context, view, true);
+                        }
+                    }
+                })
+                .create();
+
+        dialog.show();
+        editText.requestFocus();
+
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
+
+    private static boolean newNote(String text) {
+        return mItems.add(mItems.size(), ItemType.NOTE, mUsers.getByGlobalUserId(mGlobalUserId), text);
+    }
+
+    private static boolean newURL(String url) {
+        return mItems.add(mItems.size(), ItemType.URL, mUsers.getByGlobalUserId(mGlobalUserId), url);
     }
 }
