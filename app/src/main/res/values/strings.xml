@@ -1,7 +1,19 @@
 <resources>
     <string name="app_name" translatable="false">Co-Curator</string>
+    <string name="pref_file" translatable="false">cocurator</string>
+    <string name="pref_globalUserId" translatable="false">globalUserId</string>
+    <string name="pref_userId" translatable="false">userId</string>
 
     <string name="dialog_loading">Loading timeline items…</string>
+
+    <string name="title_activity_participant">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_global_id">Participant ID</string>
+    <string name="prompt_local_id">Local ID</string>
+    <string name="error_global_id">Invalid Participant ID</string>
+    <string name="error_local_id">Invalid Local ID</string>
+    <string name="action_sign_in">Sign in</string>
 
     <string name="resource_photo_library">Photo</string>
     <string name="resource_photo_camera">Photo from Camera</string>

@@ -8,8 +8,10 @@ import android.util.Log;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
+import uk.porcheron.co_curator.item.NewItem;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
+import uk.porcheron.co_curator.util.UData;
 
 /**
  * Created by map on 10/08/15.
@@ -20,16 +22,9 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
     private TimelineActivity mActivity;
     private DbHelper mDbHelper;
 
-    private int mGlobalUserId;
-    private UserList mUsers;
-    private ItemList mItems;
-
     public InitialLoadFromDb(TimelineActivity activity) {
         mActivity = activity;
         mDbHelper = activity.getDbHelper();
-        mGlobalUserId = activity.getGlobalUserId();
-        mUsers = activity.getUserList();
-        mItems = activity.getItemList();
     }
 
     /**
@@ -58,9 +53,9 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
-        //mActivity.mProgressDialog.hide();
+        mActivity.finishLoading();
         if (!result.booleanValue()) {
-            //NewItem.prompt(TimelineActivity.this, mLayoutAbove, true);
+            mActivity.promptAdd();
         }
     }
 
@@ -96,7 +91,7 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
                 int cGlobalUserId = c.getInt(0);
                 int cUserId = c.getInt(1);
 
-                mUsers.add(cGlobalUserId, cUserId, true);
+                UData.users.add(cGlobalUserId, cUserId, true);
 
                 c.moveToNext();
             }
@@ -106,8 +101,8 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
         }
 
         // Current user doesn't exist?
-        if(mUsers.getByGlobalUserId(mGlobalUserId) == null) {
-            mUsers.add(mGlobalUserId, mGlobalUserId-1, false);
+        if(UData.user() == null) {
+            UData.users.add(UData.globalUserId, UData.userId, false);
         }
     }
 
@@ -154,9 +149,9 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
                 int cTypeId = c.getInt(2);
                 String cData = c.getString(3);
 
-                user = mUsers.getByGlobalUserId(cGlobalUserId);
+                user = UData.users.getByGlobalUserId(cGlobalUserId);
                 if (user == null) {
-                    mUsers.add(cGlobalUserId, mUsers.size(), false);
+                    UData.users.add(cGlobalUserId, UData.users.size(), false);
                     Log.e(TAG, "Could not find user with globalUserId " + cGlobalUserId + ", creating");
                     continue;
                 }
@@ -164,7 +159,7 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
                 type = ItemType.get(cTypeId);
 
                 Log.v(TAG, "Save Item[" + i + "] with itemId = " + cItemId + ", data = '" + cData + "'");
-                mItems.add(c.getInt(0), type, user, cData, true);
+                UData.items.add(c.getInt(0), type, user, cData, true);
 
                 c.moveToNext();
             }
@@ -176,6 +171,6 @@ public class InitialLoadFromDb extends AsyncTask<Object, Void, Boolean> {
             db.close();
         }
 
-        return mItems;
+        return UData.items;
     }
 }

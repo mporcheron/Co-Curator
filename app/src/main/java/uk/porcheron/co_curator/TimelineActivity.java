@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
+import java.util.Random;
+
 import uk.porcheron.co_curator.db.InitialLoadFromDb;
 import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.item.NewItem;
@@ -23,16 +25,12 @@ import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.db.DbHelper;
+import uk.porcheron.co_curator.util.UData;
 
 public class TimelineActivity extends Activity implements View.OnLongClickListener {
     private static final String TAG = "CC:TimelineActivity";
 
     private boolean mCreated = false;
-    private int mGlobalUserId = 2;
-
-    private User mUser;
-    private UserList mUsers;
-    private ItemList mItems;
 
     private DbHelper mDbHelper;
     private ProgressDialog mProgressDialog;
@@ -55,7 +53,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_timelime);
 
-        //mProgressDialog = ProgressDialog.show(this, "", getText(R.string.dialog_loading), true);
+        mProgressDialog = ProgressDialog.show(this, "", getText(R.string.dialog_loading), true);
 
         Style.loadStyleAttrs(this);
 
@@ -66,10 +64,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mLayoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
 
         mDbHelper = new DbHelper(this);
-        mUsers = new UserList(this, mSurface);
-        mItems = new ItemList(this, mLayoutAbove, mLayoutCentre, mLayoutBelow);
+        UData.users = new UserList(this, mSurface);
+        UData.items = new ItemList(this, mLayoutAbove, mLayoutCentre, mLayoutBelow);
 
-        mCentrelines = new Centrelines(mUsers);
+        mCentrelines = new Centrelines();
         mSurface.getHolder().addCallback(mCentrelines);
 
         mLayoutAbove.setPadding(Style.layoutAbovePadX, 0, 0, 0);
@@ -81,15 +79,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mLayoutCentre.setOnLongClickListener(this);
         mLayoutBelow.setOnLongClickListener(this);
 
-        NewItem.setLists(mGlobalUserId, mUsers, mItems);
         new InitialLoadFromDb(this).execute("Go");
 
         //testing
-//        User[] users = new User[1];
+//        User[] users = new User[5];
 //        for(int i = 0; i < users.length; i++) {
 //            users[i] = mUsers.add(i, i);
 //        }
-
+//
 //        Random r = new Random();
 //        int i = 0;
 //        for(int j = 0; j < r.nextInt(5) + 5; j++) {
@@ -104,33 +101,26 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 //                }
 //            }
 //        }
-//        mProgressDialog.hide();
+        //mProgressDialog.hide();
     }
 
     @Override
     public boolean onLongClick(View v) {
-        NewItem.prompt(this, v, mItems.isEmpty());
+        NewItem.prompt(this, v, UData.users.isEmpty());
         return true;
     }
 
-    public User getUser() {
-        return mUsers.getByGlobalUserId(mGlobalUserId);
+    public void finishLoading() {
+        mProgressDialog.hide();
     }
 
-    public int getGlobalUserId() {
-        return mGlobalUserId;
+    public void promptAdd() {
+        onLongClick(mLayoutAbove);
     }
 
     public DbHelper getDbHelper() {
         return mDbHelper;
     }
 
-    public UserList getUserList() {
-        return mUsers;
-    }
-
-    public ItemList getItemList() {
-        return mItems;
-    }
 
 }

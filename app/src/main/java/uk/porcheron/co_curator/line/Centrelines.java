@@ -6,18 +6,13 @@ import android.view.SurfaceHolder;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Style;
+import uk.porcheron.co_curator.util.UData;
 
 /**
  * Created by map on 08/08/15.
  */
 public class Centrelines implements SurfaceHolder.Callback {
     private static final String TAG = "CC:Centrelines";
-
-    private UserList mUsers;
-
-    public Centrelines(UserList users) {
-        mUsers = users;
-    }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -30,7 +25,7 @@ public class Centrelines implements SurfaceHolder.Callback {
 
         int w = canvas.getWidth();
         int h = canvas.getHeight();
-        for(User user : mUsers){
+        for(User user : UData.users){
             int y1 = (int) ((h / 2) - (Style.lineWidth / 2) + user.offset);
             int y2 = (int) (y1 + Style.lineWidth);
 

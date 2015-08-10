@@ -16,22 +16,13 @@ import android.widget.Toast;
 import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
+import uk.porcheron.co_curator.util.UData;
 
 /**
  * Created by map on 09/08/15.
  */
 public class NewItem {
     private static final String TAG = "CC:NewItem";
-
-    private static int mGlobalUserId;
-    private static UserList mUsers;
-    private static ItemList mItems;
-
-    public static void setLists(int globalUserId, UserList users, ItemList items) {
-        mGlobalUserId = globalUserId;
-        mUsers = users;
-        mItems = items;
-    }
 
     public static void prompt(final Context context, final View view, final boolean forceAdd) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -144,10 +135,10 @@ public class NewItem {
     }
 
     private static boolean newNote(String text) {
-        return mItems.add(mItems.size(), ItemType.NOTE, mUsers.getByGlobalUserId(mGlobalUserId), text);
+        return UData.items.add(UData.items.size(), ItemType.NOTE, UData.user(), text);
     }
 
     private static boolean newURL(String url) {
-        return mItems.add(mItems.size(), ItemType.URL, mUsers.getByGlobalUserId(mGlobalUserId), url);
+        return UData.items.add(UData.items.size(), ItemType.URL, UData.user(), url);
     }
 }
