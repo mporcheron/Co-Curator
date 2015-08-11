@@ -89,14 +89,19 @@ public class ItemImage extends Item {
         if(mBitmapThumbnail == null) {
             Log.d(TAG, "Creating image thumbnail");
 
-            float ratio = (float) mBitmap.getHeight() / (float) mBitmap.getWidth() ;//, mBitmap.getHeight()/mBitmap.getWidth());
-            int width = (int) mImageRight;
-            int height = (int) (mImageBottom * ratio);
+            float ratio = (float) mBitmap.getWidth() / (float) mBitmap.getHeight();//, mBitmap.getHeight()/mBitmap.getWidth());
+            int width = (int) (mImageRight * ratio);
+            int height = (int) mImageBottom;
 
-            mBitmapThumbnail = Bitmap.createScaledBitmap(mBitmap, width, height,                    false);
+            mBitmapThumbnail = Bitmap.createScaledBitmap(mBitmap, width, height, false);
 
-            mShadowRight = mShadowLeft + width + Style.noteShadowOffset;
-            mShadowBottom = mShadowTop + height + Style.noteShadowOffset;
+            float diffWidth = (mImageRight -  width) /2;
+
+            mImageLeft += diffWidth;
+            mImageRight -= diffWidth;
+
+            mShadowLeft += diffWidth;
+            mShadowRight -= diffWidth;
         }
 
         canvas.drawRect(mShadowLeft, mShadowTop, mShadowRight, mShadowBottom, mPaintSh);
