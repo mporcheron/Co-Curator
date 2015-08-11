@@ -13,11 +13,5 @@ public class Sql {
 
     protected static final String COMMA = ", ";
 
-    protected static final String SQL_CREATE =
-            TableUser.SQL_CREATE + TableItem.SQL_CREATE;
-
-    protected static final String SQL_DELETE =
-            TableUser.SQL_DELETE + TableItem.SQL_DELETE;
-
     private Sql() {}
 }

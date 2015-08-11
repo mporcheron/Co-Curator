@@ -12,17 +12,15 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String TAG = "CC:Db";
 
     public static final String DATABASE_NAME = "CoCurator.db";
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 1;
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     public void onCreate(SQLiteDatabase db) {
-        Log.v(TAG, TableUser.SQL_CREATE);
-        Log.v(TAG, TableItem.SQL_CREATE);
-
         db.execSQL(TableUser.SQL_CREATE);
+        db.execSQL(TableUser.SQL_DUMMY_DATA);
         db.execSQL(TableItem.SQL_CREATE);
     }
 

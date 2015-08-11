@@ -1,23 +1,21 @@
 package uk.porcheron.co_curator.item;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
+import uk.porcheron.co_curator.line.StemConnector;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.util.UData;
 
@@ -26,22 +24,19 @@ import uk.porcheron.co_curator.util.UData;
  *
  * Created by map on 07/08/15.
  */
-public class ItemList extends ArrayList<ItemContainer> {
+public class ItemList extends ArrayList<Item> {
     private static final String TAG = "CC:ItemList";
 
-    private Context mContext;
+    private TimelineActivity mActivity;
     private DbHelper mDbHelper;
-
-    private int mGlobalUserId;
-    private UserList mUsers;
 
     private LinearLayout mLayoutAbove;
     private LinearLayout mLayoutCentre;
     private LinearLayout mLayoutBelow;
 
-    public ItemList(TimelineActivity context, LinearLayout layoutAbove,  LinearLayout layoutCentre, LinearLayout layoutBelow) {
-        mContext = context;
-        mDbHelper = context.getDbHelper();
+    public ItemList(TimelineActivity activity, LinearLayout layoutAbove,  LinearLayout layoutCentre, LinearLayout layoutBelow) {
+        mActivity = activity;
+        mDbHelper = activity.getDbHelper();
         mLayoutAbove = layoutAbove;
         mLayoutCentre = layoutCentre;
         mLayoutBelow = layoutBelow;
@@ -51,28 +46,19 @@ public class ItemList extends ArrayList<ItemContainer> {
         return add(itemId, type, user, data, false);
     }
 
-    public boolean add(int itemId, ItemType type, User user, Object data, boolean localOnly) {
-        Log.d(TAG, "Add item " + itemId + " to the view (localOnly=" + localOnly + ")");
+    public boolean add(int itemId, ItemType type, User user, Object data, boolean drawOnly) {
+        Log.d(TAG, "Add item " + itemId + " to the view (drawOnly=" + drawOnly + ")");
 
-        // Context
-        boolean above = size() % 2 == 0;
-        ViewGroup view;
-        if (above) {
-            view = mLayoutAbove;
-        } else {
-            view = mLayoutBelow;
-        }
-
-        // Instance
+        // Create the item
         Item item = null;
         if(type == ItemType.NOTE) {
-            item = createNote(mContext, itemId, user, (String) data);
+            item = createNote(itemId, user, (String) data);
         } else if(type == ItemType.URL) {
-            item = createURL(mContext, itemId, user, (String) data);
+            item = createURL(itemId, user, (String) data);
         } else if(type == ItemType.PHOTO && data instanceof String) {
-            item = createImage(mContext, view, itemId, user, (String) data);
+            item = createImage(itemId, user, (String) data);
         } else if(type == ItemType.PHOTO && data instanceof Bitmap) {
-            item = createImage(mContext, view, itemId, user, (Bitmap) data);
+            item = createImage(itemId, user, (Bitmap) data);
         }
 
         if(item == null) {
@@ -80,20 +66,18 @@ public class ItemList extends ArrayList<ItemContainer> {
             return false;
         }
 
-        Log.v(TAG, "Create item container");
-        ItemContainer container = new ItemContainer(mContext, item, user, above);
-
-        Log.v(TAG, "Add item to container");
-        add(container);
-
-        Log.v(TAG, "Add container to the view");
+        add(item);
 
         // Drawing
-        mLayoutCentre.addView(container.getNotch());
-        view.addView(container);
+        if (user.above) {
+            mLayoutAbove.addView(item, item.getWidth(), (int) Style.itemFullHeight);
+        } else {
+            mLayoutBelow.addView(item, item.getWidth(), (int) Style.itemFullHeight);
+        }
+        mLayoutCentre.addView(new StemConnector(mActivity, user, item.getmStemConnectorBounds()));
 
-        // Local Database
-        if(localOnly) {
+        // Save to the Local Database or just draw?
+        if(drawOnly) {
             return true;
         }
 
@@ -110,7 +94,7 @@ public class ItemList extends ArrayList<ItemContainer> {
 
             try {
                 Log.v(TAG, "Save image to local storage");
-                out = mContext.openFileOutput((String) data, Context.MODE_PRIVATE);
+                out = mActivity.openFileOutput((String) data, Context.MODE_PRIVATE);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
                 out.close();
                 Log.v(TAG, "Image saved to local storage");
@@ -139,34 +123,28 @@ public class ItemList extends ArrayList<ItemContainer> {
         }
     }
 
-    private ItemNote createNote(Context context,int itemId, User user, String text) {
-        ItemNote note = new ItemNote(context, itemId, user);
+    private ItemNote createNote(int itemId, User user, String text) {
+        ItemNote note = new ItemNote(mActivity, itemId, user);
         note.setText(text);
         return note;
     }
 
-    private ItemURL createURL(Context context,int itemId, User user, String url) {
-        ItemURL note = new ItemURL(context, itemId, user);
+    private ItemURL createURL(int itemId, User user, String url) {
+        ItemURL note = new ItemURL(mActivity, itemId, user);
         note.setURL(url);
         return note;
     }
 
-    private ItemImage createImage(Context context, ViewGroup vg, int itemId, User user, String imagePath) {
-        ItemImage image = new ItemImage(context, vg, itemId, user);
+    private ItemImage createImage(int itemId, User user, String imagePath) {
+        ItemImage image = new ItemImage(mActivity, itemId, user);
         image.setImagePath(imagePath);
         return image;
     }
 
-    private ItemImage createImage(Context context, ViewGroup vg, int itemId, User user, Bitmap bitmap) {
-        ItemImage image = new ItemImage(context, vg, itemId, user);
+    private ItemImage createImage(int itemId, User user, Bitmap bitmap) {
+        ItemImage image = new ItemImage(mActivity, itemId, user);
         image.setBitmap(bitmap);
         return image;
-    }
-
-    public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
-        return outputStream.toByteArray();
     }
 
 }

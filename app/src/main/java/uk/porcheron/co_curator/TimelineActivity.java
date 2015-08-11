@@ -86,8 +86,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         //testing
 //        User[] users = new User[5];
-//        for(int i = 0; i < users.length; i++) {
-//            users[i] = mUsers.add(i, i);
+//            for(int i = 1; i < 5; i++) {
+//                UData.users.add(i, i);
 //        }
 //
 //        Random r = new Random();

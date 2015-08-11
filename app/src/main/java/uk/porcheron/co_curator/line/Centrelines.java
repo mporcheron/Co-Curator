@@ -1,6 +1,7 @@
 package uk.porcheron.co_curator.line;
 
 import android.graphics.Canvas;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import uk.porcheron.co_curator.user.User;
@@ -25,11 +26,16 @@ public class Centrelines implements SurfaceHolder.Callback {
 
         int w = canvas.getWidth();
         int h = canvas.getHeight();
+
+//        int y1 = (int) ((h / 2) - (Style.layoutCentreHeight / 2f));
+//        int y2 = (int) (y1 + (Style.layoutCentreHeight / 2));
+//        canvas.drawRect(0, y1, w, h, UData.users.get(2).bgPaint);
+
         for(User user : UData.users){
-            int y1 = (int) ((h / 2) - (Style.lineWidth / 2) + user.offset);
+            int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
             int y2 = (int) (y1 + Style.lineWidth);
 
-            canvas.drawRect(0, y1, w, y2, user.paint);
+            canvas.drawRect(0, y1, w, y2, user.bgPaint);
         }
 
         holder.unlockCanvasAndPost(canvas);

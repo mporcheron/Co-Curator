@@ -1,18 +1,24 @@
 package uk.porcheron.co_curator.item;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.io.FileInputStream;
+import java.util.Random;
 
+import uk.porcheron.co_curator.ImageDialogActivity;
+import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Style;
 
@@ -21,92 +27,57 @@ import uk.porcheron.co_curator.util.Style;
  * <p/>
  * Created by map on 06/08/15.
  */
-public class ItemImage extends Item {
+public class ItemImage extends Item implements View.OnClickListener {
     private static final String TAG = "CC:ItemImage";
 
-    private float mImageLeft;
-    private float mImageTop;
-    private float mImageRight;
-    private float mImageBottom;
-
-    private float mShadowLeft;
-    private float mShadowTop;
-    private float mShadowRight;
-    private float mShadowBottom;
-
+    private TimelineActivity mActivity;
     private Bitmap mBitmap = null;
     private Bitmap mBitmapThumbnail = null;
     private String mImagePath;
 
-    private Paint mPaintBg;
-    private Paint mPaintSh;
-    private TextPaint mPaintFg;
-    private TextView mTextView;
+    private Random mRandom = new Random();
 
-    public ItemImage(Context context, ViewGroup vg, int itemId, User user) {
-        super(context, user, itemId);
+    public ItemImage(TimelineActivity activity, int itemId, User user) {
+        super(activity, user, itemId);
 
-        mPaintBg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaintBg.setStyle(Paint.Style.FILL);
-        mPaintSh = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaintSh.setStyle(Paint.Style.FILL);
-        mPaintFg = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        mActivity = activity;
 
-        setNoteBackgroundColor(Style.noteBg);
-        setShadowBackgroundColor(Style.noteSh);
-        setTextStyle(Style.noteFg, Style.noteFontSize);
-
-        RectF b = getBounds();
-        mImageLeft = b.left;
-        mImageTop = b.top;
-        mImageRight = b.right - Style.noteShadowSize;
-        mImageBottom = b.bottom - Style.noteShadowSize;
-
-        mShadowLeft = Style.noteShadowOffset;
-        mShadowTop = Style.noteShadowOffset;
-        mShadowRight = b.right;
-        mShadowBottom = b.bottom;
+        setBounds(Style.imageWidth, Style.imageHeight, Style.imagePadding);
+        setOnClickListener(this);
     }
 
     @Override
     public void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        RectF b = getInnerBounds();
+
         if(mBitmap == null) {
             try{
-                Log.v(TAG, "Creating bitmap from image path");
                 FileInputStream fis = getContext().openFileInput(mImagePath);
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
-                Log.v(TAG, "Created bitmap from image path");
-            }
-            catch(Exception e){
+            } catch(Exception e){
                 Log.e(TAG, "Could not open " + mImagePath);
             }
         }
 
-
         if(mBitmapThumbnail == null) {
-            Log.d(TAG, "Creating image thumbnail");
+            //float ratio = (float) mBitmap.getWidth() / (float) mBitmap.getHeight();//, mBitmap.getHeight()/mBitmap.getWidth());
+            //int width = (int) (b.width() * ratio);
+            //int height = (int) b.height();
 
-            float ratio = (float) mBitmap.getWidth() / (float) mBitmap.getHeight();//, mBitmap.getHeight()/mBitmap.getWidth());
-            int width = (int) (mImageRight * ratio);
-            int height = (int) mImageBottom;
+            //mBitmapThumbnail = Bitmap.createScaledBitmap(mBitmap, width, height, false);
+            //shrink(b.width() -  width, 0);
 
-            mBitmapThumbnail = Bitmap.createScaledBitmap(mBitmap, width, height, false);
+            int x = mRandom.nextInt((int) (mBitmap.getWidth() - b.width()));
+            int y = mRandom.nextInt((int) (mBitmap.getHeight() - b.height()));
 
-            float diffWidth = (mImageRight -  width) /2;
+            mBitmapThumbnail = Bitmap.createBitmap(mBitmap, x, y, (int) b.width(), (int) b.height());
 
-            mImageLeft += diffWidth;
-            mImageRight -= diffWidth;
-
-            mShadowLeft += diffWidth;
-            mShadowRight -= diffWidth;
         }
 
-        canvas.drawRect(mShadowLeft, mShadowTop, mShadowRight, mShadowBottom, mPaintSh);
-
-        canvas.drawBitmap(mBitmapThumbnail, mImageLeft, mImageTop, mPaintFg);
+        canvas.drawBitmap(mBitmapThumbnail, b.left, b.top, getUser().bgPaint);
     }
 
     public Bitmap getBitmap() {
@@ -121,16 +92,14 @@ public class ItemImage extends Item {
         mImagePath = imagePath;
     }
 
-    public void setNoteBackgroundColor(int color) {
-        mPaintBg.setColor(color);
+    @Override
+    public void onClick(View v) {
+        Log.d(TAG, "Image clicked!");
+//
+        Intent intent = new Intent(mActivity, ImageDialogActivity.class);
+//        intent.putExtra(ImageDialogActivity.IMAGE, mBitmap);
+
+        mActivity.startActivity(intent);
     }
 
-    public void setShadowBackgroundColor(int color) {
-        mPaintSh.setColor(color);
-    }
-
-    public void setTextStyle(int color, int size) {
-        mPaintFg.setColor(color);
-        mPaintFg.setTextSize(size);
-    }
 }

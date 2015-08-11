@@ -12,6 +12,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
 
+import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.EllipsizingTextView;
 import uk.porcheron.co_curator.util.Style;
@@ -26,10 +27,9 @@ public class ItemURL extends ItemNote implements View.OnClickListener {
 
     private String mURL;
 
-    public ItemURL(Context context, int itemId, User user) {
-        super(context, itemId, user);
+    public ItemURL(TimelineActivity activity, int itemId, User user) {
+        super(activity, itemId, user);
 
-        setNoteBackgroundColor(Style.urlBg);
         setOnClickListener(this);
     }
 

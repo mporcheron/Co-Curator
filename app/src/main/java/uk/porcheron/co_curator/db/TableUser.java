@@ -16,6 +16,11 @@ public abstract class TableUser implements BaseColumns {
                     TableUser.COL_USER_ID + Sql.TYPE_INT +
                     " );";
 
+
+    protected static final String SQL_DUMMY_DATA =
+            "INSERT INTO " + TableUser.TABLE_NAME + " (" +
+                    TableUser.COL_USER_ID + ") VALUES (0), (1), (2), (3);";
+
     protected static final String SQL_DELETE =
             "DROP TABLE IF EXISTS " + TableUser.TABLE_NAME + ";";
 
