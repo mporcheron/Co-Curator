@@ -5,17 +5,29 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import uk.porcheron.co_curator.TimelineActivity;
+
 /**
- * Created by map on 09/08/15.
+ * Database helper class for handling the connection to the Android SQLite implementation.
  */
 public class DbHelper extends SQLiteOpenHelper {
-    private static final String TAG = "CC:Db";
+    private static final String TAG = "CC:DbHelper";
 
     public static final String DATABASE_NAME = "CoCurator.db";
     public static final int DATABASE_VERSION = 3;
 
-    public DbHelper(Context context) {
+    private static TimelineActivity mActivity = TimelineActivity.getInstance();
+    private static DbHelper mInstance = null;
+
+    private DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static DbHelper getInstance() {
+        if (mInstance == null) {
+            mInstance = new DbHelper(mActivity);
+        }
+        return mInstance;
     }
 
     public void onCreate(SQLiteDatabase db) {

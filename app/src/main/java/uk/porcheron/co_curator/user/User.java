@@ -1,12 +1,11 @@
 package uk.porcheron.co_curator.user;
 
 import android.graphics.Paint;
-import android.text.TextPaint;
 
-import uk.porcheron.co_curator.util.Style;
+import uk.porcheron.co_curator.val.Style;
 
 /**
- * Created by map on 08/08/15.
+ * User and the relevant UI effects for the user.
  */
 public class User {
     private static final String TAG = "CC:User";

@@ -1,7 +1,9 @@
 package uk.porcheron.co_curator.item;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -10,13 +12,15 @@ import java.util.Random;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.util.Style;
+import uk.porcheron.co_curator.val.Style;
 
 /**
  * A timeline item. Only the _actual_ content is drawn (i.e. no borders etc).
  */
 public abstract class Item extends View implements View.OnTouchListener {
     private static final String TAG = "CC:Item";
+
+    private static Random mRandom = new Random();
 
     private User mUser;
     private int mItemId;
@@ -29,10 +33,14 @@ public abstract class Item extends View implements View.OnTouchListener {
     private float mRandomPadRight;
     private float mRandomPadRightHalf;
 
-    private static Random mRandom = new Random();
+    public Item(Context context) { super(context); }
 
-    public Item(TimelineActivity activity, User user, int itemId) {
-        super(activity);
+    public Item(Context context, AttributeSet attrs) { super(context, attrs); }
+
+    public Item(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
+
+    public Item(User user, int itemId) {
+        super(TimelineActivity.getInstance());
 
         mUser = user;
         mItemId = itemId;
@@ -59,17 +67,13 @@ public abstract class Item extends View implements View.OnTouchListener {
                 getUser().bgPaint);
     }
 
-    protected final RectF getSlotBounds() {
-        return mSlotBounds;
-    }
-
     protected final RectF getInnerBounds() {
         return mInnerBounds;
     }
 
     protected final RectF setBounds(float width, float height, float padding) {
         float top;
-        if(mUser.above) {
+        if (mUser.above) {
             top = Style.itemFullHeight + mUser.offset - height;
         } else {
             top = Style.layoutCentreHeight + mUser.offset;
@@ -87,27 +91,13 @@ public abstract class Item extends View implements View.OnTouchListener {
         float offset = mRandomPadRightHalf + Style.itemStemNarrowBy +
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
 
-        if(mUser.above) {
+        if (mUser.above) {
             mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, Style.layoutHalfPadding + mUser.centrelineOffset);
         } else {
             mStemBounds = new RectF(offset, mUser.centrelineOffset + Style.lineWidth - 1, offset + Style.lineWidth, mOuterBounds.top);
         }
 
         return mInnerBounds;
-    }
-
-    protected final void shrink(float dw, float dh) {
-        mOuterBounds.right -= dw;
-        mInnerBounds.right -= dw;
-        mSlotBounds.right -= dw;
-
-        mOuterBounds.bottom -= dh;
-        mInnerBounds.bottom -= dh;
-        mSlotBounds.bottom -= dh;
-
-        float offset = mRandomPadRightHalf + Style.itemStemNarrowBy +
-                mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
-        mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, mSlotBounds.bottom);
     }
 
     protected final User getUser() {
@@ -121,9 +111,9 @@ public abstract class Item extends View implements View.OnTouchListener {
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         Log.d(TAG, "Touched");
-        if (event.getAction() == MotionEvent.ACTION_DOWN){
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
             Log.d(TAG, "ACTION_DOWN");
-            if(mOuterBounds.contains(event.getX(), event.getY())) {
+            if (mOuterBounds.contains(event.getX(), event.getY())) {
                 Log.d(TAG, "Within Outer Bounds");
                 onClick(v);
                 return true;

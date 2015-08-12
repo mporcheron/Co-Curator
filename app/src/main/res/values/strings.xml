@@ -18,6 +18,7 @@
     <string name="error_login">Could not log you in</string>
     <string name="action_sign_in">Sign in</string>
 
+    <string name="resource_unknown">Unknown</string>
     <string name="resource_photo_library">Photo</string>
     <string name="resource_photo_camera">Photo from Camera</string>
     <string name="resource_note">Note</string>

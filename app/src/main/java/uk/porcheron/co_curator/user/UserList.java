@@ -1,45 +1,27 @@
 package uk.porcheron.co_curator.user;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Paint;
 import android.util.Log;
-import android.view.SurfaceView;
+import android.util.SparseArray;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
-import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.db.DbHelper;
-import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.db.TableUser;
-import uk.porcheron.co_curator.item.Item;
 
 /**
- * Created by map on 07/08/15.
+ * List of users within the user's group.
  */
 public class UserList extends ArrayList<User> {
     private static final String TAG = "CC:UserList";
 
-    private TimelineActivity mActivity;
     private DbHelper mDbHelper;
 
-    private int mGlobalUserId;
-    private UserList mUsers;
+    private SparseArray<User> mGlobalUserIds = new SparseArray<>();
 
-    private SurfaceView mSurface;
-    private Map<Integer,User> mGlobalUserIds = new HashMap<Integer,User>();
-
-    public UserList(TimelineActivity activity, SurfaceView surface) {
-        mSurface = surface;
-        mActivity = activity;
-        mDbHelper = activity.getDbHelper();
-    }
-
-    public User add(int globalUserId, int userId) {
-        return add(globalUserId, userId, false);
+    public UserList() {
+        mDbHelper = DbHelper.getInstance();
     }
 
     public User add(int globalUserId, int userId, boolean localOnly) {
@@ -48,8 +30,6 @@ public class UserList extends ArrayList<User> {
         User user = new User(globalUserId, userId);
         add(user);
         mGlobalUserIds.put(globalUserId, user);
-
-        //mSurface.invalidate();
 
         // Local Database
         if(localOnly) {
@@ -78,15 +58,6 @@ public class UserList extends ArrayList<User> {
         }
 
         return user;
-    }
-
-    @Override
-    public User remove(int userId) {
-        User resp = remove(userId);
-        if(resp != null) {
-            mSurface.invalidate();
-        }
-        return resp;
     }
 
     public User getByGlobalUserId(int globalUserId) {

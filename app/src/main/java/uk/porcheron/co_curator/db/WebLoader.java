@@ -19,34 +19,48 @@ import java.util.List;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.util.IData;
+import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
 
 /**
- * Created by map on 12/08/15.
+ * Utilities for loading resources from the web.
  */
 public class WebLoader {
     private static final String TAG = "CC:WebLoader";
 
-    private TimelineActivity mActivity;
+    private TimelineActivity mActivity = TimelineActivity.getInstance();
 
-    WebLoader(TimelineActivity activity) {
-        mActivity = activity;
+    WebLoader() {
+    }
+
+    public static Bitmap getBitmapFromURL(String src) {
+        try {
+            java.net.URL url = new java.net.URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            return BitmapFactory.decodeStream(input);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to get image from URL: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     protected void loadUsersFromWeb() {
         Log.d(TAG, "Load users from cloud");
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-        nameValuePairs.add(new BasicNameValuePair("groupId", "" + IData.groupId));
+        nameValuePairs.add(new BasicNameValuePair("groupId", "" + Instance.groupId));
 
         JSONArray response = Web.requestArr(Web.GET_USERS, nameValuePairs);
-        if(response != null) {
-            for(int i = 0; i < response.length(); i++) {
+        if (response != null) {
+            for (int i = 0; i < response.length(); i++) {
                 try {
                     JSONObject userJ = (JSONObject) response.get(i);
-                    IData.users.add(userJ.getInt("globalUserId"), userJ.getInt("userId"), false);
+                    Instance.users.add(userJ.getInt("globalUserId"), userJ.getInt("userId"), false);
                 } catch (JSONException e) {
                     Log.e(TAG, "Could not get user from the cloud");
                     e.printStackTrace();
@@ -64,20 +78,19 @@ public class WebLoader {
         nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + globalUserId));
 
         JSONArray response = Web.requestArr(Web.GET_ITEMS, nameValuePairs);
-        if(response != null) {
-            for(int i = 0; i < response.length(); i++) {
+        if (response != null) {
+            for (int i = 0; i < response.length(); i++) {
                 try {
                     JSONObject itemJ = (JSONObject) response.get(i);
 
                     final int itemId = itemJ.getInt("id");
 
-                    if(IData.items.getByItemId(globalUserId, itemId) == null) {
-                        final User user = IData.users.getByGlobalUserId(globalUserId);
+                    if (Instance.items.getByItemId(globalUserId, itemId) == null) {
+                        final User user = Instance.users.getByGlobalUserId(globalUserId);
                         String jsonData = itemJ.getString("data");
                         final ItemType type = ItemType.get(itemJ.getInt("type"));
-                        final String datetime = itemJ.getString("datetime");
 
-                        if(type == ItemType.PHOTO) {
+                        if (type == ItemType.PHOTO) {
                             Bitmap b = getBitmapFromURL(jsonData);
                             try {
                                 jsonData = Image.save(mActivity, b);
@@ -89,9 +102,9 @@ public class WebLoader {
 
                         final String data = jsonData;
 
-                        mActivity.runOnUiThread(new Runnable(){
+                        mActivity.runOnUiThread(new Runnable() {
                             public void run() {
-                                IData.items.add(itemId, type, user, data, true, false);
+                                Instance.items.add(itemId, type, user, data, true, false);
                             }
                         });
                     }
@@ -103,21 +116,5 @@ public class WebLoader {
             }
         }
 
-    }
-
-    public static Bitmap getBitmapFromURL(String src) {
-        try {
-            java.net.URL url = new java.net.URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to get image from URL: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
     }
 }

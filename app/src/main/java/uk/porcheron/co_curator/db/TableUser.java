@@ -3,7 +3,7 @@ package uk.porcheron.co_curator.db;
 import android.provider.BaseColumns;
 
 /**
- * Created by map on 09/08/15.
+ * Database structure for the `user` table.
  */
 public abstract class TableUser implements BaseColumns {
     public static final String TABLE_NAME = "user";
@@ -16,13 +16,9 @@ public abstract class TableUser implements BaseColumns {
                     TableUser.COL_USER_ID + Sql.TYPE_INT +
                     " );";
 
-
-    protected static final String SQL_DUMMY_DATA =
-            "INSERT INTO " + TableUser.TABLE_NAME + " (" +
-                    TableUser.COL_USER_ID + ") VALUES (0), (1), (2), (3);";
-
     protected static final String SQL_DELETE =
             "DROP TABLE IF EXISTS " + TableUser.TABLE_NAME + ";";
 
-    private TableUser() {}
+    private TableUser() {
+    }
 }

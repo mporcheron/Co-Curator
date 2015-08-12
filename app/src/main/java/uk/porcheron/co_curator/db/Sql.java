@@ -1,7 +1,7 @@
 package uk.porcheron.co_curator.db;
 
 /**
- * Database contract.
+ * Base SQL query building phrases.
  */
 public class Sql {
     protected static final String PRIMARY_KEY = " PRIMARY KEY";
@@ -13,5 +13,6 @@ public class Sql {
 
     protected static final String COMMA = ", ";
 
-    private Sql() {}
+    private Sql() {
+    }
 }

@@ -1,4 +1,4 @@
-package uk.porcheron.co_curator.util;
+package uk.porcheron.co_curator.val;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -8,6 +8,7 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import uk.porcheron.co_curator.R;
+import uk.porcheron.co_curator.TimelineActivity;
 
 /**
  * Style properties for the application.
@@ -57,11 +58,11 @@ public class Style {
 
     public static Paint normalPaint;
 
-    public static void loadStyleAttrs(Context context) {
-        Resources res = context.getResources();
+    public static void collectAttrs() {
+        Resources res = TimelineActivity.getInstance().getResources();
 
         // Screen dimensions
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager wm = (WindowManager) TimelineActivity.getInstance().getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);

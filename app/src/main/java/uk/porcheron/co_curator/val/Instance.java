@@ -1,13 +1,13 @@
-package uk.porcheron.co_curator.util;
+package uk.porcheron.co_curator.val;
 
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 
 /**
- * Created by map on 10/08/15.
+ * Data relating to this instance of the running application.
  */
-public class IData {
+public class Instance {
     public static int globalUserId;
     public static int userId;
     public static int groupId;

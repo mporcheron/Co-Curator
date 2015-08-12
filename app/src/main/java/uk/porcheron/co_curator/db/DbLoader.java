@@ -9,28 +9,21 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.util.IData;
+import uk.porcheron.co_curator.val.Instance;
 
 /**
- * Created by map on 10/08/15.
+ * Class for loading items from the local and cloud databases.
  */
 public class DbLoader extends AsyncTask<Void, Void, Boolean> {
     private static final String TAG = "CC:DbLoader";
 
-    private TimelineActivity mActivity;
-    private DbHelper mDbHelper;
-    private WebLoader mWebLoader;
+    private TimelineActivity mActivity = TimelineActivity.getInstance();
+    private DbHelper mDbHelper = DbHelper.getInstance();
+    private WebLoader mWebLoader = new WebLoader();
 
-    public DbLoader(TimelineActivity activity) {
-        mActivity = activity;
-        mDbHelper = activity.getDbHelper();
-        mWebLoader = new WebLoader(mActivity);
+    public DbLoader() {
     }
 
-    /**
-     * @param params If first is > 0, returns that user.
-     * @return
-     */
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
@@ -46,7 +39,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean result) {
         mActivity.hideLoadingDialog();
-        if (IData.items.isEmpty()) {
+        if (Instance.items.isEmpty()) {
             mActivity.promptAdd();
         }
     }
@@ -54,15 +47,11 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
     protected void loadUsersFromDb() throws Exception {
         Log.d(TAG, "Initial load of users from DB");
 
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        try {
+        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
             String[] projection = {
                     TableUser.COL_GLOBAL_USER_ID,
                     TableUser.COL_USER_ID,
             };
-
-            String selection = null;
 
             String sortOrder =
                     TableUser.COL_USER_ID + " ASC";
@@ -70,7 +59,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
             Cursor c = db.query(
                     TableUser.TABLE_NAME,
                     projection,
-                    selection,
+                    null,
                     null,
                     null,
                     null,
@@ -78,22 +67,19 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
             );
 
             c.moveToFirst();
-            int i = 0;
-            for (i = 0; i < c.getCount(); i++) {
+            for (int i = 0; i < c.getCount(); i++) {
                 int cGlobalUserId = c.getInt(0);
                 int cUserId = c.getInt(1);
 
-                IData.users.add(cGlobalUserId, cUserId, true);
+                Instance.users.add(cGlobalUserId, cUserId, true);
 
                 c.moveToNext();
             }
             c.close();
-        } finally {
-            db.close();
         }
 
         // Current user doesn't exist?
-        if(IData.user() == null) {
+        if (Instance.user() == null) {
             Log.d(TAG, "Get users from cloud...");
             mWebLoader.loadUsersFromWeb();
         }
@@ -104,8 +90,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
         boolean allUsers = globalUserId < 0;
 
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-        try {
+        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
             String[] projection = {
                     TableItem.COL_ITEM_ID,
                     TableItem.COL_GLOBAL_USER_ID,
@@ -114,9 +99,9 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
             };
 
             String selection = "";
-                if(!allUsers) {
-                    selection = TableItem.COL_GLOBAL_USER_ID + " = '" + globalUserId + "'";
-                }
+            if (!allUsers) {
+                selection = TableItem.COL_GLOBAL_USER_ID + " = '" + globalUserId + "'";
+            }
 
             String sortOrder =
                     TableItem.COL_ITEM_DATETIME + " ASC";
@@ -135,24 +120,23 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
             ItemType type;
 
             c.moveToFirst();
-            int i = 0;
-            for (i = 0; i < c.getCount(); i++) {
+            for (int i = 0; i < c.getCount(); i++) {
                 int cItemId = c.getInt(0);
                 int cGlobalUserId = c.getInt(1);
                 int cTypeId = c.getInt(2);
 
-                user = IData.users.getByGlobalUserId(cGlobalUserId);
+                user = Instance.users.getByGlobalUserId(cGlobalUserId);
                 if (user == null) {
-                    IData.users.add(cGlobalUserId, IData.users.size(), false);
+                    Instance.users.add(cGlobalUserId, Instance.users.size(), false);
                 }
 
                 type = ItemType.get(cTypeId);
 
                 String cData = c.getString(3);
 
-                if(cData != null) {
+                if (cData != null) {
                     Log.v(TAG, "Save Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ",data='" + cData + "')");
-                    IData.items.add(cItemId, type, user, cData, false, false);
+                    Instance.items.add(cItemId, type, user, cData, false, false);
                 } else {
                     Log.e(TAG, "Error: Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ") is NULL");
                 }
@@ -160,21 +144,17 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 c.moveToNext();
             }
 
-            Log.d(TAG, i + " items loaded from DB");
-
             c.close();
-        } finally {
-            db.close();
         }
 
-        if(allUsers) {
-            for(User u : IData.users) {
+        if (allUsers) {
+            for (User u : Instance.users) {
                 mWebLoader.loadItemsFromWeb(u.globalUserId);
             }
         } else {
             mWebLoader.loadItemsFromWeb(globalUserId);
         }
 
-        return IData.items;
+        return Instance.items;
     }
 }

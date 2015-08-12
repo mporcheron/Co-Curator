@@ -2,16 +2,9 @@ package uk.porcheron.co_curator.item;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Canvas;
-import android.graphics.Point;
-import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.Display;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -26,13 +19,12 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.util.Style;
-import uk.porcheron.co_curator.util.IData;
+import uk.porcheron.co_curator.val.Style;
 import uk.porcheron.co_curator.util.Web;
 
 /**
  * List of items
- *
+ * <p/>
  * Created by map on 07/08/15.
  */
 public class ItemList extends ArrayList<Item> {
@@ -41,17 +33,14 @@ public class ItemList extends ArrayList<Item> {
     private TimelineActivity mActivity;
     private DbHelper mDbHelper;
 
-    private Map<String,Item> mItemIds = new HashMap<String,Item>();
+    private Map<String, Item> mItemIds = new HashMap<String, Item>();
 
     private LinearLayout mLayoutAbove;
     private LinearLayout mLayoutBelow;
 
-    private int mWidthAbove = 0;
-    private int mWidthBelow = 0;
-
     public ItemList(TimelineActivity activity, LinearLayout layoutAbove, LinearLayout layoutBelow) {
         mActivity = activity;
-        mDbHelper = activity.getDbHelper();
+        mDbHelper = DbHelper.getInstance();
         mLayoutAbove = layoutAbove;
         mLayoutBelow = layoutBelow;
     }
@@ -61,15 +50,15 @@ public class ItemList extends ArrayList<Item> {
 
         // Create the item
         Item item = null;
-        if(type == ItemType.NOTE) {
+        if (type == ItemType.NOTE) {
             item = createNote(itemId, user, data);
-        } else if(type == ItemType.URL) {
+        } else if (type == ItemType.URL) {
             item = createURL(itemId, user, data);
-        } else if(type == ItemType.PHOTO && data instanceof String) {
+        } else if (type == ItemType.PHOTO && data instanceof String) {
             item = createImage(itemId, user, data);
         }
 
-        if(item == null) {
+        if (item == null) {
             Log.e(TAG, "Unsupported item type: " + type.getLabel());
             return false;
         }
@@ -78,21 +67,14 @@ public class ItemList extends ArrayList<Item> {
         mItemIds.put(user.globalUserId + "-" + item.getItemId(), item);
 
         // Drawing
-        int slotX = 0;
         if (user.above) {
             mLayoutAbove.addView(item, item.getWidth(), (int) Style.itemFullHeight);
-            mWidthAbove += item.getSlotBounds().width();
         } else {
             mLayoutBelow.addView(item, item.getWidth(), (int) Style.itemFullHeight);
-            mWidthBelow += item.getSlotBounds().width();
         }
 
-        Display display = mActivity.getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
         // Save to the Local Database or just draw?
-        if(!addToLocalDb) {
+        if (!addToLocalDb) {
             return true;
         }
 
@@ -112,7 +94,7 @@ public class ItemList extends ArrayList<Item> {
 
         db.close();
 
-        if(newRowId < 0) {
+        if (newRowId < 0) {
             Log.e(TAG, "Could not create item in DB");
             return false;
         }
@@ -120,26 +102,26 @@ public class ItemList extends ArrayList<Item> {
         Log.d(TAG, "Item " + newRowId + " created in DB");
 
         // Save to the Local Database or just draw?
-        if(addToCloud) {
+        if (addToCloud) {
             new PostTextToCloud(user.globalUserId, item.getItemId(), type).execute(data.toString());
         }
         return true;
     }
 
     private ItemNote createNote(int itemId, User user, String text) {
-        ItemNote note = new ItemNote(mActivity, itemId, user);
+        ItemNote note = new ItemNote(itemId, user);
         note.setText(text);
         return note;
     }
 
     private ItemURL createURL(int itemId, User user, String url) {
-        ItemURL note = new ItemURL(mActivity, itemId, user);
+        ItemURL note = new ItemURL(itemId, user);
         note.setURL(url);
         return note;
     }
 
     private ItemImage createImage(int itemId, User user, String imagePath) {
-        ItemImage image = new ItemImage(mActivity, itemId, user);
+        ItemImage image = new ItemImage(itemId, user);
         image.setImagePath(imagePath);
         return image;
     }
@@ -148,7 +130,7 @@ public class ItemList extends ArrayList<Item> {
         return mItemIds.get(globalUserId + "-" + itemId);
     }
 
-    private class PostTextToCloud extends AsyncTask<String,Void,Boolean> {
+    private class PostTextToCloud extends AsyncTask<String, Void, Boolean> {
 
         private int mGlobalUserId;
         private int mItemId;

@@ -1,8 +1,5 @@
 package uk.porcheron.co_curator.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.text.Layout;
@@ -12,20 +9,16 @@ import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * via https://code.google.com/p/android/issues/attachmentText?id=2254&aid=22540035000&name=EllipsizingTextView.java&token=0bTnbxY7I7S-qgB2_EP4VpObnTY:1332862681275
- *
- * Created by map on 07/08/15.
  */
 public class EllipsizingTextView extends TextView {
     private static final String TAG = "CC:EllipsizingTV";
 
     private static final String ELLIPSIS = "…";
-
-    public interface EllipsizeListener {
-        void ellipsizeStateChanged(boolean ellipsized);
-    }
-
     private final List<EllipsizeListener> ellipsizeListeners = new ArrayList<EllipsizeListener>();
     private boolean isEllipsized;
     private boolean isStale;
@@ -34,7 +27,6 @@ public class EllipsizingTextView extends TextView {
     private int maxLines = -1;
     private float lineSpacingMultiplier = 1.0f;
     private float lineAdditionalVerticalPadding = 0.0f;
-
     public EllipsizingTextView(Context context) {
         super(context);
     }
@@ -62,15 +54,15 @@ public class EllipsizingTextView extends TextView {
         return isEllipsized;
     }
 
+    public int getMaxLines() {
+        return maxLines;
+    }
+
     @Override
     public void setMaxLines(int maxLines) {
         super.setMaxLines(maxLines);
         this.maxLines = maxLines;
         isStale = true;
-    }
-
-    public int getMaxLines() {
-        return maxLines;
     }
 
     @Override
@@ -142,5 +134,9 @@ public class EllipsizingTextView extends TextView {
     @Override
     public void setEllipsize(TruncateAt where) {
         // Ellipsize settings are not respected
+    }
+
+    public interface EllipsizeListener {
+        void ellipsizeStateChanged(boolean ellipsized);
     }
 }

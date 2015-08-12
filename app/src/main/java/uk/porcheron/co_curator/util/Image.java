@@ -4,18 +4,20 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import uk.porcheron.co_curator.val.Instance;
+import uk.porcheron.co_curator.val.Style;
+
 /**
- * Created by map on 12/08/15.
+ * Utilities for handling images within the application.
  */
 public class Image {
     private static final String TAG = "CC:Image";
 
     public static String save(Context context, Bitmap bitmap) throws IOException, IllegalArgumentException {
-        String filename = IData.globalUserId + "-" + IData.userId + "-" + System.currentTimeMillis();
+        String filename = Instance.globalUserId + "-" + Instance.userId + "-" + System.currentTimeMillis();
 
         int thumbWidth = (int) (Style.imageWidth - 2 * Style.imagePadding);
         int thumbHeight = (int) (Style.imageHeight - 2 * Style.imagePadding);
@@ -34,13 +36,13 @@ public class Image {
         Bitmap thumbnail = Bitmap.createBitmap(bitmap, x, y, (int) thumbWidth, (int) thumbHeight);
 
         final FileOutputStream fos = context.openFileOutput(filename + ".png", Context.MODE_PRIVATE);
-        if(!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
+        if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
             Log.e(TAG, "Could not save bitmap locally");
         }
         fos.close();
 
         final FileOutputStream fosThumb = context.openFileOutput(filename + "-thumb.png", Context.MODE_PRIVATE);
-        if(!thumbnail.compress(Bitmap.CompressFormat.PNG, 100, fosThumb)) {
+        if (!thumbnail.compress(Bitmap.CompressFormat.PNG, 100, fosThumb)) {
             Log.e(TAG, "Could not save bitmap locally");
         }
         fosThumb.close();

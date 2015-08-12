@@ -21,28 +21,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.porcheron.co_curator.util.IData;
+import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.util.Web;
 
 /**
@@ -235,9 +222,9 @@ public class ParticipantActivity extends Activity {
             showProgress(false);
 
             if (groupId >= 0) {
-                IData.globalUserId = mGlobalUserId;
-                IData.userId = mUserId;
-                IData.groupId = groupId;
+                Instance.globalUserId = mGlobalUserId;
+                Instance.userId = mUserId;
+                Instance.groupId = groupId;
 
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putInt(getString(R.string.pref_globalUserId), mGlobalUserId);

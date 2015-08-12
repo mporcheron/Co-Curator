@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,11 +23,8 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-
-import java.io.FileOutputStream;
-import java.util.List;
 
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.ItemType;
@@ -36,20 +32,17 @@ import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Image;
-import uk.porcheron.co_curator.util.Style;
-import uk.porcheron.co_curator.db.DbHelper;
-import uk.porcheron.co_curator.util.IData;
+import uk.porcheron.co_curator.val.Phone;
+import uk.porcheron.co_curator.val.Style;
+import uk.porcheron.co_curator.val.Instance;
 
 public class TimelineActivity extends Activity implements View.OnLongClickListener, SurfaceHolder.Callback {
     private static final String TAG = "CC:TimelineActivity";
 
-    private SharedPreferences mSharedPreferences;
+    private static TimelineActivity mInstance;
 
-    private DbHelper mDbHelper;
     private ProgressDialog mProgressDialog;
-    private SurfaceView mSurface;
-    private LinearLayout mLayoutAbove;
-    private LinearLayout mLayoutBelow;
+    private FrameLayout mFrameLayout;
 
     public static final int PICK_IMAGE = 101;
 
@@ -57,54 +50,66 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mSharedPreferences = getSharedPreferences(getString(R.string.pref_file), Context.MODE_PRIVATE);
-        int globalUserId = mSharedPreferences.getInt(getString(R.string.pref_globalUserId), -1);
-        int userId = mSharedPreferences.getInt(getString(R.string.pref_userId), -1);
-        int groupId = mSharedPreferences.getInt(getString(R.string.pref_groupId), -1);
+        // Check the user has previously authenticated
+        SharedPreferences sharedPrefs = getSharedPreferences(getString(R.string.pref_file), Context.MODE_PRIVATE);
+        int globalUserId = sharedPrefs.getInt(getString(R.string.pref_globalUserId), -1);
+        int userId = sharedPrefs.getInt(getString(R.string.pref_userId), -1);
+        int groupId = sharedPrefs.getInt(getString(R.string.pref_groupId), -1);
         if(globalUserId >= 0 && userId >= 0 && groupId >= 0) {
-            IData.globalUserId = globalUserId;
-            IData.userId = userId;
-            IData.groupId = groupId;
+            Instance.globalUserId = globalUserId;
+            Instance.userId = userId;
+            Instance.groupId = groupId;
         } else {
             Intent intent = new Intent(this, ParticipantActivity.class);
             startActivity(intent);
             finish();
         }
 
+        // Setup the activity
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_timelime);
-
         showLoadingDialog(R.string.dialog_loading);
-        Style.loadStyleAttrs(this);
 
-        mSurface = (SurfaceView) findViewById(R.id.surface);
-        mLayoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
-        mLayoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
+        mInstance = this;
 
+        // Load various static values
+        Phone.collectAttrs();
+        Style.collectAttrs();
+
+        // Begin preparation for drawing the UI
+        SurfaceView mSurface = (SurfaceView) findViewById(R.id.surface);
         mSurface.getHolder().addCallback(this);
 
-        mDbHelper = new DbHelper(this);
-        IData.users = new UserList(this, mSurface);
-        IData.items = new ItemList(this, mLayoutAbove, null, null, mLayoutBelow);
+        mFrameLayout = (FrameLayout) findViewById(R.id.frameLayout);
 
-        mLayoutAbove.setPadding(0, 0, 0, Style.layoutHalfPadding);
-        mLayoutBelow.setPadding(0, Style.layoutHalfPadding, 0, 0);
+        LinearLayout layoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
+        LinearLayout layoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
 
-        mLayoutAbove.setOnLongClickListener(this);
-        mLayoutBelow.setOnLongClickListener(this);
+        layoutAbove.setPadding(0, 0, 0, Style.layoutHalfPadding);
+        layoutBelow.setPadding(0, Style.layoutHalfPadding, 0, 0);
 
-        new DbLoader(this).execute();
+        layoutAbove.setOnLongClickListener(this);
+        layoutBelow.setOnLongClickListener(this);
+
+        // Load items
+        Instance.users = new UserList();
+        Instance.items = new ItemList(this, layoutAbove, layoutBelow);
+
+        new DbLoader().execute();
+    }
+
+    public static TimelineActivity getInstance() {
+        return mInstance;
     }
 
     @Override
     public boolean onLongClick(View v) {
-        promptNewItem(v, IData.items.isEmpty());
+        promptNewItem(v, Instance.items.isEmpty());
         return true;
     }
 
@@ -117,11 +122,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     public void promptAdd() {
-        onLongClick(mLayoutAbove);
-    }
-
-    public DbHelper getDbHelper() {
-        return mDbHelper;
+        onLongClick(mFrameLayout);
     }
 
     @Override
@@ -179,7 +180,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            if(!IData.items.add(IData.items.size(), ItemType.PHOTO, IData.user(), result, true, true)) {
+            if(!Instance.items.add(Instance.items.size(), ItemType.PHOTO, Instance.user(), result, true, true)) {
                 Log.e(TAG, "Failed to save photo");
             }
 
@@ -202,14 +203,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
 
         final ItemType[] types = ItemType.values();
-        CharSequence[] typeLabels = new CharSequence[types.length];
+        CharSequence[] typeLabels = new CharSequence[types.length - 1];
         for (int i = 0; i < typeLabels.length; i++) {
-            typeLabels[i] = getString(types[i].getLabel());
+            typeLabels[i] = getString(types[i+1].getLabel()); // first item is the UNKNOWN type
         }
 
         builder.setItems(typeLabels, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                ItemType type = types[which];
+                ItemType type = types[which+1]; // first item is the UNKNOWN type
                 switch (type) {
                     case PHOTO:
                         addNewPhoto();
@@ -240,7 +241,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .setPositiveButton(getString(R.string.dialog_note_positive), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String text = editText.getText().toString();
-                        if (!IData.items.add(IData.items.size(), ItemType.NOTE, IData.user(), text, true, true)) {
+                        if (!Instance.items.add(Instance.items.size(), ItemType.NOTE, Instance.user(), text, true, true)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }
@@ -278,7 +279,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             insertUrl = "http://" + text;
                         }
 
-                        if(!IData.items.add(IData.items.size(), ItemType.URL, IData.user(), text, true, true)) {
+                        if(!Instance.items.add(Instance.items.size(), ItemType.URL, Instance.user(), insertUrl, true, true)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }
@@ -326,7 +327,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         int h = canvas.getHeight();
 
         for(int i = Style.userLayers.length - 1; i >= 0; i--) {
-            User user = IData.users.get(i);
+            User user = Instance.users.get(i);
 
             int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
             int y2 = (int) (y1 + Style.lineWidth);

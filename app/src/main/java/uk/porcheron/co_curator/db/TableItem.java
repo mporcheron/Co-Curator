@@ -3,7 +3,7 @@ package uk.porcheron.co_curator.db;
 import android.provider.BaseColumns;
 
 /**
- * Created by map on 09/08/15.
+ * Database structure for the `item` table.
  */
 public abstract class TableItem implements BaseColumns {
     public static final String TABLE_NAME = "item";
@@ -30,5 +30,6 @@ public abstract class TableItem implements BaseColumns {
     protected static final String SQL_DELETE =
             "DROP TABLE IF EXISTS " + TableItem.TABLE_NAME + ";";
 
-    private TableItem() {}
+    private TableItem() {
+    }
 }

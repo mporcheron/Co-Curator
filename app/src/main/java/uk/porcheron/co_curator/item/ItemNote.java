@@ -1,14 +1,12 @@
 package uk.porcheron.co_curator.item;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.text.TextUtils;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -16,8 +14,8 @@ import android.widget.TextView;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.util.EllipsizingTextView;
+import uk.porcheron.co_curator.val.Style;
 
 /**
  * An item that contains text.
@@ -31,8 +29,14 @@ public class ItemNote extends Item {
     private TextPaint mPaintFg;
     private TextView mTextView;
 
-    public ItemNote(TimelineActivity activity, int itemId, User user) {
-        super(activity, user, itemId);
+    public ItemNote(Context context) { super(context); }
+
+    public ItemNote(Context context, AttributeSet attrs) { super(context, attrs); }
+
+    public ItemNote(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
+
+    public ItemNote(int itemId, User user) {
+        super(user, itemId);
 
         mPaintFg = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         mPaintFg.setColor(user.fgColor);
@@ -40,7 +44,7 @@ public class ItemNote extends Item {
 
         RectF innerBounds = setBounds(Style.noteWidth, Style.noteHeight, Style.notePadding);
 
-        mTextView = new EllipsizingTextView(activity);
+        mTextView = new EllipsizingTextView(TimelineActivity.getInstance());
         mTextView.layout((int) innerBounds.left, (int) innerBounds.top,
                 (int) innerBounds.right, (int) innerBounds.bottom);
         mTextView.setGravity(Gravity.CENTER_VERTICAL);
@@ -62,9 +66,9 @@ public class ItemNote extends Item {
     }
 
     public String getText() {
-       return mText;
+        return mText;
     }
-    
+
     public void setText(String text) {
         mText = text;
         mTextView.setText(text);
