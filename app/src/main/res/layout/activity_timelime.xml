@@ -38,11 +38,11 @@
                 android:layout_height="@dimen/layoutCentreHeight"
                 android:layout_margin="0dp"
                 android:padding="0dp">
-
+<!--
                 <SurfaceView
                     android:id="@+id/stemSurface"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent"/>-->
 
             </RelativeLayout>
 

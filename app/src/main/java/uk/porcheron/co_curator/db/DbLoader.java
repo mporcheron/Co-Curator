@@ -152,7 +152,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
                 if(cData != null) {
                     Log.v(TAG, "Save Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ",data='" + cData + "')");
-                    IData.items.add(cItemId, type, user, cData, true);
+                    IData.items.add(cItemId, type, user, cData, false, false);
                 } else {
                     Log.e(TAG, "Error: Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ") is NULL");
                 }

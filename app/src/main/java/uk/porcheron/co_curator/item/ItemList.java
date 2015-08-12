@@ -5,12 +5,17 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.RectF;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +28,7 @@ import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.util.IData;
+import uk.porcheron.co_curator.util.Web;
 
 /**
  * List of items
@@ -34,6 +40,8 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
 
     private TimelineActivity mActivity;
     private DbHelper mDbHelper;
+
+    private boolean mSurfaceDrawing = false;
 
     private Map<Integer,List<RectF>> mBranches = new HashMap<Integer,List<RectF>>();
     private Map<String,Item> mItemIds = new HashMap<String,Item>();
@@ -50,19 +58,15 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
         mActivity = activity;
         mDbHelper = activity.getDbHelper();
         mLayoutAbove = layoutAbove;
-        mLayoutCentre = layoutCentre;
-        mStemSurface = stemSurface;
+        //mLayoutCentre = layoutCentre;
+        //mStemSurface = stemSurface;
         mLayoutBelow = layoutBelow;
 
-        mStemSurface.getHolder().addCallback(this);
+//        mStemSurface.getHolder().addCallback(this);
     }
 
-    public boolean add(int itemId, ItemType type, User user, String data) {
-        return add(itemId, type, user, data, false);
-    }
-
-    public boolean add(int itemId, ItemType type, User user, String data, boolean drawOnly) {
-        Log.d(TAG, "Add item " + itemId + " to the view (drawOnly=" + drawOnly + ")");
+    public boolean add(int itemId, ItemType type, User user, String data, boolean addToLocalDb, boolean addToCloud) {
+        Log.d(TAG, "Add item " + itemId + " to the view (addToLocalDb=" + addToLocalDb + ",addToCloud=" + addToCloud + ")");
 
         // Create the item
         Item item = null;
@@ -112,12 +116,15 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
 
         int maxItemWidth = Math.max(mWidthAbove, mWidthBelow);
         int minWinWidth = Math.max(maxItemWidth, size.x);
-        mLayoutCentre.setMinimumWidth(minWinWidth);
-        mLayoutCentre.invalidate();
-        mStemSurface.invalidate();
+        //mLayoutCentre.setMinimumWidth(minWinWidth);
+
+        if(mSurfaceDrawing) {
+            mLayoutCentre.invalidate();
+            mStemSurface.invalidate();
+        }
 
         // Save to the Local Database or just draw?
-        if(drawOnly) {
+        if(!addToLocalDb) {
             return true;
         }
 
@@ -125,6 +132,7 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
 
         ContentValues values = new ContentValues();
         values.put(TableItem.COL_GLOBAL_USER_ID, user.globalUserId);
+        values.put(TableItem.COL_ITEM_ID, itemId);
         values.put(TableItem.COL_ITEM_TYPE, type.getTypeId());
         values.put(TableItem.COL_ITEM_DATA, data.toString());
 
@@ -136,13 +144,18 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
 
         db.close();
 
-        if(newRowId >= 0) {
-            Log.d(TAG, "Item " + newRowId + " created in DB");
-            return true;
-        } else {
+        if(newRowId < 0) {
             Log.e(TAG, "Could not create item in DB");
             return false;
         }
+
+        Log.d(TAG, "Item " + newRowId + " created in DB");
+
+        // Save to the Local Database or just draw?
+        if(addToCloud) {
+            new PostTextToCloud(user.globalUserId, item.getItemId(), type).execute(data.toString());
+        }
+        return true;
     }
 
     private ItemNote createNote(int itemId, User user, String text) {
@@ -206,5 +219,30 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 
+    }
+
+    private class PostTextToCloud extends AsyncTask<String,Void,Boolean> {
+
+        private int mGlobalUserId;
+        private int mItemId;
+        private ItemType mItemType;
+
+        PostTextToCloud(int globalUserId, int itemId, ItemType itemType) {
+            mGlobalUserId = globalUserId;
+            mItemId = itemId;
+            mItemType = itemType;
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+            nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + mGlobalUserId));
+            nameValuePairs.add(new BasicNameValuePair("itemId", "" + mItemId));
+            nameValuePairs.add(new BasicNameValuePair("itemType", "" + mItemType.getTypeId()));
+            nameValuePairs.add(new BasicNameValuePair("itemData", "" + params[0]));
+
+            JSONObject obj = Web.requestObj(Web.POST_ITEMS, nameValuePairs);
+            return obj.has("success");
+        }
     }
 }

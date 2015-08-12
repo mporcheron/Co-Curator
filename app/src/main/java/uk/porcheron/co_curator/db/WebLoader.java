@@ -36,6 +36,7 @@ public class WebLoader {
     }
 
     protected void loadUsersFromWeb() {
+        Log.d(TAG, "Load users from cloud");
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         nameValuePairs.add(new BasicNameValuePair("groupId", "" + IData.groupId));
@@ -57,6 +58,8 @@ public class WebLoader {
     }
 
     protected void loadItemsFromWeb(int globalUserId) {
+        Log.d(TAG, "Load items from cloud");
+
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + globalUserId));
 
@@ -88,7 +91,7 @@ public class WebLoader {
 
                         mActivity.runOnUiThread(new Runnable(){
                             public void run() {
-                                IData.items.add(itemId, type, user, data, false);
+                                IData.items.add(itemId, type, user, data, true, false);
                             }
                         });
                     }

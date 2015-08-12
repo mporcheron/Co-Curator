@@ -7,6 +7,7 @@ import android.provider.BaseColumns;
  */
 public abstract class TableItem implements BaseColumns {
     public static final String TABLE_NAME = "item";
+    public static final String COL_ID = "_id";
     public static final String COL_ITEM_ID = "itemId";
     public static final String COL_GLOBAL_USER_ID = "globalUserId";
     public static final String COL_ITEM_TYPE = "itemType";
@@ -15,7 +16,8 @@ public abstract class TableItem implements BaseColumns {
 
     protected static final String SQL_CREATE =
             "CREATE TABLE " + TableItem.TABLE_NAME + " (" +
-                    TableItem.COL_ITEM_ID + Sql.TYPE_INT + Sql.PRIMARY_KEY + Sql.COMMA +
+                    TableItem.COL_ID + Sql.TYPE_INT + Sql.PRIMARY_KEY + Sql.COMMA +
+                    TableItem.COL_ITEM_ID + Sql.TYPE_INT + Sql.COMMA +
                     TableItem.COL_GLOBAL_USER_ID + Sql.TYPE_INT + Sql.COMMA +
                     //"FOREIGN KEY (" + TableItem.COL_GLOBAL_USER_ID + ") " +
                     //"REFERENCES " + TableUser.TABLE_NAME +

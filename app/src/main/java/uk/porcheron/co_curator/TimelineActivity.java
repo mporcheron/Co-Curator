@@ -72,21 +72,21 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         showLoadingDialog(R.string.dialog_loading);
         Style.loadStyleAttrs(this);
 
-        mSurface = (SurfaceView) findViewById(R.id.surface);
-        mStemSurface = (SurfaceView) findViewById(R.id.stemSurface);
+        //mSurface = (SurfaceView) findViewById(R.id.surface);
+        //mStemSurface = (SurfaceView) findViewById(R.id.stemSurface);
         mLayoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
         mLayoutCentre = (RelativeLayout) findViewById(R.id.layoutCentre);
         mLayoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
 
         mDbHelper = new DbHelper(this);
         IData.users = new UserList(this, mSurface);
-        IData.items = new ItemList(this, mLayoutAbove, mLayoutCentre, mStemSurface, mLayoutBelow);
+        IData.items = new ItemList(this, mLayoutAbove, mLayoutCentre, null, mLayoutBelow);
 
         mLayoutAbove.setPadding(Style.layoutAbovePadX, 0, 0, 0);
         mLayoutCentre.setPadding(Style.layoutAbovePadX, 0, 0, 0);
         mLayoutBelow.setPadding(Style.layoutBelowPadX, 0, 0, 0);
 
-        mSurface.setOnLongClickListener(this);
+//        mSurface.setOnLongClickListener(this);
         mLayoutAbove.setOnLongClickListener(this);
         mLayoutCentre.setOnLongClickListener(this);
         mLayoutBelow.setOnLongClickListener(this);
@@ -171,7 +171,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            if(!IData.items.add(IData.items.size(), ItemType.PHOTO, IData.user(), result)) {
+            if(!IData.items.add(IData.items.size(), ItemType.PHOTO, IData.user(), result, true, true)) {
                 Log.e(TAG, "Failed to save photo");
             }
 
@@ -232,7 +232,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .setPositiveButton(getString(R.string.dialog_note_positive), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String text = editText.getText().toString();
-                        if (!IData.items.add(IData.items.size(), ItemType.NOTE, IData.user(), text)) {
+                        if (!IData.items.add(IData.items.size(), ItemType.NOTE, IData.user(), text, true, true)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }
@@ -270,7 +270,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             insertUrl = "http://" + text;
                         }
 
-                        if(!IData.items.add(IData.items.size(), ItemType.URL, IData.user(), text)) {
+                        if(!IData.items.add(IData.items.size(), ItemType.URL, IData.user(), text, true, true)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }

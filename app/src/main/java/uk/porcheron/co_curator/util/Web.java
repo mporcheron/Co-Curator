@@ -33,6 +33,7 @@ public class Web {
     public static final String LOGIN = ROOT + "login.php";
     public static final String GET_USERS = ROOT + "getUsers.php";
     public static final String GET_ITEMS = ROOT + "getItems.php";
+    public static final String POST_ITEMS = ROOT + "post.php";
 
     public static JSONObject requestObj(String uri,  List<NameValuePair> data) {
         String response = request(uri, data);
