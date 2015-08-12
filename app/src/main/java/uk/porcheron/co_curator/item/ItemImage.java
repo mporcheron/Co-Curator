@@ -57,7 +57,7 @@ public class ItemImage extends Item {
         if(mBitmap == null) {
             Log.d(TAG, "Load image file " + mImagePath);
             try{
-                FileInputStream fis = mActivity.openFileInput(mImagePath);
+                FileInputStream fis = mActivity.openFileInput(mImagePath +".png");
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
 
@@ -67,22 +67,22 @@ public class ItemImage extends Item {
             } catch(Exception e){
                 Log.e(TAG, "Could not open " + mImagePath);
             }
+
+
+            try{
+                FileInputStream fis = mActivity.openFileInput(mImagePath +"-thumb.png");
+                mBitmapThumbnail = BitmapFactory.decodeStream(fis);
+                fis.close();
+
+                if(mBitmapThumbnail == null) {
+                    Log.e(TAG, "Could not decode thumbnail file to bitmap " + mImagePath);
+                }
+            } catch(Exception e){
+                Log.e(TAG, "Could not open " + mImagePath);
+            }
         }
 
-        if(mBitmap != null) {
-            if(mBitmapThumbnail == null) {
-                float ratio = (float) mBitmap.getWidth() / (float) mBitmap.getHeight();
-                int width = (int) (mBitmap.getWidth() * Style.imageThumbScaleBy);
-                int height = (int) (mBitmap.getHeight() * Style.imageThumbScaleBy);
-
-                Bitmap scaledBitmap = Bitmap.createScaledBitmap(mBitmap, width, height, false);
-
-                int x = (int) ((width / 2f) - (b.width() / 2f));
-                int y = (int) ((height / 2f) - (b.height() / 2f));
-
-                mBitmapThumbnail = Bitmap.createBitmap(scaledBitmap, x, y, (int) b.width(), (int) b.height());
-            }
-
+        if(mBitmap != null && mBitmapThumbnail != null) {
             canvas.drawBitmap(mBitmapThumbnail, b.left, b.top, getUser().bgPaint);
         } else {
             canvas.drawRect(b, getUser().bgPaint);

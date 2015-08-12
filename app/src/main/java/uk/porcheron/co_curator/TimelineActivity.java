@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -24,13 +23,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.ItemType;
@@ -75,8 +68,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_timelime);
 
-        mProgressDialog = ProgressDialog.show(this, "", getText(R.string.dialog_loading), true);
-
+        showLoadingDialog(R.string.dialog_loading);
         Style.loadStyleAttrs(this);
 
         mSurface = (SurfaceView) findViewById(R.id.surface);
@@ -107,7 +99,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         return true;
     }
 
-    public void finishLoading() {
+    public void showLoadingDialog(int str) {
+        mProgressDialog = ProgressDialog.show(this, "", getText(str), true);
+    }
+
+    public void hideLoadingDialog() {
         mProgressDialog.hide();
     }
 
@@ -123,7 +119,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "Received ActivityResult (requestCode=" + requestCode + ",resultCode=" + resultCode + ")");
 
-
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode != Activity.RESULT_OK) {
@@ -136,6 +131,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 return;
             }
 
+            showLoadingDialog(R.string.dialog_adding_image);
 
             Uri selectedImage = data.getData();
             String[] filePathColumn = { MediaStore.Images.Media.DATA };
@@ -159,16 +155,35 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         @Override
         protected String doInBackground(String... params) {
             Bitmap bitmap = BitmapFactory.decodeFile(params[0]);
-            String filename = UData.globalUserId + "-" + UData.userId + "-" + System.currentTimeMillis() +".png";
+            String filename = UData.globalUserId + "-" + UData.userId + "-" + System.currentTimeMillis();
+
+            int thumbWidth = (int) (Style.imageWidth - 2 * Style.imagePadding);
+            int thumbHeight = (int) (Style.imageHeight - 2 * Style.imagePadding);
+
+            float ratio = (float) bitmap.getWidth() / (float) bitmap.getHeight();
+            int width = (int) (bitmap.getWidth() * Style.imageThumbScaleBy);
+            int height = (int) (bitmap.getHeight() * Style.imageThumbScaleBy);
+
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+
+            int x = (int) ((width / 2f) - (thumbWidth / 2f));
+            int y = (int) ((height / 2f) - (thumbHeight / 2f));
+
+            Bitmap thumbnail = Bitmap.createBitmap(scaledBitmap, x, y, (int) thumbWidth, (int) thumbHeight);
 
             try {
-                final FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
-
+                final FileOutputStream fos = openFileOutput(filename +".png", MODE_PRIVATE);
                 if(!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
                     Log.e(TAG, "Could not save bitmap locally");
                 }
-
                 fos.close();
+
+                final FileOutputStream fosThumb = openFileOutput(filename +"-thumb.png", MODE_PRIVATE);
+                if(!thumbnail.compress(Bitmap.CompressFormat.PNG, 100, fosThumb)) {
+                    Log.e(TAG, "Could not save bitmap locally");
+                }
+                fosThumb.close();
+
                 return filename;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -184,6 +199,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             if(!UData.items.add(UData.items.size(), ItemType.PHOTO, UData.user(), result)) {
                 Log.e(TAG, "Failed to save photo");
             }
+
+            hideLoadingDialog();
 
         }
     }

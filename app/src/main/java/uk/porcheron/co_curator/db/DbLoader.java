@@ -51,7 +51,7 @@ public class DbLoader extends AsyncTask<Object, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
-        mActivity.finishLoading();
+        mActivity.hideLoadingDialog();
         if (UData.items.isEmpty()) {
             mActivity.promptAdd();
         }

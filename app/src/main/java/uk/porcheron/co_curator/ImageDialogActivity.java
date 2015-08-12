@@ -40,12 +40,12 @@ public class ImageDialogActivity extends Activity {
         String imagePath = (String) getIntent().getStringExtra(IMAGE);
 
         try {
-            FileInputStream fis = openFileInput(imagePath);
+            FileInputStream fis = openFileInput(imagePath + ".png");
             Bitmap bitmap = BitmapFactory.decodeStream(fis);
 
             Log.d(TAG, "Bitmap Size: " + bitmap.getWidth() + "x" + bitmap.getHeight());
 
-            mDialog = (ImageView)findViewById(R.id.image);
+            mDialog = (ImageView) findViewById(R.id.image);
             mDialog.setMinimumHeight(bitmap.getWidth());
             mDialog.setMinimumHeight(bitmap.getHeight());
             mDialog.setImageBitmap(bitmap);

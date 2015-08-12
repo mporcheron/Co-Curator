@@ -4,6 +4,7 @@
     <string name="pref_globalUserId" translatable="false">globalUserId</string>
     <string name="pref_userId" translatable="false">userId</string>
 
+    <string name="dialog_adding_image">Adding image to timeline…</string>
     <string name="dialog_loading">Loading timeline items…</string>
 
     <string name="title_activity_participant">Sign in</string>
