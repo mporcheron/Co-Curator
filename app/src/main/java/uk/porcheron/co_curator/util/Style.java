@@ -18,13 +18,11 @@ public class Style {
 
     public static float layoutCentreHeight;
 
-    // deprecated
-    public static float notchHeight;
-
     public static int[] userPositions = new int[4];
     public static int[] userBgColors = new int[4];
     public static int[] userFgColors = new int[4];
     public static int[] userOffsets = new int[4];
+    public static int[] userLayers = new int[4];
 
     public static float lineCentreGap;
     public static float lineWidth;
@@ -44,6 +42,7 @@ public class Style {
     public static float imageWidth;
     public static float imageHeight;
     public static float imagePadding;
+    public static float imageThumbScaleBy;
 
     public static float urlWidth;
     public static float urlHeight;
@@ -83,13 +82,10 @@ public class Style {
         userFgColors[3] = res.getColor(R.color.userFg3);
 
         userOffsets = res.getIntArray(R.array.userOffsets);
+        userLayers = res.getIntArray(R.array.userLayers);
 
         lineCentreGap = res.getDimension(R.dimen.lineCentreGap);
         lineWidth = res.getDimension(R.dimen.lineWidth);
-
-
-        // deprecated
-        notchHeight = res.getDimension(R.dimen.notchHeight);
 
         itemXGapMin = res.getDimension(R.dimen.itemXGapMin);
         itemXGapMax = res.getDimension(R.dimen.itemXGapMax);
@@ -102,6 +98,7 @@ public class Style {
         imageWidth = res.getDimension(R.dimen.imageWidth);
         imageHeight = res.getDimension(R.dimen.imageHeight);
         imagePadding = res.getDimension(R.dimen.imagePadding);
+        imageThumbScaleBy = res.getInteger(R.integer.imageThumbScaleBy) / 100f;
 
         urlWidth = res.getDimension(R.dimen.urlWidth);
         urlHeight = res.getDimension(R.dimen.urlHeight);

@@ -2,47 +2,4 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-
-    <dimen name="notchHeight">25dp</dimen>
-
-    <dimen name="layoutCentreHeight">24.5dp</dimen>
-
-    <array name="userOffsets">
-        <item>-50</item>
-        <item>-25</item>
-        <item>25</item>
-        <item>50</item>
-    </array>
-
-    <array name="userPositions">
-        <item>0</item>
-        <item>3</item>
-        <item>1</item>
-        <item>2</item>
-    </array>
-
-    <dimen name="lineCentreGap">4dp</dimen>
-    <dimen name="lineWidth">3.5dp</dimen>
-
-    <dimen name="itemXGapMin">25dp</dimen>
-    <dimen name="itemXGapMax">50dp</dimen>
-    <dimen name="itemOutlineSize">2dp</dimen>
-    <dimen name="itemStemNarrowBy">4dp</dimen>
-    <integer name="itemRoundedCorners">12</integer>
-
-    <dimen name="imageWidth">65dp</dimen>
-    <dimen name="imageHeight">65dp</dimen>
-    <dimen name="imagePadding">3dp</dimen>
-
-    <dimen name="urlWidth">50dp</dimen>
-    <dimen name="urlHeight">50dp</dimen>
-    <dimen name="urlPadding">3dp</dimen>
-
-    <dimen name="noteWidth">85dp</dimen>
-    <dimen name="noteHeight">85dp</dimen>
-    <dimen name="notePadding">4dp</dimen>
-    <integer name="noteLines">5</integer>
-    <integer name="noteFontSize">5</integer>
-    <integer name="noteLineSpacing">6</integer>
-
 </resources>

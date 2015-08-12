@@ -3,6 +3,7 @@ package uk.porcheron.co_curator.line;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.View;
 
 import uk.porcheron.co_curator.user.User;
@@ -32,5 +33,6 @@ public class StemConnector extends View {
     @Override
     public void onDraw(Canvas canvas) {
         canvas.drawRect(mBounds, mUser.bgPaint);
+        Log.d(TAG, "Drawing StemConnector at " + mBounds.toShortString());
     }
 }

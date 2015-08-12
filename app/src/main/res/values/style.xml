@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="layoutCentreHeight">24.5dp</dimen>
+
+    <array name="userOffsets">
+        <item>-50</item>
+        <item>-25</item>
+        <item>25</item>
+        <item>50</item>
+    </array>
+
+    <array name="userPositions">
+        <item>3</item>
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </array>
+
+    <array name="userLayers">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </array>
+
+    <dimen name="lineCentreGap">4dp</dimen>
+    <dimen name="lineWidth">3.5dp</dimen>
+
+    <dimen name="itemXGapMin">25dp</dimen>
+    <dimen name="itemXGapMax">50dp</dimen>
+    <dimen name="itemOutlineSize">2dp</dimen>
+    <dimen name="itemStemNarrowBy">4dp</dimen>
+    <integer name="itemRoundedCorners">12</integer>
+
+    <dimen name="imageWidth">65dp</dimen>
+    <dimen name="imageHeight">65dp</dimen>
+    <dimen name="imagePadding">3dp</dimen>
+    <integer name="imageThumbScaleBy">20</integer>
+
+    <dimen name="urlWidth">50dp</dimen>
+    <dimen name="urlHeight">50dp</dimen>
+    <dimen name="urlPadding">3dp</dimen>
+
+    <dimen name="noteWidth">85dp</dimen>
+    <dimen name="noteHeight">85dp</dimen>
+    <dimen name="notePadding">4dp</dimen>
+    <integer name="noteLines">6</integer>
+    <integer name="noteFontSize">5</integer>
+    <integer name="noteLineSpacing">12</integer>
+
+</resources>

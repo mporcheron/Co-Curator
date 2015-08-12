@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.TextView;
 
 import uk.porcheron.co_curator.TimelineActivity;
@@ -67,6 +68,11 @@ public class ItemNote extends Item {
     public void setText(String text) {
         mText = text;
         mTextView.setText(text);
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 
 }

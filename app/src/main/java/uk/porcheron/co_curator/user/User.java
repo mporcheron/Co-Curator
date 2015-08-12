@@ -11,28 +11,29 @@ import uk.porcheron.co_curator.util.Style;
 public class User {
     private static final String TAG = "CC:User";
 
-    public int userId;
-    public int globalUserId;
-    public int bgColor;
-    public int fgColor;
-    public float offset;
-    public float centrelineOffset;
-    public boolean above;
-    public Paint bgPaint;
+    public final int userId;
+    public final int globalUserId;
+    public final int bgColor;
+    public final int fgColor;
+    public final float offset;
+    public final float centrelineOffset;
+    public final boolean above;
+    public final Paint bgPaint;
 
     public User(int globalUserId, int userId) {
         this.userId = userId;
         this.globalUserId = globalUserId;
         this.offset = Style.userOffsets[userId];
 
-        int clOffset = 0;
+        int clOffset = 0, selectedOffset = 0;
         for(int pos : Style.userPositions) {
             if(pos == userId) {
-                this.centrelineOffset = clOffset;
+                selectedOffset = clOffset;
                 break;
             }
             clOffset += Style.lineWidth + Style.lineCentreGap;
         }
+        this.centrelineOffset = selectedOffset;
         this.above = offset <= 0;
 
         this.bgColor = Style.userBgColors[userId];

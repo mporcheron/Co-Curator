@@ -10,6 +10,7 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,6 +19,7 @@ import java.io.FileInputStream;
 import java.util.Random;
 
 import uk.porcheron.co_curator.ImageDialogActivity;
+import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Style;
@@ -27,7 +29,7 @@ import uk.porcheron.co_curator.util.Style;
  * <p/>
  * Created by map on 06/08/15.
  */
-public class ItemImage extends Item implements View.OnClickListener {
+public class ItemImage extends Item {
     private static final String TAG = "CC:ItemImage";
 
     private TimelineActivity mActivity;
@@ -43,7 +45,6 @@ public class ItemImage extends Item implements View.OnClickListener {
         mActivity = activity;
 
         setBounds(Style.imageWidth, Style.imageHeight, Style.imagePadding);
-        setOnClickListener(this);
     }
 
     @Override
@@ -63,29 +64,21 @@ public class ItemImage extends Item implements View.OnClickListener {
         }
 
         if(mBitmapThumbnail == null) {
-            //float ratio = (float) mBitmap.getWidth() / (float) mBitmap.getHeight();//, mBitmap.getHeight()/mBitmap.getWidth());
-            //int width = (int) (b.width() * ratio);
-            //int height = (int) b.height();
+            float ratio = (float) mBitmap.getWidth() / (float) mBitmap.getHeight();//, mBitmap.getHeight()/mBitmap.getWidth());
+            int width = (int) (mBitmap.getWidth() * Style.imageThumbScaleBy);
+            int height = (int) (mBitmap.getHeight() * Style.imageThumbScaleBy);
 
-            //mBitmapThumbnail = Bitmap.createScaledBitmap(mBitmap, width, height, false);
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(mBitmap, width, height, false);
             //shrink(b.width() -  width, 0);
 
-            int x = mRandom.nextInt((int) (mBitmap.getWidth() - b.width()));
-            int y = mRandom.nextInt((int) (mBitmap.getHeight() - b.height()));
+            int x = (int) ((width / 2f) - (b.width() / 2f));
+            int y = (int) ((height / 2f) - (b.height() / 2f));
 
-            mBitmapThumbnail = Bitmap.createBitmap(mBitmap, x, y, (int) b.width(), (int) b.height());
+            mBitmapThumbnail = Bitmap.createBitmap(scaledBitmap, x, y, (int) b.width(), (int) b.height());
 
         }
 
         canvas.drawBitmap(mBitmapThumbnail, b.left, b.top, getUser().bgPaint);
-    }
-
-    public Bitmap getBitmap() {
-        return mBitmap;
-    }
-
-    public void setBitmap(Bitmap bitmap) {
-        mBitmap = bitmap;
     }
     
     public void setImagePath(String imagePath) {
@@ -95,11 +88,12 @@ public class ItemImage extends Item implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         Log.d(TAG, "Image clicked!");
-//
+
         Intent intent = new Intent(mActivity, ImageDialogActivity.class);
-//        intent.putExtra(ImageDialogActivity.IMAGE, mBitmap);
+        intent.putExtra(ImageDialogActivity.IMAGE, mImagePath);
 
         mActivity.startActivity(intent);
+        mActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
 }

@@ -1,8 +1,9 @@
 package uk.porcheron.co_curator.item;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.Random;
@@ -14,7 +15,7 @@ import uk.porcheron.co_curator.util.Style;
 /**
  * A timeline item. Only the _actual_ content is drawn (i.e. no borders etc).
  */
-public abstract class Item extends View {
+public abstract class Item extends View implements View.OnTouchListener {
     private static final String TAG = "CC:Item";
 
     private User mUser;
@@ -24,7 +25,7 @@ public abstract class Item extends View {
     private RectF mOuterBounds;
     private RectF mInnerBounds;
     private RectF mStemBounds;
-    private RectF mStemConnectorBounds;
+    private RectF mBranchBounds;
 
     private float mRandomPadRight;
     private float mRandomPadRightHalf;
@@ -39,6 +40,8 @@ public abstract class Item extends View {
 
         mRandomPadRight = Style.itemXGapMin + mRandom.nextInt((int) Style.itemXGapOffset);
         mRandomPadRightHalf = mRandomPadRight / 2;
+
+        setOnTouchListener(this);
     }
 
     @Override
@@ -57,12 +60,16 @@ public abstract class Item extends View {
                 getUser().bgPaint);
     }
 
+    protected final RectF getSlotBounds() {
+        return mSlotBounds;
+    }
+
     protected final RectF getInnerBounds() {
         return mInnerBounds;
     }
 
-    protected final RectF getmStemConnectorBounds() {
-        return mStemConnectorBounds;
+    protected final RectF getBranchBounds() {
+        return mBranchBounds;
     }
 
     protected final RectF setBounds(float width, float height, float padding) {
@@ -81,7 +88,7 @@ public abstract class Item extends View {
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
         mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, mSlotBounds.bottom);
 
-        mStemConnectorBounds = new RectF(offset, mSlotBounds.bottom, mStemBounds.right, mSlotBounds.bottom + mUser.centrelineOffset);
+        mBranchBounds = new RectF(offset, 0, mStemBounds.right, mUser.centrelineOffset);
 
         return mInnerBounds;
     }
@@ -99,7 +106,7 @@ public abstract class Item extends View {
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
         mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, mSlotBounds.bottom);
 
-        mStemConnectorBounds = new RectF(offset, mSlotBounds.bottom, mStemBounds.right, mSlotBounds.bottom + mUser.centrelineOffset);
+        mBranchBounds = new RectF(offset, mSlotBounds.bottom, mStemBounds.right, mSlotBounds.bottom + mUser.centrelineOffset);
     }
 
     protected final User getUser() {
@@ -109,4 +116,21 @@ public abstract class Item extends View {
     protected final int getItemId() {
         return mItemId;
     }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        Log.d(TAG, "Touched");
+        if (event.getAction() == MotionEvent.ACTION_DOWN){
+            Log.d(TAG, "ACTION_DOWN");
+            if(mOuterBounds.contains(event.getX(), event.getY())) {
+                Log.d(TAG, "Within Outer Bounds");
+                onClick(v);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected abstract void onClick(View v);
 }

@@ -1,6 +1,7 @@
 
 <resources>
     <color name="background">#FF434343</color>
+    <color name="imageBackground">#57010101</color>
 
     <color name="userBg0">#FF7BBD31</color>
     <color name="userBg1">#AA1B8DC8</color>

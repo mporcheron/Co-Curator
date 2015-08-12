@@ -2,17 +2,13 @@ package uk.porcheron.co_curator.db;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
-import uk.porcheron.co_curator.item.NewItem;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.UData;
 
 /**
