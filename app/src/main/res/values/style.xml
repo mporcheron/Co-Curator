@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="layoutCentreHeight">24.5dp</dimen>
+    <dimen name="layoutCentreHeight">26dp</dimen>
 
     <array name="userOffsets">
         <item>-50</item>
@@ -27,7 +27,7 @@
     <dimen name="lineWidth">3.5dp</dimen>
 
     <dimen name="itemXGapMin">25dp</dimen>
-    <dimen name="itemXGapMax">50dp</dimen>
+    <dimen name="itemXGapMax">100dp</dimen>
     <dimen name="itemOutlineSize">2dp</dimen>
     <dimen name="itemStemNarrowBy">4dp</dimen>
     <integer name="itemRoundedCorners">12</integer>

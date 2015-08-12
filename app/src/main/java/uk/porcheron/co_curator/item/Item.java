@@ -30,7 +30,7 @@ public abstract class Item extends View implements View.OnTouchListener {
     private float mRandomPadRight;
     private float mRandomPadRightHalf;
 
-    private Random mRandom = new Random();
+    private static Random mRandom = new Random();
 
     public Item(TimelineActivity activity, User user, int itemId) {
         super(activity);
@@ -73,7 +73,12 @@ public abstract class Item extends View implements View.OnTouchListener {
     }
 
     protected final RectF setBounds(float width, float height, float padding) {
-        float top = Style.itemFullHeight + mUser.offset - height;
+        float top;
+        if(mUser.above) {
+            top = Style.itemFullHeight + mUser.offset - height;
+        } else {
+            top = mUser.offset;
+        }
 
         mOuterBounds = new RectF(mRandomPadRightHalf, top, mRandomPadRightHalf + width, top + height);
 
@@ -86,9 +91,14 @@ public abstract class Item extends View implements View.OnTouchListener {
 
         float offset = mRandomPadRightHalf + Style.itemStemNarrowBy +
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
-        mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, mSlotBounds.bottom);
 
-        mBranchBounds = new RectF(offset, 0, mStemBounds.right, mUser.centrelineOffset);
+        if(mUser.above) {
+            mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, mSlotBounds.bottom);
+            mBranchBounds = new RectF(offset, 0, mStemBounds.right, mUser.centrelineOffset);
+        } else {
+            mStemBounds = new RectF(offset, 0, offset + Style.lineWidth, mOuterBounds.top);
+            mBranchBounds = new RectF(offset, mUser.centrelineOffset + Style.lineWidth, mStemBounds.right,  Style.layoutCentreHeight);
+        }
 
         return mInnerBounds;
     }

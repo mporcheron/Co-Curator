@@ -80,7 +80,7 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
         }
 
         add(item);
-        mItemIds.put(IData.globalUserId + "-" + item.getItemId(), item);
+        mItemIds.put(user.globalUserId + "-" + item.getItemId(), item);
 
         // Drawing
         int slotX = 0;

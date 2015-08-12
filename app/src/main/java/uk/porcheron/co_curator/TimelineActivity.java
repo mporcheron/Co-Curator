@@ -29,6 +29,7 @@ import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.user.UserList;
+import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.util.IData;
@@ -155,37 +156,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         @Override
         protected String doInBackground(String... params) {
             Bitmap bitmap = BitmapFactory.decodeFile(params[0]);
-            String filename = IData.globalUserId + "-" + IData.userId + "-" + System.currentTimeMillis();
-
-            int thumbWidth = (int) (Style.imageWidth - 2 * Style.imagePadding);
-            int thumbHeight = (int) (Style.imageHeight - 2 * Style.imagePadding);
-
-            float ratio = (float) bitmap.getWidth() / (float) bitmap.getHeight();
-            int width = (int) (bitmap.getWidth() * Style.imageThumbScaleBy);
-            int height = (int) (bitmap.getHeight() * Style.imageThumbScaleBy);
-
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-
-            int x = (int) ((width / 2f) - (thumbWidth / 2f));
-            int y = (int) ((height / 2f) - (thumbHeight / 2f));
-
-            Bitmap thumbnail = Bitmap.createBitmap(scaledBitmap, x, y, (int) thumbWidth, (int) thumbHeight);
 
             try {
-                final FileOutputStream fos = openFileOutput(filename +".png", MODE_PRIVATE);
-                if(!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
-                    Log.e(TAG, "Could not save bitmap locally");
-                }
-                fos.close();
-
-                final FileOutputStream fosThumb = openFileOutput(filename +"-thumb.png", MODE_PRIVATE);
-                if(!thumbnail.compress(Bitmap.CompressFormat.PNG, 100, fosThumb)) {
-                    Log.e(TAG, "Could not save bitmap locally");
-                }
-                fosThumb.close();
-
-                return filename;
+                return Image.save(TimelineActivity.this, bitmap);
             } catch (Exception e) {
+                Log.e(TAG, "Failed to save image");
                 e.printStackTrace();
             }
 

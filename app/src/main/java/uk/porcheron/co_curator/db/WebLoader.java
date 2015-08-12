@@ -1,5 +1,7 @@
 package uk.porcheron.co_curator.db;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import org.apache.http.NameValuePair;
@@ -8,6 +10,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +20,7 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.IData;
+import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
 
 /**
@@ -64,9 +70,21 @@ public class WebLoader {
 
                     if(IData.items.getByItemId(globalUserId, itemId) == null) {
                         final User user = IData.users.getByGlobalUserId(globalUserId);
-                        final String data = itemJ.getString("data");
+                        String jsonData = itemJ.getString("data");
                         final ItemType type = ItemType.get(itemJ.getInt("type"));
                         final String datetime = itemJ.getString("datetime");
+
+                        if(type == ItemType.PHOTO) {
+                            Bitmap b = getBitmapFromURL(jsonData);
+                            try {
+                                jsonData = Image.save(mActivity, b);
+                            } catch (IOException e) {
+                                Log.e(TAG, "Failed to download image " + jsonData);
+                                e.printStackTrace();
+                            }
+                        }
+
+                        final String data = jsonData;
 
                         mActivity.runOnUiThread(new Runnable(){
                             public void run() {
@@ -82,5 +100,21 @@ public class WebLoader {
             }
         }
 
+    }
+
+    public static Bitmap getBitmapFromURL(String src) {
+        try {
+            java.net.URL url = new java.net.URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to get image from URL: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 }
