@@ -2,6 +2,7 @@ package uk.porcheron.co_curator.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.view.Display;
 import android.view.WindowManager;
@@ -27,9 +28,8 @@ public class Style {
     public static float lineCentreGap;
     public static float lineWidth;
 
-    // deprecated
-    public static int layoutAbovePadX;
-    public static int layoutBelowPadX;
+    public static int layoutHalfHeight;
+    public static int layoutHalfPadding;
 
     public static float itemXGapMin;
     public static float itemXGapMax;
@@ -55,6 +55,8 @@ public class Style {
     public static int noteFontSize;
     public static float noteLineSpacing;
 
+    public static Paint normalPaint;
+
     public static void loadStyleAttrs(Context context) {
         Resources res = context.getResources();
 
@@ -68,6 +70,8 @@ public class Style {
         // Get style settings
         backgroundColor = res.getColor(R.color.background);
         layoutCentreHeight = res.getDimension(R.dimen.layoutCentreHeight);
+        layoutHalfHeight = (int) ((height / 2) + layoutCentreHeight);
+        layoutHalfPadding = (int) ((height / 2) - (layoutCentreHeight / 2));
 
         userPositions = res.getIntArray(R.array.userPositions);
 
@@ -110,5 +114,7 @@ public class Style {
         noteLines = res.getInteger(R.integer.noteLines);
         noteFontSize = res.getInteger(R.integer.noteFontSize);
         noteLineSpacing  = res.getInteger(R.integer.noteLineSpacing) / 10f;
+
+        normalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }
 }

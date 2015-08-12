@@ -51,9 +51,9 @@ import uk.porcheron.co_curator.util.Web;
 public class ParticipantActivity extends Activity {
     private static final String TAG = "CC:ParticipantActivity";
 
-    private UserLoginTask mAuthTask = null;
-
     private SharedPreferences mSharedPreferences;
+
+    private UserLoginTask mAuthTask = null;
 
     private EditText mGlobalUserIdField;
     private EditText mUserIdField;
@@ -64,23 +64,9 @@ public class ParticipantActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mSharedPreferences = getSharedPreferences(getString(R.string.pref_file), Context.MODE_PRIVATE);
-        int globalUserId = mSharedPreferences.getInt(getString(R.string.pref_globalUserId), -1);
-        int userId = mSharedPreferences.getInt(getString(R.string.pref_userId), -1);
-        int groupId = mSharedPreferences.getInt(getString(R.string.pref_groupId), -1);
-        if(globalUserId >= 0 && userId >= 0 && groupId >= 0) {
-            IData.globalUserId = globalUserId;
-            IData.userId = userId;
-            IData.groupId = groupId;
-
-            Intent intent = new Intent(ParticipantActivity.this, TimelineActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
         setContentView(R.layout.activity_participant);
 
+        mSharedPreferences = getSharedPreferences(getString(R.string.pref_file), Context.MODE_PRIVATE);
         mGlobalUserIdField = (EditText) findViewById(R.id.globalUserId);
         mUserIdField = (EditText) findViewById(R.id.localUserId);
 

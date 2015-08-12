@@ -35,34 +35,25 @@ import uk.porcheron.co_curator.util.Web;
  *
  * Created by map on 07/08/15.
  */
-public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback {
+public class ItemList extends ArrayList<Item> {
     private static final String TAG = "CC:ItemList";
 
     private TimelineActivity mActivity;
     private DbHelper mDbHelper;
 
-    private boolean mSurfaceDrawing = false;
-
-    private Map<Integer,List<RectF>> mBranches = new HashMap<Integer,List<RectF>>();
     private Map<String,Item> mItemIds = new HashMap<String,Item>();
 
     private LinearLayout mLayoutAbove;
-    private RelativeLayout mLayoutCentre;
-    private SurfaceView mStemSurface;
     private LinearLayout mLayoutBelow;
 
     private int mWidthAbove = 0;
     private int mWidthBelow = 0;
 
-    public ItemList(TimelineActivity activity, LinearLayout layoutAbove, RelativeLayout layoutCentre, SurfaceView stemSurface, LinearLayout layoutBelow) {
+    public ItemList(TimelineActivity activity, LinearLayout layoutAbove, LinearLayout layoutBelow) {
         mActivity = activity;
         mDbHelper = activity.getDbHelper();
         mLayoutAbove = layoutAbove;
-        //mLayoutCentre = layoutCentre;
-        //mStemSurface = stemSurface;
         mLayoutBelow = layoutBelow;
-
-//        mStemSurface.getHolder().addCallback(this);
     }
 
     public boolean add(int itemId, ItemType type, User user, String data, boolean addToLocalDb, boolean addToCloud) {
@@ -90,38 +81,15 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
         int slotX = 0;
         if (user.above) {
             mLayoutAbove.addView(item, item.getWidth(), (int) Style.itemFullHeight);
-            slotX = mWidthAbove;
             mWidthAbove += item.getSlotBounds().width();
         } else {
             mLayoutBelow.addView(item, item.getWidth(), (int) Style.itemFullHeight);
-            slotX = mWidthBelow;
             mWidthBelow += item.getSlotBounds().width();
         }
-
-        // Branch drawing
-        List<RectF> branches;
-        if(mBranches.containsKey(user.userId)) {
-            branches = mBranches.get(user.userId);
-        } else {
-            branches = new ArrayList<RectF>();
-        }
-
-        item.getBranchBounds().offset(slotX, 0);
-        branches.add(item.getBranchBounds());
-        mBranches.put(user.userId, branches);
 
         Display display = mActivity.getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-
-        int maxItemWidth = Math.max(mWidthAbove, mWidthBelow);
-        int minWinWidth = Math.max(maxItemWidth, size.x);
-        //mLayoutCentre.setMinimumWidth(minWinWidth);
-
-        if(mSurfaceDrawing) {
-            mLayoutCentre.invalidate();
-            mStemSurface.invalidate();
-        }
 
         // Save to the Local Database or just draw?
         if(!addToLocalDb) {
@@ -178,47 +146,6 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
 
     public Item getByItemId(int globalUserId, int itemId) {
         return mItemIds.get(globalUserId + "-" + itemId);
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.d(TAG, "Redaw trunk and branches");
-
-        Canvas canvas = holder.lockCanvas();
-        canvas.drawColor(Style.backgroundColor);
-
-        int w = canvas.getWidth();
-        int h = canvas.getHeight();
-
-        for(int i = Style.userLayers.length - 1; i >= 0; i--) {
-            User user = IData.users.get(i);
-
-            int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
-            int y2 = (int) (y1 + Style.lineWidth);
-
-            canvas.drawRect(0, y1, w, y2, user.bgPaint);
-
-            List<RectF> branches = mBranches.get(i);
-            if(branches == null) {
-                continue;
-            }
-
-            for(RectF branch : branches) {
-                canvas.drawRect(branch, user.bgPaint);
-            }
-        }
-
-        holder.unlockCanvasAndPost(canvas);
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-
     }
 
     private class PostTextToCloud extends AsyncTask<String,Void,Boolean> {

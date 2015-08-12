@@ -25,7 +25,6 @@ public abstract class Item extends View implements View.OnTouchListener {
     private RectF mOuterBounds;
     private RectF mInnerBounds;
     private RectF mStemBounds;
-    private RectF mBranchBounds;
 
     private float mRandomPadRight;
     private float mRandomPadRightHalf;
@@ -68,16 +67,12 @@ public abstract class Item extends View implements View.OnTouchListener {
         return mInnerBounds;
     }
 
-    protected final RectF getBranchBounds() {
-        return mBranchBounds;
-    }
-
     protected final RectF setBounds(float width, float height, float padding) {
         float top;
         if(mUser.above) {
             top = Style.itemFullHeight + mUser.offset - height;
         } else {
-            top = mUser.offset;
+            top = Style.layoutCentreHeight + mUser.offset;
         }
 
         mOuterBounds = new RectF(mRandomPadRightHalf, top, mRandomPadRightHalf + width, top + height);
@@ -87,17 +82,15 @@ public abstract class Item extends View implements View.OnTouchListener {
                 mOuterBounds.right - padding,
                 mOuterBounds.bottom - padding);
 
-        mSlotBounds = new RectF(0, 0, mOuterBounds.width() + mRandomPadRight, Style.itemFullHeight);
+        mSlotBounds = new RectF(0, 0, mOuterBounds.width() + mRandomPadRight, Style.itemFullHeight + Style.layoutCentreHeight);
 
         float offset = mRandomPadRightHalf + Style.itemStemNarrowBy +
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
 
         if(mUser.above) {
-            mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, mSlotBounds.bottom);
-            mBranchBounds = new RectF(offset, 0, mStemBounds.right, mUser.centrelineOffset);
+            mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, Style.layoutHalfPadding + mUser.centrelineOffset);
         } else {
-            mStemBounds = new RectF(offset, 0, offset + Style.lineWidth, mOuterBounds.top);
-            mBranchBounds = new RectF(offset, mUser.centrelineOffset + Style.lineWidth, mStemBounds.right,  Style.layoutCentreHeight);
+            mStemBounds = new RectF(offset, mUser.centrelineOffset + Style.lineWidth - 1, offset + Style.lineWidth, mOuterBounds.top);
         }
 
         return mInnerBounds;
@@ -115,8 +108,6 @@ public abstract class Item extends View implements View.OnTouchListener {
         float offset = mRandomPadRightHalf + Style.itemStemNarrowBy +
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
         mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, mSlotBounds.bottom);
-
-        mBranchBounds = new RectF(offset, mSlotBounds.bottom, mStemBounds.right, mSlotBounds.bottom + mUser.centrelineOffset);
     }
 
     protected final User getUser() {

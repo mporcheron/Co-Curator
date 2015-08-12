@@ -83,9 +83,9 @@ public class ItemImage extends Item {
         }
 
         if(mBitmap != null && mBitmapThumbnail != null) {
-            canvas.drawBitmap(mBitmapThumbnail, b.left, b.top, getUser().bgPaint);
+            canvas.drawBitmap(mBitmapThumbnail, b.left, b.top, Style.normalPaint);
         } else {
-            canvas.drawRect(b, getUser().bgPaint);
+            canvas.drawRect(b, Style.normalPaint);
         }
 
     }

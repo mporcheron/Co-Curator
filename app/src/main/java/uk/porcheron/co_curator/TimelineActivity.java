@@ -6,14 +6,18 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
@@ -24,30 +28,28 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.io.FileOutputStream;
+import java.util.List;
 
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
+import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.util.IData;
 
-public class TimelineActivity extends Activity implements View.OnLongClickListener {
+public class TimelineActivity extends Activity implements View.OnLongClickListener, SurfaceHolder.Callback {
     private static final String TAG = "CC:TimelineActivity";
 
-    private boolean mCreated = false;
+    private SharedPreferences mSharedPreferences;
 
     private DbHelper mDbHelper;
     private ProgressDialog mProgressDialog;
     private SurfaceView mSurface;
-    private SurfaceView mStemSurface;
     private LinearLayout mLayoutAbove;
-    private RelativeLayout mLayoutCentre;
     private LinearLayout mLayoutBelow;
-
-    private String mNewImagePath;
 
     public static final int PICK_IMAGE = 101;
 
@@ -55,10 +57,19 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(mCreated) {
-            return;
+        mSharedPreferences = getSharedPreferences(getString(R.string.pref_file), Context.MODE_PRIVATE);
+        int globalUserId = mSharedPreferences.getInt(getString(R.string.pref_globalUserId), -1);
+        int userId = mSharedPreferences.getInt(getString(R.string.pref_userId), -1);
+        int groupId = mSharedPreferences.getInt(getString(R.string.pref_groupId), -1);
+        if(globalUserId >= 0 && userId >= 0 && groupId >= 0) {
+            IData.globalUserId = globalUserId;
+            IData.userId = userId;
+            IData.groupId = groupId;
+        } else {
+            Intent intent = new Intent(this, ParticipantActivity.class);
+            startActivity(intent);
+            finish();
         }
-        mCreated = true;
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
@@ -72,23 +83,20 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         showLoadingDialog(R.string.dialog_loading);
         Style.loadStyleAttrs(this);
 
-        //mSurface = (SurfaceView) findViewById(R.id.surface);
-        //mStemSurface = (SurfaceView) findViewById(R.id.stemSurface);
+        mSurface = (SurfaceView) findViewById(R.id.surface);
         mLayoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
-        mLayoutCentre = (RelativeLayout) findViewById(R.id.layoutCentre);
         mLayoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
+
+        mSurface.getHolder().addCallback(this);
 
         mDbHelper = new DbHelper(this);
         IData.users = new UserList(this, mSurface);
-        IData.items = new ItemList(this, mLayoutAbove, mLayoutCentre, null, mLayoutBelow);
+        IData.items = new ItemList(this, mLayoutAbove, null, null, mLayoutBelow);
 
-        mLayoutAbove.setPadding(Style.layoutAbovePadX, 0, 0, 0);
-        mLayoutCentre.setPadding(Style.layoutAbovePadX, 0, 0, 0);
-        mLayoutBelow.setPadding(Style.layoutBelowPadX, 0, 0, 0);
+        mLayoutAbove.setPadding(0, 0, 0, Style.layoutHalfPadding);
+        mLayoutBelow.setPadding(0, Style.layoutHalfPadding, 0, 0);
 
-//        mSurface.setOnLongClickListener(this);
         mLayoutAbove.setOnLongClickListener(this);
-        mLayoutCentre.setOnLongClickListener(this);
         mLayoutBelow.setOnLongClickListener(this);
 
         new DbLoader(this).execute();
@@ -299,5 +307,38 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
 
         startActivityForResult(pickIntent, TimelineActivity.PICK_IMAGE);
+    }
+
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        Log.d(TAG, "Redaw trunk");
+
+        Canvas canvas = holder.lockCanvas();
+        canvas.drawColor(Style.backgroundColor);
+
+        int w = canvas.getWidth();
+        int h = canvas.getHeight();
+
+        for(int i = Style.userLayers.length - 1; i >= 0; i--) {
+            User user = IData.users.get(i);
+
+            int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
+            int y2 = (int) (y1 + Style.lineWidth);
+
+            canvas.drawRect(0, y1, w, y2, user.bgPaint);
+        }
+
+        holder.unlockCanvasAndPost(canvas);
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+
     }
 }
