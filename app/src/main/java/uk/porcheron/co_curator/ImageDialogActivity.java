@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import uk.porcheron.co_curator.val.Phone;
+
 /**
  * From http://stackoverflow.com/questions/7693633/android-image-dialog-popup
  *
@@ -22,6 +24,7 @@ public class ImageDialogActivity extends Activity {
 
     public static final String IMAGE = "IMAGE";
 
+    private Bitmap mBitmap;
     private ImageView mDialog;
 
     @Override
@@ -41,18 +44,11 @@ public class ImageDialogActivity extends Activity {
 
         try {
             FileInputStream fis = openFileInput(imagePath + ".png");
-            Bitmap bitmap = BitmapFactory.decodeStream(fis);
-
-            Log.d(TAG, "Bitmap Size: " + bitmap.getWidth() + "x" + bitmap.getHeight());
+            mBitmap = BitmapFactory.decodeStream(fis);
 
             mDialog = (ImageView) findViewById(R.id.image);
-            mDialog.setMinimumHeight(bitmap.getWidth());
-            mDialog.setMinimumHeight(bitmap.getHeight());
-            mDialog.setImageBitmap(bitmap);
+            mDialog.setImageBitmap(mBitmap);
             mDialog.setClickable(true);
-
-            //finish the activity (dismiss the image dialog) if the user clicks
-            //anywhere on the image
             mDialog.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -63,6 +59,17 @@ public class ImageDialogActivity extends Activity {
             Log.e(TAG, "Could not open image " + imagePath);
             finish();
         }
+    }
+
+    public void onResume() {
+        super.onResume();
+
+        Phone.collectAttrs();
+
+        int padX = (Phone.screenWidth - mBitmap.getWidth()) / 2;
+        int padY = (Phone.screenHeight - mBitmap.getHeight()) / 2;
+        mDialog.setPadding(padX, padY, padX, padY);
+
     }
 
     @Override

@@ -107,6 +107,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         return mInstance;
     }
 
+    public void onResume() {
+        super.onResume();
+        Phone.collectAttrs();
+    }
+
     @Override
     public boolean onLongClick(View v) {
         promptNewItem(v, Instance.items.isEmpty());

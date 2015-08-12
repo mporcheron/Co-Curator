@@ -61,18 +61,11 @@ public class Style {
     public static void collectAttrs() {
         Resources res = TimelineActivity.getInstance().getResources();
 
-        // Screen dimensions
-        WindowManager wm = (WindowManager) TimelineActivity.getInstance().getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int height = size.y;
-
         // Get style settings
         backgroundColor = res.getColor(R.color.background);
         layoutCentreHeight = res.getDimension(R.dimen.layoutCentreHeight);
-        layoutHalfHeight = (int) ((height / 2) + layoutCentreHeight);
-        layoutHalfPadding = (int) ((height / 2) - (layoutCentreHeight / 2));
+        layoutHalfHeight = (int) ((Phone.screenHeight / 2) + layoutCentreHeight);
+        layoutHalfPadding = (int) ((Phone.screenHeight / 2) - (layoutCentreHeight / 2));
 
         userPositions = res.getIntArray(R.array.userPositions);
 
@@ -98,7 +91,7 @@ public class Style {
         itemOutlineSize = res.getDimension(R.dimen.itemOutlineSize);
         itemRoundedCorners = res.getInteger(R.integer.itemRoundedCorners);
         itemStemNarrowBy = res.getDimension(R.dimen.itemStemNarrowBy);
-        itemFullHeight = ((height / 2) - (res.getDimension(R.dimen.layoutCentreHeight) / 2));
+        itemFullHeight = ((Phone.screenHeight / 2) - (res.getDimension(R.dimen.layoutCentreHeight) / 2));
 
         imageWidth = res.getDimension(R.dimen.imageWidth);
         imageHeight = res.getDimension(R.dimen.imageHeight);
