@@ -1,12 +1,8 @@
 package uk.porcheron.co_curator.item;
 
-import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.util.Log;
@@ -16,7 +12,6 @@ import android.view.SurfaceView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +22,7 @@ import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Style;
-import uk.porcheron.co_curator.util.UData;
+import uk.porcheron.co_curator.util.IData;
 
 /**
  * List of items
@@ -182,7 +177,7 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
         int h = canvas.getHeight();
 
         for(int i = Style.userLayers.length - 1; i >= 0; i--) {
-            User user = UData.users.get(i);
+            User user = IData.users.get(i);
 
             int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
             int y2 = (int) (y1 + Style.lineWidth);

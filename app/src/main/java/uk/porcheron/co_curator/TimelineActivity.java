@@ -31,7 +31,7 @@ import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.db.DbHelper;
-import uk.porcheron.co_curator.util.UData;
+import uk.porcheron.co_curator.util.IData;
 
 public class TimelineActivity extends Activity implements View.OnLongClickListener {
     private static final String TAG = "CC:TimelineActivity";
@@ -78,8 +78,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mLayoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
 
         mDbHelper = new DbHelper(this);
-        UData.users = new UserList(this, mSurface);
-        UData.items = new ItemList(this, mLayoutAbove, mLayoutCentre, mStemSurface, mLayoutBelow);
+        IData.users = new UserList(this, mSurface);
+        IData.items = new ItemList(this, mLayoutAbove, mLayoutCentre, mStemSurface, mLayoutBelow);
 
         mLayoutAbove.setPadding(Style.layoutAbovePadX, 0, 0, 0);
         mLayoutCentre.setPadding(Style.layoutAbovePadX, 0, 0, 0);
@@ -90,12 +90,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mLayoutCentre.setOnLongClickListener(this);
         mLayoutBelow.setOnLongClickListener(this);
 
-        new DbLoader(this).execute("Go");
+        new DbLoader(this).execute();
     }
 
     @Override
     public boolean onLongClick(View v) {
-        promptNewItem(v, UData.items.isEmpty());
+        promptNewItem(v, IData.items.isEmpty());
         return true;
     }
 
@@ -155,7 +155,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         @Override
         protected String doInBackground(String... params) {
             Bitmap bitmap = BitmapFactory.decodeFile(params[0]);
-            String filename = UData.globalUserId + "-" + UData.userId + "-" + System.currentTimeMillis();
+            String filename = IData.globalUserId + "-" + IData.userId + "-" + System.currentTimeMillis();
 
             int thumbWidth = (int) (Style.imageWidth - 2 * Style.imagePadding);
             int thumbHeight = (int) (Style.imageHeight - 2 * Style.imagePadding);
@@ -196,7 +196,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            if(!UData.items.add(UData.items.size(), ItemType.PHOTO, UData.user(), result)) {
+            if(!IData.items.add(IData.items.size(), ItemType.PHOTO, IData.user(), result)) {
                 Log.e(TAG, "Failed to save photo");
             }
 
@@ -257,7 +257,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .setPositiveButton(getString(R.string.dialog_note_positive), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String text = editText.getText().toString();
-                        if (!UData.items.add(UData.items.size(), ItemType.NOTE, UData.user(), text)) {
+                        if (!IData.items.add(IData.items.size(), ItemType.NOTE, IData.user(), text)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }
@@ -295,7 +295,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             insertUrl = "http://" + text;
                         }
 
-                        if(!UData.items.add(UData.items.size(), ItemType.URL, UData.user(), text)) {
+                        if(!IData.items.add(IData.items.size(), ItemType.URL, IData.user(), text)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }

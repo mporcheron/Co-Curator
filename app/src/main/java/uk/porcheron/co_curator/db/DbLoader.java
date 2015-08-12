@@ -9,12 +9,12 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.util.UData;
+import uk.porcheron.co_curator.util.IData;
 
 /**
  * Created by map on 10/08/15.
  */
-public class DbLoader extends AsyncTask<Object, Void, Boolean> {
+public class DbLoader extends AsyncTask<Void, Void, Boolean> {
     private static final String TAG = "CC:InitialDB";
 
     private TimelineActivity mActivity;
@@ -30,7 +30,7 @@ public class DbLoader extends AsyncTask<Object, Void, Boolean> {
      * @return
      */
     @Override
-    protected Boolean doInBackground(Object... params) {
+    protected Boolean doInBackground(Void... params) {
         try {
             loadUsersFromDb();
             loadItemsFromDb(-1);
@@ -42,17 +42,9 @@ public class DbLoader extends AsyncTask<Object, Void, Boolean> {
     }
 
     @Override
-    protected void onPreExecute() {
-    }
-
-    @Override
-    protected void onProgressUpdate(Void... values) {
-    }
-
-    @Override
     protected void onPostExecute(Boolean result) {
         mActivity.hideLoadingDialog();
-        if (UData.items.isEmpty()) {
+        if (IData.items.isEmpty()) {
             mActivity.promptAdd();
         }
     }
@@ -89,7 +81,7 @@ public class DbLoader extends AsyncTask<Object, Void, Boolean> {
                 int cGlobalUserId = c.getInt(0);
                 int cUserId = c.getInt(1);
 
-                UData.users.add(cGlobalUserId, cUserId, true);
+                IData.users.add(cGlobalUserId, cUserId, true);
 
                 c.moveToNext();
             }
@@ -99,9 +91,9 @@ public class DbLoader extends AsyncTask<Object, Void, Boolean> {
         }
 
         // Current user doesn't exist?
-        if(UData.user() == null) {
+        if(IData.user() == null) {
             Log.d(TAG, "Create current user in DB");
-            UData.users.add(UData.globalUserId, UData.userId, false);
+            IData.users.add(IData.globalUserId, IData.userId, false);
         }
     }
 
@@ -147,9 +139,9 @@ public class DbLoader extends AsyncTask<Object, Void, Boolean> {
                 int cGlobalUserId = c.getInt(1);
                 int cTypeId = c.getInt(2);
 
-                user = UData.users.getByGlobalUserId(cGlobalUserId);
+                user = IData.users.getByGlobalUserId(cGlobalUserId);
                 if (user == null) {
-                    UData.users.add(cGlobalUserId, UData.users.size(), false);
+                    IData.users.add(cGlobalUserId, IData.users.size(), false);
                 }
 
                 type = ItemType.get(cTypeId);
@@ -158,7 +150,7 @@ public class DbLoader extends AsyncTask<Object, Void, Boolean> {
 
                 if(cData != null) {
                     Log.v(TAG, "Save Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ",data='" + cData + "')");
-                    UData.items.add(cItemId, type, user, cData, true);
+                    IData.items.add(cItemId, type, user, cData, true);
                 } else {
                     Log.e(TAG, "Error: Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ") is NULL");
                 }
@@ -173,6 +165,6 @@ public class DbLoader extends AsyncTask<Object, Void, Boolean> {
             db.close();
         }
 
-        return UData.items;
+        return IData.items;
     }
 }

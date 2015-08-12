@@ -7,7 +7,7 @@ import uk.porcheron.co_curator.user.UserList;
 /**
  * Created by map on 10/08/15.
  */
-public class UData {
+public class IData {
     public static int globalUserId;
     public static int userId;
     public static UserList users;
