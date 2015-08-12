@@ -15,14 +15,16 @@ import uk.porcheron.co_curator.util.IData;
  * Created by map on 10/08/15.
  */
 public class DbLoader extends AsyncTask<Void, Void, Boolean> {
-    private static final String TAG = "CC:InitialDB";
+    private static final String TAG = "CC:DbLoader";
 
     private TimelineActivity mActivity;
     private DbHelper mDbHelper;
+    private WebLoader mWebLoader;
 
     public DbLoader(TimelineActivity activity) {
         mActivity = activity;
         mDbHelper = activity.getDbHelper();
+        mWebLoader = new WebLoader(mActivity);
     }
 
     /**
@@ -35,7 +37,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
             loadUsersFromDb();
             loadItemsFromDb(-1);
         } catch (Exception e) {
-            Log.e(TAG, "Error loading data from local DB: " + e.getMessage());
+            Log.e(TAG, "Error loading data: " + e.getMessage());
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
@@ -92,18 +94,18 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
         // Current user doesn't exist?
         if(IData.user() == null) {
-            Log.d(TAG, "Create current user in DB");
-            IData.users.add(IData.globalUserId, IData.userId, false);
+            Log.d(TAG, "Get users from cloud...");
+            mWebLoader.loadUsersFromWeb();
         }
     }
 
     protected ItemList loadItemsFromDb(int globalUserId) throws Exception {
         Log.d(TAG, "Initial load of items from DB");
 
+        boolean allUsers = globalUserId < 0;
+
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
         try {
-            boolean allUsers = globalUserId < 0;
-
             String[] projection = {
                     TableItem.COL_ITEM_ID,
                     TableItem.COL_GLOBAL_USER_ID,
@@ -163,6 +165,14 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
             c.close();
         } finally {
             db.close();
+        }
+
+        if(allUsers) {
+            for(User u : IData.users) {
+                mWebLoader.loadItemsFromWeb(u.globalUserId);
+            }
+        } else {
+            mWebLoader.loadItemsFromWeb(globalUserId);
         }
 
         return IData.items;

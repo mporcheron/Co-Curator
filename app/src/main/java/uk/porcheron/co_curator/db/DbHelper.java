@@ -12,7 +12,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String TAG = "CC:Db";
 
     public static final String DATABASE_NAME = "CoCurator.db";
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -20,7 +20,6 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(TableUser.SQL_CREATE);
-        db.execSQL(TableUser.SQL_DUMMY_DATA);
         db.execSQL(TableItem.SQL_CREATE);
     }
 

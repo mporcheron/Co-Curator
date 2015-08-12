@@ -36,6 +36,7 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
     private DbHelper mDbHelper;
 
     private Map<Integer,List<RectF>> mBranches = new HashMap<Integer,List<RectF>>();
+    private Map<String,Item> mItemIds = new HashMap<String,Item>();
 
     private LinearLayout mLayoutAbove;
     private RelativeLayout mLayoutCentre;
@@ -79,6 +80,7 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
         }
 
         add(item);
+        mItemIds.put(IData.globalUserId + "-" + item.getItemId(), item);
 
         // Drawing
         int slotX = 0;
@@ -159,6 +161,10 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
         ItemImage image = new ItemImage(mActivity, itemId, user);
         image.setImagePath(imagePath);
         return image;
+    }
+
+    public Item getByItemId(int globalUserId, int itemId) {
+        return mItemIds.get(globalUserId + "-" + itemId);
     }
 
     @Override

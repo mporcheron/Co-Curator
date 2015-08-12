@@ -19,6 +19,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -67,9 +68,11 @@ public class ParticipantActivity extends Activity {
         mSharedPreferences = getSharedPreferences(getString(R.string.pref_file), Context.MODE_PRIVATE);
         int globalUserId = mSharedPreferences.getInt(getString(R.string.pref_globalUserId), -1);
         int userId = mSharedPreferences.getInt(getString(R.string.pref_userId), -1);
-        if(globalUserId >= 0 && userId >= 0) {
+        int groupId = mSharedPreferences.getInt(getString(R.string.pref_groupId), -1);
+        if(globalUserId >= 0 && userId >= 0 && groupId >= 0) {
             IData.globalUserId = globalUserId;
             IData.userId = userId;
+            IData.groupId = groupId;
 
             Intent intent = new Intent(ParticipantActivity.this, TimelineActivity.class);
             startActivity(intent);
@@ -198,80 +201,69 @@ public class ParticipantActivity extends Activity {
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, Integer> {
 
         private final int mGlobalUserId;
         private final int mUserId;
+        private String mErrorMessage;
 
         UserLoginTask(int globalUserId, int userId) {
             mGlobalUserId = globalUserId;
             mUserId = userId;
+            mErrorMessage = getString(R.string.error_login);
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+        protected Integer doInBackground(Void... params) {
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+            nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + mGlobalUserId));
+            nameValuePairs.add(new BasicNameValuePair("userId", "" + mUserId));
 
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(Web.LOGIN);
-
-            try {
-                // Add your data
-                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-                nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + mGlobalUserId));
-                nameValuePairs.add(new BasicNameValuePair("userId", "" + mUserId));
-                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                HttpResponse httpResponse = httpClient.execute(httpPost);
-                HttpEntity messageEntity = httpResponse.getEntity();
-                InputStream is = messageEntity.getContent();
-
-                BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                StringBuffer builder = new StringBuffer();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    builder.append(line);
+            JSONObject response = Web.requestObj(Web.LOGIN, nameValuePairs);
+            if(response != null && response.has("success")) {
+                try {
+                    return response.getInt("groupId");
+                } catch (JSONException e) {
+                    Log.e(TAG, "Login failed: Did not receive groupId");
+                    e.printStackTrace();
+                    return -1;
                 }
-
-                Log.i(TAG, builder.toString());
-
-                JSONObject object = new JSONObject(builder.toString());
-                if(!object.has("success")) {
-                    return false;
+            } else if(response.has("error")) {
+                try {
+                    mErrorMessage = response.getString("error");
+                    Log.e(TAG, "Login failed: " + response.getString("error"));
+                } catch (JSONException e) {
+                    Log.e(TAG, "Login failed: Did not receive error response!");
+                    e.printStackTrace();
                 }
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-                return false;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                return false;
+            } else {
+                Log.e(TAG, "Login failed: Unknown Login Error!");
             }
 
-            return true;
+            return -1;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(final Integer groupId) {
             mAuthTask = null;
             showProgress(false);
 
-            if (success) {
+            if (groupId >= 0) {
                 IData.globalUserId = mGlobalUserId;
                 IData.userId = mUserId;
+                IData.groupId = groupId;
 
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putInt(getString(R.string.pref_globalUserId), mGlobalUserId);
                 editor.putInt(getString(R.string.pref_userId), mUserId);
+                editor.putInt(getString(R.string.pref_groupId), groupId);
                 editor.commit();
 
                 Intent intent = new Intent(ParticipantActivity.this, TimelineActivity.class);
                 startActivity(intent);
                 finish();
             } else {
-                mGlobalUserIdField.setError(getString(R.string.error_login));
+                Toast.makeText(ParticipantActivity.this, mErrorMessage, Toast.LENGTH_SHORT).show();
                 mGlobalUserIdField.requestFocus();
             }
         }

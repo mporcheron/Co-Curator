@@ -4,9 +4,9 @@
 
     <array name="userOffsets">
         <item>-50</item>
-        <item>-25</item>
-        <item>25</item>
+        <item>30</item>
         <item>50</item>
+        <item>-30</item>
     </array>
 
     <array name="userPositions">

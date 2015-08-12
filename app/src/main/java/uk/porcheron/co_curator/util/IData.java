@@ -10,6 +10,7 @@ import uk.porcheron.co_curator.user.UserList;
 public class IData {
     public static int globalUserId;
     public static int userId;
+    public static int groupId;
     public static UserList users;
     public static ItemList items;
 
