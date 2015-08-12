@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -54,31 +55,39 @@ public class ItemImage extends Item {
         RectF b = getInnerBounds();
 
         if(mBitmap == null) {
+            Log.d(TAG, "Load image file " + mImagePath);
             try{
-                FileInputStream fis = getContext().openFileInput(mImagePath);
+                FileInputStream fis = mActivity.openFileInput(mImagePath);
                 mBitmap = BitmapFactory.decodeStream(fis);
                 fis.close();
+
+                if(mBitmap == null) {
+                    Log.e(TAG, "Could not decode file to bitmap " + mImagePath);
+                }
             } catch(Exception e){
                 Log.e(TAG, "Could not open " + mImagePath);
             }
         }
 
-        if(mBitmapThumbnail == null) {
-            float ratio = (float) mBitmap.getWidth() / (float) mBitmap.getHeight();//, mBitmap.getHeight()/mBitmap.getWidth());
-            int width = (int) (mBitmap.getWidth() * Style.imageThumbScaleBy);
-            int height = (int) (mBitmap.getHeight() * Style.imageThumbScaleBy);
+        if(mBitmap != null) {
+            if(mBitmapThumbnail == null) {
+                float ratio = (float) mBitmap.getWidth() / (float) mBitmap.getHeight();
+                int width = (int) (mBitmap.getWidth() * Style.imageThumbScaleBy);
+                int height = (int) (mBitmap.getHeight() * Style.imageThumbScaleBy);
 
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(mBitmap, width, height, false);
-            //shrink(b.width() -  width, 0);
+                Bitmap scaledBitmap = Bitmap.createScaledBitmap(mBitmap, width, height, false);
 
-            int x = (int) ((width / 2f) - (b.width() / 2f));
-            int y = (int) ((height / 2f) - (b.height() / 2f));
+                int x = (int) ((width / 2f) - (b.width() / 2f));
+                int y = (int) ((height / 2f) - (b.height() / 2f));
 
-            mBitmapThumbnail = Bitmap.createBitmap(scaledBitmap, x, y, (int) b.width(), (int) b.height());
+                mBitmapThumbnail = Bitmap.createBitmap(scaledBitmap, x, y, (int) b.width(), (int) b.height());
+            }
 
+            canvas.drawBitmap(mBitmapThumbnail, b.left, b.top, getUser().bgPaint);
+        } else {
+            canvas.drawRect(b, getUser().bgPaint);
         }
 
-        canvas.drawBitmap(mBitmapThumbnail, b.left, b.top, getUser().bgPaint);
     }
     
     public void setImagePath(String imagePath) {

@@ -7,8 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.util.Log;
+import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.LinearLayout;
@@ -23,7 +25,6 @@ import java.util.Map;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
-import uk.porcheron.co_curator.line.StemConnector;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Style;
 import uk.porcheron.co_curator.util.UData;
@@ -95,7 +96,6 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
             slotX = mWidthBelow;
             mWidthBelow += item.getSlotBounds().width();
         }
-        //mLayoutCentre.addView(new StemConnector(mActivity, user, item.getmStemConnectorBounds()));
 
         // Branch drawing
         List<RectF> branches;
@@ -105,12 +105,18 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
             branches = new ArrayList<RectF>();
         }
 
-        Log.d(TAG, "Add " + slotX + " to item " + item.getItemId() + "'s branch");
         item.getBranchBounds().offset(slotX, 0);
         branches.add(item.getBranchBounds());
         mBranches.put(user.userId, branches);
 
-        mLayoutCentre.setMinimumWidth(Math.max(mWidthAbove, mWidthBelow));
+        Display display = mActivity.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        int maxItemWidth = Math.max(mWidthAbove, mWidthBelow);
+        int minWinWidth = Math.max(maxItemWidth, size.x);
+        mLayoutCentre.setMinimumWidth(minWinWidth);
+        mLayoutCentre.invalidate();
         mStemSurface.invalidate();
 
         // Save to the Local Database or just draw?
@@ -123,25 +129,6 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
         ContentValues values = new ContentValues();
         values.put(TableItem.COL_GLOBAL_USER_ID, user.globalUserId);
         values.put(TableItem.COL_ITEM_TYPE, type.getTypeId());
-
-        // FIXME: SAVING FILES TO LCOAL STORAGE
-        if(type == ItemType.PHOTO) {
-            FileOutputStream out;
-            //Bitmap bitmap = (Bitmap) data;
-            data = UData.globalUserId + "-" + UData.userId + "-" + System.currentTimeMillis() + ".jpg";
-
-            try {
-                Log.v(TAG, "Save image to local storage");
-                out = mActivity.openFileOutput((String) data, Context.MODE_PRIVATE);
-                //bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-                out.close();
-                Log.v(TAG, "Image saved to local storage");
-            } catch (Exception e) {
-                Log.e(TAG, "Could not save image");
-                e.printStackTrace();
-            }
-        }
-
         values.put(TableItem.COL_ITEM_DATA, data.toString());
 
         long newRowId;
@@ -186,6 +173,8 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        Log.d(TAG, "Redaw trunk and branches");
+
         Canvas canvas = holder.lockCanvas();
         canvas.drawColor(Style.backgroundColor);
 
@@ -193,7 +182,6 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
         int h = canvas.getHeight();
 
         for(int i = Style.userLayers.length - 1; i >= 0; i--) {
-            Log.d(TAG, "Draw trunk and branch for " + i);
             User user = UData.users.get(i);
 
             int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
@@ -205,11 +193,8 @@ public class ItemList extends ArrayList<Item> implements SurfaceHolder.Callback 
             if(branches == null) {
                 continue;
             }
-            Log.d(TAG, " there are " + branches.size() + " for user " + i);
 
             for(RectF branch : branches) {
-                Log.d(TAG, "draw branch at " + branch.toString());
-
                 canvas.drawRect(branch, user.bgPaint);
             }
         }

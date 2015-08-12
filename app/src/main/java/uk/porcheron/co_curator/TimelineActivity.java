@@ -7,8 +7,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -17,13 +21,19 @@ import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
+
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.ItemType;
-import uk.porcheron.co_curator.line.Centrelines;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Style;
@@ -37,12 +47,13 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     private DbHelper mDbHelper;
     private ProgressDialog mProgressDialog;
-    private Centrelines mCentrelines;
     private SurfaceView mSurface;
     private SurfaceView mStemSurface;
     private LinearLayout mLayoutAbove;
     private RelativeLayout mLayoutCentre;
     private LinearLayout mLayoutBelow;
+
+    private String mNewImagePath;
 
     public static final int PICK_IMAGE = 101;
 
@@ -78,9 +89,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         UData.users = new UserList(this, mSurface);
         UData.items = new ItemList(this, mLayoutAbove, mLayoutCentre, mStemSurface, mLayoutBelow);
 
-        mCentrelines = new Centrelines();
-        mSurface.getHolder().addCallback(mCentrelines);
-
         mLayoutAbove.setPadding(Style.layoutAbovePadX, 0, 0, 0);
         mLayoutCentre.setPadding(Style.layoutAbovePadX, 0, 0, 0);
         mLayoutBelow.setPadding(Style.layoutBelowPadX, 0, 0, 0);
@@ -91,28 +99,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mLayoutBelow.setOnLongClickListener(this);
 
         new DbLoader(this).execute("Go");
-
-        //testing
-//        User[] users = new User[5];
-//            for(int i = 1; i < 5; i++) {
-//                UData.users.add(i, i);
-//        }
-//
-//        Random r = new Random();
-//        int i = 0;
-//        for(int j = 0; j < r.nextInt(5) + 5; j++) {
-//            for (int k = 0; k <  users.length; k++) {
-//                User user = users[k];
-//                for (int l = 0; l < r.nextInt(10) + 2; l++) {
-//                    if (r.nextInt(2) == 0) {
-//                        mItems.add(i++,ItemType.NOTE,  user, "User = " + k + "; Test = " + i);
-//                    } else {
-//                        mItems.add(i++,ItemType.URL, user, "http://www.google.com");
-//                    }
-//                }
-//            }
-//        }
-        //mProgressDialog.hide();
     }
 
     @Override
@@ -137,34 +123,68 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "Received ActivityResult (requestCode=" + requestCode + ",resultCode=" + resultCode + ")");
 
+
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
+
+        if(resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == PICK_IMAGE) {
             if (data == null) {
                 Log.e(TAG, "No data retrieved...");
                 return;
             }
 
+
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String filePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            Log.d(TAG, "File selected by user: " + filePath);
+
+            new ImportImage().execute(filePath);
+
+        }
+    }
+
+    private class ImportImage extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            Bitmap bitmap = BitmapFactory.decodeFile(params[0]);
+            String filename = UData.globalUserId + "-" + UData.userId + "-" + System.currentTimeMillis() +".png";
+
             try {
-                Log.v(TAG, "Opening input stream of addNewPhoto");
+                final FileOutputStream fos = openFileOutput(filename, MODE_PRIVATE);
 
-                Uri selectedImage = data.getData();
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                if(!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
+                    Log.e(TAG, "Could not save bitmap locally");
+                }
 
-                Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                String picturePath = cursor.getString(columnIndex);
-
-                cursor.close();
-//                InputStream inputStream = getContentResolver().openInputStream(data.getData());
-
-                Log.v(TAG, "Decoding the stream into a bitmap");
-                UData.items.add(UData.items.size(), ItemType.PHOTO, UData.user(), picturePath);
-            } catch(Exception e) {
-                Log.e(TAG, "Error loading image: " + e.getMessage());
+                fos.close();
+                return filename;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            //Now you can do whatever you want with your inpustream, save it as file, upload to a server, decode a bitmap...
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            if(!UData.items.add(UData.items.size(), ItemType.PHOTO, UData.user(), result)) {
+                Log.e(TAG, "Failed to save photo");
+            }
+
         }
     }
 
@@ -183,7 +203,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         final ItemType[] types = ItemType.values();
         CharSequence[] typeLabels = new CharSequence[types.length];
-        for(int i = 0; i < typeLabels.length; i++) {
+        for (int i = 0; i < typeLabels.length; i++) {
             typeLabels[i] = getString(types[i].getLabel());
         }
 
@@ -258,7 +278,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             insertUrl = "http://" + text;
                         }
 
-                        if(UData.items.add(UData.items.size(), ItemType.URL, UData.user(), text)) {
+                        if(!UData.items.add(UData.items.size(), ItemType.URL, UData.user(), text)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }
@@ -280,16 +300,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void addNewPhoto() {
-        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        getIntent.setType("image/*");
-
         Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         pickIntent.setType("image/*");
 
-        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+        Intent chooserIntent = Intent.createChooser(pickIntent, "Select Image");
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
 
-        startActivityForResult(chooserIntent, TimelineActivity.PICK_IMAGE);
+        startActivityForResult(pickIntent, TimelineActivity.PICK_IMAGE);
     }
-
 }
