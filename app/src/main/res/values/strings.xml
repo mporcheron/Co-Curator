@@ -14,6 +14,7 @@
     <string name="prompt_local_id">Local ID</string>
     <string name="error_global_id">Invalid Participant ID</string>
     <string name="error_local_id">Invalid Local ID</string>
+    <string name="error_login">Could not log you in</string>
     <string name="action_sign_in">Sign in</string>
 
     <string name="resource_photo_library">Photo</string>

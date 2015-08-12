@@ -11,6 +11,7 @@ import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -19,12 +20,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.porcheron.co_curator.util.IData;
+import uk.porcheron.co_curator.util.Web;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class ParticipantActivity extends Activity {
+    private static final String TAG = "CC:ParticipantActivity";
 
     private UserLoginTask mAuthTask = null;
 
@@ -188,22 +212,43 @@ public class ParticipantActivity extends Activity {
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
 
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost httpPost = new HttpPost(Web.LOGIN);
+
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+                // Add your data
+                List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+                nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + mGlobalUserId));
+                nameValuePairs.add(new BasicNameValuePair("userId", "" + mUserId));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                HttpResponse httpResponse = httpClient.execute(httpPost);
+                HttpEntity messageEntity = httpResponse.getEntity();
+                InputStream is = messageEntity.getContent();
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                StringBuffer builder = new StringBuffer();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    builder.append(line);
+                }
+
+                Log.i(TAG, builder.toString());
+
+                JSONObject object = new JSONObject(builder.toString());
+                if(!object.has("success")) {
+                    return false;
+                }
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+                return false;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            } catch (JSONException e) {
+                e.printStackTrace();
                 return false;
             }
-
-//            for (String credential : DUMMY_CREDENTIALS) {
-//                String[] pieces = credential.split(":");
-//                if (pieces[0].equals(mEmail)) {
-//                    // Account exists, return true if the password matches.
-//                    return pieces[1].equals(mPassword);
-//                }
-//            }
-
-            // TODO: register the new account here.
 
             return true;
         }
@@ -226,7 +271,7 @@ public class ParticipantActivity extends Activity {
                 startActivity(intent);
                 finish();
             } else {
-                mGlobalUserIdField.setError(getString(R.string.error_global_id));
+                mGlobalUserIdField.setError(getString(R.string.error_login));
                 mGlobalUserIdField.requestFocus();
             }
         }
