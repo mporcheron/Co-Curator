@@ -93,8 +93,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         LinearLayout layoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
         LinearLayout layoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
 
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, Style.layoutHalfPadding, 0, 0);
+
         layoutAbove.setPadding(0, 0, 0, Style.layoutHalfPadding);
-        layoutBelow.setPadding(0, Style.layoutHalfPadding, 0, 0);
+        layoutBelow.setLayoutParams(params);
 
         layoutAbove.setOnLongClickListener(this);
         layoutBelow.setOnLongClickListener(this);
@@ -343,7 +349,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         } catch(NullPointerException e) {
                 return;
         } finally {
+            try {
                 holder.unlockCanvasAndPost(canvas);
+            } catch(IllegalStateException e) {
+
+            }
         }
     }
 
