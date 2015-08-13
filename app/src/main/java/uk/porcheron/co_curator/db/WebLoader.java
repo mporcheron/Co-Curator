@@ -104,10 +104,11 @@ public class WebLoader {
                         }
 
                         final String data = jsonData;
+                        final String dateTime = itemJ.getString("dateTime");
 
                         mActivity.runOnUiThread(new Runnable() {
                             public void run() {
-                                Instance.items.add(itemId, type, user, data, true, false);
+                                Instance.items.add(itemId, type, user, data, dateTime, true, false);
                             }
                         });
                     }

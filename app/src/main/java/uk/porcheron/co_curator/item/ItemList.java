@@ -20,8 +20,11 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -58,11 +61,15 @@ public class ItemList extends ArrayList<Item> {
     }
 
     public boolean add(int itemId, ItemType type, User user, String data, boolean addToLocalDb, boolean addToCloud) {
-        String uniqueItemId = user.globalUserId + "-" + itemId;
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date();
         String dateTime = dateFormat.format(date);
+
+        return add(itemId, type, user, data, dateTime, addToLocalDb, addToCloud);
+    }
+
+    public synchronized boolean add(int itemId, ItemType type, User user, String data, String dateTime, boolean addToLocalDb, boolean addToCloud) {
+        String uniqueItemId = user.globalUserId + "-" + itemId;
 
         Log.v(TAG, "Item[" + uniqueItemId + "]: Add to List (type=" + type + ",user=" + user.globalUserId +
                 ",data=" + data + ",dateTime=" + dateTime + ",addToLocalDb=" + addToLocalDb +
@@ -83,14 +90,32 @@ public class ItemList extends ArrayList<Item> {
             return false;
         }
 
-        add(item);
+        int insertAt = 0, insertAtAbove = 0, insertAtBelow = 0;
+        Iterator<Item> it = iterator();
+        while(it.hasNext()) {
+            Item j = it.next();
+            Log.d(TAG, "Compare " + j.getDateTime() + " with " + dateTime);
+            if(j.getDateTime().compareTo(dateTime) > 0) {
+                Log.d(TAG, "New item is newer, stop counting");
+                break;
+            }
+
+            insertAt++;
+            if(user.above) {
+                insertAtAbove++;
+            } else {
+                insertAtBelow++;
+            }
+        }
+
         mItemIds.put(user.globalUserId + "-" + item.getItemId(), item);
+        add(insertAt, item);
 
         // Drawing
         if (user.above) {
-            mLayoutAbove.addView(item, item.getWidth(), (int) Style.itemFullHeight);
+            mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), insertAtAbove));
         } else {
-            mLayoutBelow.addView(item, item.getWidth(), (int) Style.itemFullHeight);
+            mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), insertAtBelow));
         }
 
         // Save to the Local Database or just draw?
