@@ -9,6 +9,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -47,6 +50,21 @@ public class Web {
         }
     }
 
+    public static JSONObject requestObj(String uri, MultipartEntity data) {
+        String response = request(uri, data);
+
+        if (response == null) {
+            return null;
+        }
+
+        try {
+            return new JSONObject(response);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static JSONArray requestArr(String uri, List<NameValuePair> data) {
         String response = request(uri, data);
 
@@ -62,12 +80,37 @@ public class Web {
         }
     }
 
+    public static JSONArray requestArr(String uri, MultipartEntity data) {
+        String response = request(uri, data);
+
+        if (response == null) {
+            return null;
+        }
+
+        try {
+            return new JSONArray(response);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private static String request(String uri, List<NameValuePair> data) {
+        try {
+            return request(uri, new UrlEncodedFormEntity(data));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Log.e(TAG, "Could not turn NameValuePairs into encoded form entity");
+            return null;
+        }
+    }
+
+    private static String request(String uri, HttpEntity data) {
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(uri);
 
         try {
-            httpPost.setEntity(new UrlEncodedFormEntity(data));
+            httpPost.setEntity(data);
 
             HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity messageEntity = httpResponse.getEntity();
@@ -90,4 +133,5 @@ public class Web {
             return null;
         }
     }
+
 }

@@ -19,22 +19,22 @@
             android:layout_height="wrap_content" android:orientation="vertical">
 
             <EditText android:id="@+id/globalUserId" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:hint="@string/prompt_global_id"
+                android:layout_height="wrap_content" android:hint="@string/promptGlobalUserId"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:inputType="number" />
 
-            <EditText android:id="@+id/localUserId" android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:hint="@string/prompt_local_id"
+            <EditText android:id="@+id/groupId" android:layout_width="match_parent"
+                android:layout_height="wrap_content" android:hint="@string/promptGroupId"
                 android:imeActionId="@+id/login"
-                android:imeActionLabel="@string/action_sign_in"
+                android:imeActionLabel="@string/actionSignIn"
                 android:imeOptions="actionUnspecified"
                 android:inputType="number"
                 android:maxLines="1" android:singleLine="true" />
 
             <Button android:id="@+id/buttonSignIn" style="?android:textAppearanceSmall"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" android:text="@string/action_sign_in"
+                android:layout_marginTop="16dp" android:text="@string/actionSignIn"
                 android:textStyle="bold" />
 
         </LinearLayout>

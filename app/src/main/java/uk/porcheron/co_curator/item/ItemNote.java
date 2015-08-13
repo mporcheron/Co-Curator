@@ -35,8 +35,8 @@ public class ItemNote extends Item {
 
     public ItemNote(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public ItemNote(int itemId, User user) {
-        super(user, itemId);
+    public ItemNote(int itemId, User user, String dateTime) {
+        super(user, itemId, dateTime);
 
         mPaintFg = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         mPaintFg.setColor(user.fgColor);

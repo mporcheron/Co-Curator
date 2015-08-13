@@ -60,7 +60,7 @@ public class WebLoader {
             for (int i = 0; i < response.length(); i++) {
                 try {
                     JSONObject userJ = (JSONObject) response.get(i);
-                    Instance.users.add(userJ.getInt("globalUserId"), userJ.getInt("userId"), false);
+                    Instance.users.add(userJ.getInt("globalUserId"), false);
                 } catch (JSONException e) {
                     Log.e(TAG, "Could not get user from the cloud");
                     e.printStackTrace();

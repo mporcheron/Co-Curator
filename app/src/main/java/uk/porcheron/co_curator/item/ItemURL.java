@@ -23,8 +23,8 @@ public class ItemURL extends ItemNote implements View.OnClickListener {
 
     public ItemURL(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public ItemURL(int itemId, User user) {
-        super(itemId, user);
+    public ItemURL(int itemId, User user, String dateTime) {
+        super(itemId, user, dateTime);
 
         setOnClickListener(this);
     }

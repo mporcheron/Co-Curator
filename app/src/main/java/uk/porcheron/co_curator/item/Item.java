@@ -24,6 +24,7 @@ public abstract class Item extends View implements View.OnTouchListener {
 
     private User mUser;
     private int mItemId;
+    private String mDateTime;
 
     private RectF mSlotBounds;
     private RectF mOuterBounds;
@@ -39,11 +40,12 @@ public abstract class Item extends View implements View.OnTouchListener {
 
     public Item(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public Item(User user, int itemId) {
+    public Item(User user, int itemId, String dateTime) {
         super(TimelineActivity.getInstance());
 
         mUser = user;
         mItemId = itemId;
+        mDateTime = dateTime;
 
         mRandomPadRight = Style.itemXGapMin + mRandom.nextInt((int) Style.itemXGapOffset);
         mRandomPadRightHalf = mRandomPadRight / 2;
@@ -107,6 +109,10 @@ public abstract class Item extends View implements View.OnTouchListener {
     protected final int getItemId() {
         return mItemId;
     }
+
+    protected final String getUniqueItemId() { return mUser.globalUserId + "-" + mItemId; }
+
+    protected final String getDateTime() { return mDateTime; }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {

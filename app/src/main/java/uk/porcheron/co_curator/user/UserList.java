@@ -24,16 +24,20 @@ public class UserList extends ArrayList<User> {
         mDbHelper = DbHelper.getInstance();
     }
 
-    public User add(int globalUserId, int userId, boolean localOnly) {
-        Log.d(TAG, "Add User (globalUserId=" + globalUserId + ",userId=" + userId + ")");
+    public User add(int globalUserId, boolean addToLocalDb) {
+        return add(globalUserId, size(), addToLocalDb);
+    }
+
+    public User add(int globalUserId, int userId, boolean addToLocalDb) {
+        Log.v(TAG, "User[" + globalUserId + "]: Add to List (userId=" + userId + ",addToLocalDb=" + addToLocalDb + ")");
 
         User user = new User(globalUserId, userId);
         add(user);
         mGlobalUserIds.put(globalUserId, user);
 
         // Local Database
-        if(localOnly) {
-            Log.v(TAG, "User not created in DB, as requested");
+        if(!addToLocalDb) {
+            Log.v(TAG, "User[" + globalUserId + "] not created in DB, as requested");
             return user;
         }
 
@@ -41,7 +45,7 @@ public class UserList extends ArrayList<User> {
 
         ContentValues values = new ContentValues();
         values.put(TableUser.COL_GLOBAL_USER_ID, globalUserId);
-        values.put(TableUser.COL_USER_ID, userId);
+        values.put(TableUser.COL_USER_ID, user.globalUserId);
 
         long newRowId;
         newRowId = db.insert(
@@ -52,9 +56,9 @@ public class UserList extends ArrayList<User> {
         db.close();
 
         if(newRowId >= 0) {
-            Log.d(TAG, "User " + newRowId + " created in DB");
+            Log.d(TAG, "User[" + globalUserId + "]: Created in Db (rowId=" + newRowId + ")");
         } else {
-            Log.e(TAG, "Could not create user in DB");
+            Log.d(TAG, "User[" + globalUserId + "]: Could not create in Db");
         }
 
         return user;

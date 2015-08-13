@@ -71,7 +71,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 int cGlobalUserId = c.getInt(0);
                 int cUserId = c.getInt(1);
 
-                Instance.users.add(cGlobalUserId, cUserId, true);
+                Instance.users.add(cGlobalUserId, cUserId, false);
 
                 c.moveToNext();
             }
@@ -116,29 +116,32 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                     sortOrder
             );
 
-            User user;
-            ItemType type;
-
             c.moveToFirst();
             for (int i = 0; i < c.getCount(); i++) {
-                int cItemId = c.getInt(0);
+                final int cItemId = c.getInt(0);
                 int cGlobalUserId = c.getInt(1);
                 int cTypeId = c.getInt(2);
 
-                user = Instance.users.getByGlobalUserId(cGlobalUserId);
-                if (user == null) {
-                    Instance.users.add(cGlobalUserId, Instance.users.size(), false);
+                User aUser = Instance.users.getByGlobalUserId(cGlobalUserId);
+                if (aUser == null) {
+                    aUser = Instance.users.add(cGlobalUserId, Instance.users.size(), false);
                 }
+                final User user = aUser;
 
-                type = ItemType.get(cTypeId);
+                final ItemType type = ItemType.get(cTypeId);
 
-                String cData = c.getString(3);
+                final String cData = c.getString(3);
 
                 if (cData != null) {
-                    Log.v(TAG, "Save Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ",data='" + cData + "')");
-                    Instance.items.add(cItemId, type, user, cData, false, false);
+                    Log.v(TAG, "Item[" + i + "]: Save (itemId=" + cItemId + ",type=" + type.toString() + ",data='" + cData + "')");
+
+                    mActivity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            Instance.items.add(cItemId, type, user, cData, false, false);
+                        }
+                    });
                 } else {
-                    Log.e(TAG, "Error: Item[" + i + "] (itemId=" + cItemId + ",type=" + type.toString() + ") is NULL");
+                    Log.e(TAG, "Item[" + i + "]: Error (itemId=" + cItemId + ",type=" + type.toString() + ") is NULL");
                 }
 
                 c.moveToNext();
@@ -154,6 +157,13 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
         } else {
             mWebLoader.loadItemsFromWeb(globalUserId);
         }
+
+
+        mActivity.runOnUiThread(new Runnable() {
+            public void run() {
+                mActivity.redrawCentrelines();
+            }
+        });
 
         return Instance.items;
     }

@@ -41,6 +41,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     private static TimelineActivity mInstance;
 
+    private SurfaceHolder mSurfaceHolder;
     private ProgressDialog mProgressDialog;
     private FrameLayout mFrameLayout;
 
@@ -51,10 +52,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         super.onCreate(savedInstanceState);
 
         // Check the user has previously authenticated
-        SharedPreferences sharedPrefs = getSharedPreferences(getString(R.string.pref_file), Context.MODE_PRIVATE);
-        int globalUserId = sharedPrefs.getInt(getString(R.string.pref_globalUserId), -1);
-        int userId = sharedPrefs.getInt(getString(R.string.pref_userId), -1);
-        int groupId = sharedPrefs.getInt(getString(R.string.pref_groupId), -1);
+        SharedPreferences sharedPrefs = getSharedPreferences(getString(R.string.prefFile), Context.MODE_PRIVATE);
+        int globalUserId = sharedPrefs.getInt(getString(R.string.prefGlobalUserId), -1);
+        int userId = sharedPrefs.getInt(getString(R.string.prefUserId), -1);
+        int groupId = sharedPrefs.getInt(getString(R.string.prefGroupId), -1);
         if(globalUserId >= 0 && userId >= 0 && groupId >= 0) {
             Instance.globalUserId = globalUserId;
             Instance.userId = userId;
@@ -63,6 +64,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             Intent intent = new Intent(this, ParticipantActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
 
         // Setup the activity
@@ -73,7 +75,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         decorView.setSystemUiVisibility(uiOptions);
 
         setContentView(R.layout.activity_timelime);
-        showLoadingDialog(R.string.dialog_loading);
+        showLoadingDialog(R.string.dialogLoading);
 
         mInstance = this;
 
@@ -82,8 +84,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Style.collectAttrs();
 
         // Begin preparation for drawing the UI
-        SurfaceView mSurface = (SurfaceView) findViewById(R.id.surface);
-        mSurface.getHolder().addCallback(this);
+        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surface);
+        mSurfaceHolder = surfaceView.getHolder();
+        mSurfaceHolder.addCallback(this);
 
         mFrameLayout = (FrameLayout) findViewById(R.id.frameLayout);
 
@@ -98,7 +101,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         // Load items
         Instance.users = new UserList();
-        Instance.items = new ItemList(this, layoutAbove, layoutBelow);
+        Instance.items = new ItemList(layoutAbove, layoutBelow);
 
         new DbLoader().execute();
     }
@@ -146,7 +149,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 return;
             }
 
-            showLoadingDialog(R.string.dialog_adding_image);
+            showLoadingDialog(R.string.dialogAddingImage);
 
             Uri selectedImage = data.getData();
             String[] filePathColumn = { MediaStore.Images.Media.DATA };
@@ -185,7 +188,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            if(!Instance.items.add(Instance.items.size(), ItemType.PHOTO, Instance.user(), result, true, true)) {
+            if(!Instance.items.add(ItemType.PHOTO, Instance.user(), result, true, true)) {
                 Log.e(TAG, "Failed to save photo");
             }
 
@@ -246,7 +249,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .setPositiveButton(getString(R.string.dialog_note_positive), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String text = editText.getText().toString();
-                        if (!Instance.items.add(Instance.items.size(), ItemType.NOTE, Instance.user(), text, true, true)) {
+                        if (!Instance.items.add(ItemType.NOTE, Instance.user(), text, true, true)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }
@@ -284,7 +287,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             insertUrl = "http://" + text;
                         }
 
-                        if(!Instance.items.add(Instance.items.size(), ItemType.URL, Instance.user(), insertUrl, true, true)) {
+                        if(!Instance.items.add(ItemType.URL, Instance.user(), insertUrl, true, true)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }
@@ -315,32 +318,44 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         startActivityForResult(pickIntent, TimelineActivity.PICK_IMAGE);
     }
 
+    public void redrawCentrelines() {
+        Log.d(TAG, "Redraw Centrelines");
+        updateCanvas(mSurfaceHolder);
+    }
+
+    private void updateCanvas(SurfaceHolder holder) {
+        Log.d(TAG, "Redaw canvas");
+
+        Canvas canvas = holder.lockCanvas();
+
+        try {
+            canvas.drawColor(Style.backgroundColor);
+
+            int w = canvas.getWidth();
+            int h = canvas.getHeight();
+
+            for(User user : Instance.users) {
+                int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
+                int y2 = (int) (y1 + Style.lineWidth);
+
+                canvas.drawRect(0, y1, w, y2, user.bgPaint);
+            }
+        } catch(NullPointerException e) {
+                return;
+        } finally {
+                holder.unlockCanvasAndPost(canvas);
+        }
+    }
+
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
+        updateCanvas(holder);
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.d(TAG, "Redaw trunk");
-
-        Canvas canvas = holder.lockCanvas();
-        canvas.drawColor(Style.backgroundColor);
-
-        int w = canvas.getWidth();
-        int h = canvas.getHeight();
-
-        for(int i = Style.userLayers.length - 1; i >= 0; i--) {
-            User user = Instance.users.get(i);
-
-            int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
-            int y2 = (int) (y1 + Style.lineWidth);
-
-            canvas.drawRect(0, y1, w, y2, user.bgPaint);
-        }
-
-        holder.unlockCanvasAndPost(canvas);
+        updateCanvas(holder);
     }
 
     @Override

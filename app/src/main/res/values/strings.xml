@@ -1,28 +1,27 @@
 <resources>
-    <string name="app_name" translatable="false">Co-Curator</string>
-    <string name="pref_file" translatable="false">cocurator</string>
-    <string name="pref_globalUserId" translatable="false">globalUserId</string>
-    <string name="pref_userId" translatable="false">userId</string>
-    <string name="pref_groupId" translatable="false">groupId</string>
+    <string name="appName" translatable="false">Co-Curator</string>
+    <string name="prefFile" translatable="false">cocurator</string>
+    <string name="prefGlobalUserId" translatable="false">globalUserId</string>
+    <string name="prefUserId" translatable="false">userId</string>
+    <string name="prefGroupId" translatable="false">groupId</string>
 
-    <string name="dialog_adding_image">Adding image to timeline…</string>
-    <string name="dialog_loading">Loading timeline items…</string>
+    <string name="dialogAddingImage">Adding image to timeline…</string>
+    <string name="dialogLoading">Loading timeline items…</string>
 
-    <string name="title_activity_participant">Sign in</string>
+    <!-- Login Activity -->
+    <string name="promptGlobalUserId">Participant ID</string>
+    <string name="promptGroupId">Group ID</string>
+    <string name="errorGlobalUserid">Invalid Participant ID</string>
+    <string name="errorGroupId">Invalid Group ID</string>
+    <string name="errorLogin">Login Failed</string>
+    <string name="actionSignIn">Sign in</string>
 
-    <!-- Strings related to login -->
-    <string name="prompt_global_id">Participant ID</string>
-    <string name="prompt_local_id">Local ID</string>
-    <string name="error_global_id">Invalid Participant ID</string>
-    <string name="error_local_id">Invalid Local ID</string>
-    <string name="error_login">Could not log you in</string>
-    <string name="action_sign_in">Sign in</string>
-
-    <string name="resource_unknown">Unknown</string>
-    <string name="resource_photo_library">Photo</string>
-    <string name="resource_photo_camera">Photo from Camera</string>
-    <string name="resource_note">Note</string>
-    <string name="resource_url">Website Address</string>
+    <!-- Resources -->
+    <string name="resourceUnknown">Unknown</string>
+    <string name="resourcePhotoLibrary">Photo</string>
+    <string name="resourcePhotoCamera">Photo from Camera</string>
+    <string name="resourceNote">Note</string>
+    <string name="resourceUrl">Website Address</string>
 
     <string name="dialog_note_title">Create Note</string>
     <string name="dialog_note_positive">Add Note</string>
@@ -36,6 +35,7 @@
     <string name="dialog_add_positive">Add</string>
     <string name="dialog_add_negative">Cancel</string>
 
+    <!-- Generic Messages -->
     <string name="dialog_error_title">An Internal Error Occured</string>
     <string name="dialog_error_db">A local database error occured! Contact researcher.</string>
 </resources>

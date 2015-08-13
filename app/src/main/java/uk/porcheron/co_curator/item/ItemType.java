@@ -6,10 +6,10 @@ import uk.porcheron.co_curator.R;
  * Different types of timeline items.
  */
 public enum ItemType {
-    UNKNOWN(-1, R.string.resource_unknown),
-    PHOTO(0, R.string.resource_photo_library),
-    NOTE(1, R.string.resource_note),
-    URL(2, R.string.resource_url);
+    UNKNOWN(-1, R.string.resourceUnknown),
+    PHOTO(0, R.string.resourcePhotoLibrary),
+    NOTE(1, R.string.resourceNote),
+    URL(2, R.string.resourceUrl);
 
     private int mTypeId;
     private int mLabel;
