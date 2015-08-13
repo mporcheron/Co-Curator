@@ -80,9 +80,13 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
         // Current user doesn't exist?
         if (Instance.user() == null) {
-            Log.d(TAG, "Get users from cloud...");
-            mWebLoader.loadUsersFromWeb();
+            Log.d(TAG, "Create local user in local DB");
+            Instance.users.add(Instance.globalUserId, true);
         }
+
+        // Get users from the cloud
+        Log.d(TAG, "Get users from cloud...");
+        mWebLoader.loadUsersFromWeb();
     }
 
     protected ItemList loadItemsFromDb(int globalUserId) throws Exception {
