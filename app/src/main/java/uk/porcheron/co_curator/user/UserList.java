@@ -45,7 +45,7 @@ public class UserList extends ArrayList<User> {
 
         ContentValues values = new ContentValues();
         values.put(TableUser.COL_GLOBAL_USER_ID, globalUserId);
-        values.put(TableUser.COL_USER_ID, user.globalUserId);
+        values.put(TableUser.COL_USER_ID, user.userId);
 
         long newRowId;
         newRowId = db.insert(

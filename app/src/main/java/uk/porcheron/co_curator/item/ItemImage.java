@@ -91,7 +91,7 @@ public class ItemImage extends Item {
     }
 
     @Override
-    public void onClick(View v) {
+    public boolean onTap() {
         Log.d(TAG, "Image clicked!");
 
         Intent intent = new Intent(TimelineActivity.getInstance(), ImageDialogActivity.class);
@@ -99,6 +99,7 @@ public class ItemImage extends Item {
 
         mActivity.startActivity(intent);
         mActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        return true;
     }
 
 }

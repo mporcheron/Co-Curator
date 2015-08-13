@@ -75,8 +75,8 @@ public class ItemNote extends Item {
     }
 
     @Override
-    public void onClick(View v) {
-
+    public boolean onTap() {
+        return false;
     }
 
 }

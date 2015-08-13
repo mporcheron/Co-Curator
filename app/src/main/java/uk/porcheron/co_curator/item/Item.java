@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -17,7 +18,7 @@ import uk.porcheron.co_curator.val.Style;
 /**
  * A timeline item. Only the _actual_ content is drawn (i.e. no borders etc).
  */
-public abstract class Item extends View implements View.OnTouchListener {
+public abstract class Item extends View {
     private static final String TAG = "CC:Item";
 
     private static Random mRandom = new Random();
@@ -33,6 +34,9 @@ public abstract class Item extends View implements View.OnTouchListener {
 
     private float mRandomPadRight;
     private float mRandomPadRightHalf;
+
+    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     public Item(Context context) { super(context); }
 
@@ -50,7 +54,14 @@ public abstract class Item extends View implements View.OnTouchListener {
         mRandomPadRight = Style.itemXGapMin + mRandom.nextInt((int) Style.itemXGapOffset);
         mRandomPadRightHalf = mRandomPadRight / 2;
 
-        setOnTouchListener(this);
+        final GestureDetector gD  = new GestureDetector(TimelineActivity.getInstance(), new GestureListener());
+        setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                gD.onTouchEvent(event);
+                return true;
+            }
+        });
     }
 
     @Override
@@ -114,20 +125,38 @@ public abstract class Item extends View implements View.OnTouchListener {
 
     protected final String getDateTime() { return mDateTime; }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        Log.d(TAG, "Touched");
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            Log.d(TAG, "ACTION_DOWN");
-            if (mOuterBounds.contains(event.getX(), event.getY())) {
-                Log.d(TAG, "Within Outer Bounds");
-                onClick(v);
-                return true;
-            }
+    protected abstract boolean onTap();
+
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.d(TAG, "SingleTapConfirmed");
+            return onTap();
         }
 
-        return false;
-    }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.d(TAG, "Fling");
 
-    protected abstract void onClick(View v);
+            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                return false; // Right to left
+            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                return false; // Left to right
+            }
+
+            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+                return false; // Bottom to top
+            }  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+                return false; // Top to bottom
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent event) {
+            super.onLongPress(event);
+        }
+    }
 }

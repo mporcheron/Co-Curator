@@ -12,7 +12,7 @@ import uk.porcheron.co_curator.user.User;
 /**
  * An item that contains a URL.
  */
-public class ItemURL extends ItemNote implements View.OnClickListener {
+public class ItemURL extends ItemNote {
     private static final String TAG = "CC:ItemURL";
 
     private String mURL;
@@ -25,8 +25,6 @@ public class ItemURL extends ItemNote implements View.OnClickListener {
 
     public ItemURL(int itemId, User user, String dateTime) {
         super(itemId, user, dateTime);
-
-        setOnClickListener(this);
     }
 
     public void setURL(String url) {
@@ -35,8 +33,9 @@ public class ItemURL extends ItemNote implements View.OnClickListener {
     }
 
     @Override
-    public void onClick(View v) {
+    public boolean onTap() {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mURL));
         getContext().startActivity(browserIntent);
+        return true;
     }
 }
