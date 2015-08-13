@@ -39,6 +39,7 @@ import uk.porcheron.co_curator.val.Instance;
 public class TimelineActivity extends Activity implements View.OnLongClickListener, SurfaceHolder.Callback {
     private static final String TAG = "CC:TimelineActivity";
 
+    private static boolean mCreated = false;
     private static TimelineActivity mInstance;
 
     private SurfaceHolder mSurfaceHolder;
@@ -104,6 +105,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         layoutAbove.setOnLongClickListener(this);
         layoutBelow.setOnLongClickListener(this);
+
+        if(mCreated) {
+            return;
+        }
 
         // Load items
         Instance.users = new UserList();
