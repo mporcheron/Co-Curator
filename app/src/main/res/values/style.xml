@@ -5,8 +5,8 @@
     <array name="userOffsets">
         <item>-50</item>
         <item>30</item>
-        <item>50</item>
-        <item>-30</item>
+        <item>130</item>
+        <item>-130</item>
     </array>
 
     <array name="userPositions">
@@ -34,18 +34,18 @@
 
     <dimen name="imageWidth">65dp</dimen>
     <dimen name="imageHeight">65dp</dimen>
-    <dimen name="imagePadding">3dp</dimen>
+    <dimen name="imagePadding">2.5dp</dimen>
     <integer name="imageThumbScaleBy">20</integer>
 
-    <dimen name="urlWidth">50dp</dimen>
-    <dimen name="urlHeight">50dp</dimen>
+    <dimen name="urlWidth">85dp</dimen>
+    <dimen name="urlHeight">80dp</dimen>
     <dimen name="urlPadding">3dp</dimen>
 
-    <dimen name="noteWidth">85dp</dimen>
-    <dimen name="noteHeight">85dp</dimen>
+    <dimen name="noteWidth">75dp</dimen>
+    <dimen name="noteHeight">75dp</dimen>
     <dimen name="notePadding">4dp</dimen>
     <integer name="noteLines">6</integer>
-    <integer name="noteFontSize">5</integer>
+    <integer name="noteFontSize">4</integer>
     <integer name="noteLineSpacing">12</integer>
 
 </resources>
