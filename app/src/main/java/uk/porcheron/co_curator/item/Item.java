@@ -157,6 +157,7 @@ public abstract class Item extends View {
         @Override
         public void onLongPress(MotionEvent event) {
             super.onLongPress(event);
+            TimelineActivity.getInstance().onLongClick(Item.this);
         }
     }
 }

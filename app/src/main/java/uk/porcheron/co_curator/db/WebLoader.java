@@ -20,6 +20,7 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.SoUtils;
+import uk.porcheron.co_curator.val.Collo;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
@@ -52,7 +53,6 @@ public class WebLoader {
         nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + Instance.globalUserId));
         nameValuePairs.add(new BasicNameValuePair("groupId", "" + Instance.groupId));
         nameValuePairs.add(new BasicNameValuePair("ip", SoUtils.getIPAddress(true)));
-        nameValuePairs.add(new BasicNameValuePair("port", "" + Instance.LOCAL_PORT));
 
         JSONArray response = Web.requestArr(Web.GET_USERS, nameValuePairs);
         if (response != null) {
@@ -63,16 +63,14 @@ public class WebLoader {
                     JSONObject userJ = (JSONObject) response.get(i);
                     int gId = userJ.getInt("globalUserId");
                     String gIp = userJ.getString("ip");
-                    int gPort = userJ.getInt("port");
 
                     User u = Instance.users.getByGlobalUserId(gId);
                     if(u == null) {
                         u = Instance.users.add(userJ.getInt("globalUserId"), true);
                     }
 
-                    Log.v(TAG, "User[" + gId + "] is at " + gIp + ":" + gPort);
+                    Log.v(TAG, "User[" + gId + "] is at " + gIp);
                     u.ip = gIp;
-                    u.port = gPort;
                 } catch (JSONException e) {
                     Log.e(TAG, "Could not get user from the cloud");
                     e.printStackTrace();
@@ -132,5 +130,54 @@ public class WebLoader {
             }
         }
 
+    }
+
+    public static void loadItemFromWeb(int globalUserId, int itemId) {
+        Log.d(TAG, "Get Item[" + globalUserId + ":" + itemId + "] from cloud");
+
+        TimelineActivity activity = TimelineActivity.getInstance();
+
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+        nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + globalUserId));
+        nameValuePairs.add(new BasicNameValuePair("itemId", "" + itemId));
+
+        JSONObject response = Web.requestObj(Web.GET_ITEM, nameValuePairs);
+        if (response != null) {
+            try {
+                if (Instance.items.getByItemId(globalUserId, itemId) == null) {
+                    final int cItemId = response.getInt("id");
+                    final User user = Instance.users.getByGlobalUserId(globalUserId);
+                    String jsonData = response.getString("data");
+                    final ItemType type = ItemType.get(response.getInt("type"));
+
+                    if (type == ItemType.PHOTO) {
+                        Bitmap b = getBitmapFromURL(jsonData);
+                        try {
+                            jsonData = Image.save(activity, b);
+                        } catch (IOException e) {
+                            Log.e(TAG, "Failed to download image " + jsonData);
+                            e.printStackTrace();
+                        }
+                    }
+
+                    final String data = jsonData;
+                    final String dateTime = response.getString("dateTime");
+
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            Instance.items.add(cItemId, type, user, data, dateTime, true, false);
+                        }
+                    });
+                } else {
+                    //TODO: change to update
+                    Log.e(TAG, "Item already exists!");
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, "Could not get Item[" + itemId + "] from the cloud");
+                e.printStackTrace();
+            }
+        } else {
+            Log.e(TAG, "Could not get Item[" + itemId + "] from the cloud");
+        }
     }
 }

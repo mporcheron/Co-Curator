@@ -13,7 +13,6 @@ public class Instance {
     public static int groupId;
     public static UserList users;
     public static ItemList items;
-    public static final int LOCAL_PORT = 54545;
 
     public static User user() {
         return users.getByGlobalUserId(globalUserId);

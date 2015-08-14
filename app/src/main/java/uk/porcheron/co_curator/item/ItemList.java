@@ -29,9 +29,11 @@ import java.util.List;
 import java.util.Map;
 
 import uk.porcheron.co_curator.TimelineActivity;
+import uk.porcheron.co_curator.collo.ClientManager;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 import uk.porcheron.co_curator.util.Web;
 
@@ -204,7 +206,15 @@ public class ItemList extends ArrayList<Item> {
             nameValuePairs.add(new BasicNameValuePair("itemDateTime", "" + mDateTime));
 
             JSONObject obj = Web.requestObj(Web.POST_ITEMS, nameValuePairs);
-            return obj.has("success");
+            if(obj != null && obj.has("success")) {
+                Log.d(TAG, "Item successfully uploaded, notify clients");
+                ClientManager.postMessage("newitem|" + Instance.globalUserId + "|"+ mItemId);
+                return true;
+            } else {
+                Log.e(TAG, "Could not post item to cloud");
+            }
+
+            return Boolean.FALSE;
         }
     }
 
@@ -235,8 +245,12 @@ public class ItemList extends ArrayList<Item> {
                 File file = TimelineActivity.getInstance().getFileStreamPath(params[0] + ".png");
                 entity.addPart("itemData", new FileBody(file));
 
+
                 JSONObject obj = Web.requestObj(Web.POST_ITEMS, entity);
-                return obj != null && obj.has("success");
+                if(obj != null && obj.has("success")) {
+                    ClientManager.postMessage("newitem|" + Instance.globalUserId + "|"+ mItemId);
+                    return true;
+                }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

@@ -30,6 +30,8 @@ import android.widget.LinearLayout;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import uk.porcheron.co_curator.collo.ClientManager;
+import uk.porcheron.co_curator.collo.ServerManager;
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.item.ItemType;
@@ -46,6 +48,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     private static boolean mCreated = false;
     private static TimelineActivity mInstance;
+
+    private Timer mUpdateTimer = new Timer();
+    final Handler mUpdateHandler = new Handler();
 
     private SurfaceHolder mSurfaceHolder;
     private ProgressDialog mProgressDialog;
@@ -120,16 +125,25 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Instance.items = new ItemList(layoutAbove, layoutBelow);
 
         new DbLoader().execute();
-        scheduleUserUpdating();
     }
 
     public static TimelineActivity getInstance() {
         return mInstance;
     }
 
+    @Override
     public void onResume() {
-        super.onResume();
         Phone.collectAttrs();
+        mUpdateTimer = new Timer();
+        mUpdateTimer.schedule(mUpdateUserTask, 10000, 10000);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mUpdateTimer.cancel();
+        mUpdateTimer.purge();
     }
 
     @Override
@@ -235,7 +249,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         builder.setItems(typeLabels, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
-                ItemType type = types[which+1]; // first item is the UNKNOWN type
+                ItemType type = types[which + 1]; // first item is the UNKNOWN type
                 switch (type) {
                     case PHOTO:
                         addNewPhoto();
@@ -384,31 +398,27 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     }
 
-    private void scheduleUserUpdating() {
-        final Handler handler = new Handler();
-        Timer timer = new Timer();
-        TimerTask doAsynchronousTask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        try {
-                            new UpdateUsersTask().execute();
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                        }
+    TimerTask mUpdateUserTask = new TimerTask() {
+        @Override
+        public void run() {
+            mUpdateHandler.post(new Runnable() {
+                public void run() {
+                    try {
+                        new UpdateUsersTask().execute();
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
                     }
-                });
-            }
-        };
-        timer.schedule(doAsynchronousTask, 0, 60000); //execute in every 50000 ms
-    }
+                }
+            });
+        }
+    };
 
     class UpdateUsersTask extends AsyncTask<Void,Void,Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
             WebLoader.loadUsersFromWeb();
+            ServerManager.update();
             return null;
         }
     }
