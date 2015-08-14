@@ -19,7 +19,6 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
     private TimelineActivity mActivity = TimelineActivity.getInstance();
     private DbHelper mDbHelper = DbHelper.getInstance();
-    private WebLoader mWebLoader = new WebLoader();
 
     public DbLoader() {
     }
@@ -86,7 +85,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
         // Get users from the cloud
         Log.d(TAG, "Get users from cloud...");
-        mWebLoader.loadUsersFromWeb();
+        WebLoader.loadUsersFromWeb();
     }
 
     protected ItemList loadItemsFromDb(int globalUserId) throws Exception {
@@ -158,10 +157,10 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
         if (allUsers) {
             for (User u : Instance.users) {
-                mWebLoader.loadItemsFromWeb(u.globalUserId);
+                WebLoader.loadItemsFromWeb(u.globalUserId);
             }
         } else {
-            mWebLoader.loadItemsFromWeb(globalUserId);
+            WebLoader.loadItemsFromWeb(globalUserId);
         }
 
 

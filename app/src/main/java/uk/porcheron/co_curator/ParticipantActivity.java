@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.porcheron.co_curator.util.SoUtils;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.util.Web;
 
@@ -191,6 +192,8 @@ public class ParticipantActivity extends Activity {
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
             nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + mGlobalUserId));
             nameValuePairs.add(new BasicNameValuePair("groupId", "" + mGroupId));
+            nameValuePairs.add(new BasicNameValuePair("ip", SoUtils.getIPAddress(true)));
+            nameValuePairs.add(new BasicNameValuePair("port", "" + Instance.LOCAL_PORT));
 
             String mesg = getString(R.string.errorLogin);
 

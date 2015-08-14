@@ -14,6 +14,7 @@ import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -26,7 +27,11 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import uk.porcheron.co_curator.db.DbLoader;
+import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.user.User;
@@ -115,6 +120,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Instance.items = new ItemList(layoutAbove, layoutBelow);
 
         new DbLoader().execute();
+        scheduleUserUpdating();
     }
 
     public static TimelineActivity getInstance() {
@@ -376,5 +382,34 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 
+    }
+
+    private void scheduleUserUpdating() {
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask doAsynchronousTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+                            new UpdateUsersTask().execute();
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(doAsynchronousTask, 0, 60000); //execute in every 50000 ms
+    }
+
+    class UpdateUsersTask extends AsyncTask<Void,Void,Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            WebLoader.loadUsersFromWeb();
+            return null;
+        }
     }
 }

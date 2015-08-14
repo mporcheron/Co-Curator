@@ -12,6 +12,8 @@ public class User {
 
     public final int userId;
     public final int globalUserId;
+    public String ip = null;
+    public int port = -1;
     public final int bgColor;
     public final int fgColor;
     public final float offset;

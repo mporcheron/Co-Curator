@@ -19,6 +19,7 @@ import java.util.List;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.SoUtils;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
@@ -28,11 +29,6 @@ import uk.porcheron.co_curator.util.Web;
  */
 public class WebLoader {
     private static final String TAG = "CC:WebLoader";
-
-    private TimelineActivity mActivity = TimelineActivity.getInstance();
-
-    WebLoader() {
-    }
 
     public static Bitmap getBitmapFromURL(String src) {
         try {
@@ -49,33 +45,49 @@ public class WebLoader {
         }
     }
 
-    protected void loadUsersFromWeb() {
+    public static void loadUsersFromWeb() {
         Log.d(TAG, "Load users from cloud");
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+        nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + Instance.globalUserId));
         nameValuePairs.add(new BasicNameValuePair("groupId", "" + Instance.groupId));
+        nameValuePairs.add(new BasicNameValuePair("ip", SoUtils.getIPAddress(true)));
+        nameValuePairs.add(new BasicNameValuePair("port", "" + Instance.LOCAL_PORT));
 
         JSONArray response = Web.requestArr(Web.GET_USERS, nameValuePairs);
         if (response != null) {
+            Log.v(TAG, "Received " + response.length() + " users");
+
             for (int i = 0; i < response.length(); i++) {
                 try {
                     JSONObject userJ = (JSONObject) response.get(i);
                     int gId = userJ.getInt("globalUserId");
-                    if(Instance.users.getByGlobalUserId(gId) == null) {
-                        Instance.users.add(userJ.getInt("globalUserId"), true);
+                    String gIp = userJ.getString("ip");
+                    int gPort = userJ.getInt("port");
+
+                    User u = Instance.users.getByGlobalUserId(gId);
+                    if(u == null) {
+                        u = Instance.users.add(userJ.getInt("globalUserId"), true);
                     }
+
+                    Log.v(TAG, "User[" + gId + "] is at " + gIp + ":" + gPort);
+                    u.ip = gIp;
+                    u.port = gPort;
                 } catch (JSONException e) {
                     Log.e(TAG, "Could not get user from the cloud");
                     e.printStackTrace();
                 }
-
             }
+        } else {
+            Log.e(TAG, "Null response loading users");
         }
 
     }
 
-    protected void loadItemsFromWeb(int globalUserId) {
+    protected static void loadItemsFromWeb(int globalUserId) {
         Log.d(TAG, "Load items from cloud");
+
+        TimelineActivity activity = TimelineActivity.getInstance();
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + globalUserId));
@@ -96,7 +108,7 @@ public class WebLoader {
                         if (type == ItemType.PHOTO) {
                             Bitmap b = getBitmapFromURL(jsonData);
                             try {
-                                jsonData = Image.save(mActivity, b);
+                                jsonData = Image.save(activity, b);
                             } catch (IOException e) {
                                 Log.e(TAG, "Failed to download image " + jsonData);
                                 e.printStackTrace();
@@ -106,7 +118,7 @@ public class WebLoader {
                         final String data = jsonData;
                         final String dateTime = itemJ.getString("dateTime");
 
-                        mActivity.runOnUiThread(new Runnable() {
+                        activity.runOnUiThread(new Runnable() {
                             public void run() {
                                 Instance.items.add(itemId, type, user, data, dateTime, true, false);
                             }
