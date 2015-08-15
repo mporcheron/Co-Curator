@@ -23,7 +23,7 @@ public class ItemURL extends ItemNote {
 
     public ItemURL(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public ItemURL(int itemId, User user, String dateTime) {
+    public ItemURL(int itemId, User user, int dateTime) {
         super(itemId, user, dateTime);
     }
 

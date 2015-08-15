@@ -115,7 +115,7 @@ public class WebLoader {
                         }
 
                         final String data = jsonData;
-                        final String dateTime = itemJ.getString("dateTime");
+                        final int dateTime = itemJ.getInt("dateTime");
 
                         activity.runOnUiThread(new Runnable() {
                             public void run() {
@@ -162,7 +162,7 @@ public class WebLoader {
                     }
 
                     final String data = jsonData;
-                    final String dateTime = response.getString("dateTime");
+                    final int dateTime = response.getInt("dateTime");
 
                     activity.runOnUiThread(new Runnable() {
                         public void run() {

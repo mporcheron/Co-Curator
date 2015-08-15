@@ -63,14 +63,10 @@ public class ItemList extends ArrayList<Item> {
     }
 
     public boolean add(int itemId, ItemType type, User user, String data, boolean addToLocalDb, boolean addToCloud) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = new Date();
-        String dateTime = dateFormat.format(date);
-
-        return add(itemId, type, user, data, dateTime, addToLocalDb, addToCloud);
+        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), addToLocalDb, addToCloud);
     }
 
-    public synchronized boolean add(int itemId, ItemType type, User user, String data, String dateTime, boolean addToLocalDb, boolean addToCloud) {
+    public synchronized boolean add(int itemId, ItemType type, User user, String data, int dateTime, boolean addToLocalDb, boolean addToCloud) {
         String uniqueItemId = user.globalUserId + "-" + itemId;
 
         Log.v(TAG, "Item[" + uniqueItemId + "]: Add to List (type=" + type + ",user=" + user.globalUserId +
@@ -96,7 +92,7 @@ public class ItemList extends ArrayList<Item> {
         Iterator<Item> it = iterator();
         while(it.hasNext()) {
             Item j = it.next();
-            if(j.getDateTime().compareTo(dateTime) > 0) {
+            if(j.getDateTime() < dateTime) {
                 Log.d(TAG, "New item is newer, stop counting");
                 break;
             }
@@ -115,8 +111,10 @@ public class ItemList extends ArrayList<Item> {
         // Drawing
         if (user.above) {
             mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), insertAtAbove));
+            mLayoutBelow.setMinimumWidth(mLayoutAbove.getWidth());
         } else {
             mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), insertAtBelow));
+            mLayoutAbove.setMinimumWidth(mLayoutBelow.getWidth());
         }
 
         // Save to the Local Database or just draw?
@@ -160,19 +158,19 @@ public class ItemList extends ArrayList<Item> {
         return true;
     }
 
-    private ItemNote createNote(int itemId, User user, String dateTime, String text) {
+    private ItemNote createNote(int itemId, User user, int dateTime, String text) {
         ItemNote note = new ItemNote(itemId, user, dateTime);
         note.setText(text);
         return note;
     }
 
-    private ItemURL createURL(int itemId, User user, String dateTime, String url) {
+    private ItemURL createURL(int itemId, User user, int dateTime, String url) {
         ItemURL note = new ItemURL(itemId, user, dateTime);
         note.setURL(url);
         return note;
     }
 
-    private ItemImage createImage(int itemId, User user, String dateTime, String imagePath) {
+    private ItemImage createImage(int itemId, User user, int dateTime, String imagePath) {
         ItemImage image = new ItemImage(itemId, user, dateTime);
         image.setImagePath(imagePath);
         return image;
@@ -187,9 +185,9 @@ public class ItemList extends ArrayList<Item> {
         private int mGlobalUserId;
         private int mItemId;
         private ItemType mItemType;
-        private String mDateTime;
+        private int mDateTime;
 
-        PostTextToCloud(int globalUserId, int itemId, ItemType itemType, String dateTime) {
+        PostTextToCloud(int globalUserId, int itemId, ItemType itemType, int dateTime) {
             mGlobalUserId = globalUserId;
             mItemId = itemId;
             mItemType = itemType;
@@ -223,9 +221,9 @@ public class ItemList extends ArrayList<Item> {
         private int mGlobalUserId;
         private int mItemId;
         private ItemType mItemType;
-        private String mDateTime;
+        private int mDateTime;
 
-        PostImageToCloud(int globalUserId, int itemId, ItemType itemType, String dateTime) {
+        PostImageToCloud(int globalUserId, int itemId, ItemType itemType, int dateTime) {
             mGlobalUserId = globalUserId;
             mItemId = itemId;
             mItemType = itemType;
@@ -240,7 +238,7 @@ public class ItemList extends ArrayList<Item> {
                 entity.addPart("globalUserId", new StringBody("" + mGlobalUserId));
                 entity.addPart("itemId", new StringBody("" + mItemId));
                 entity.addPart("itemType", new StringBody("" + mItemType.getTypeId()));
-                entity.addPart("itemDateTime", new StringBody(mDateTime));
+                entity.addPart("itemDateTime", new StringBody("" + mDateTime));
 
                 File file = TimelineActivity.getInstance().getFileStreamPath(params[0] + ".png");
                 entity.addPart("itemData", new FileBody(file));

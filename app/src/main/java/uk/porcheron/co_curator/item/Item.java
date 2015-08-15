@@ -25,7 +25,7 @@ public abstract class Item extends View {
 
     private User mUser;
     private int mItemId;
-    private String mDateTime;
+    private int mDateTime;
 
     private RectF mSlotBounds;
     private RectF mOuterBounds;
@@ -44,7 +44,7 @@ public abstract class Item extends View {
 
     public Item(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public Item(User user, int itemId, String dateTime) {
+    public Item(User user, int itemId, int dateTime) {
         super(TimelineActivity.getInstance());
 
         mUser = user;
@@ -123,7 +123,7 @@ public abstract class Item extends View {
 
     protected final String getUniqueItemId() { return mUser.globalUserId + "-" + mItemId; }
 
-    protected final String getDateTime() { return mDateTime; }
+    protected final int getDateTime() { return mDateTime; }
 
     protected abstract boolean onTap();
 

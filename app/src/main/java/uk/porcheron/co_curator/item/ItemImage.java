@@ -36,7 +36,7 @@ public class ItemImage extends Item {
 
     public ItemImage(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public ItemImage(int itemId, User user, String dateTime) {
+    public ItemImage(int itemId, User user, int dateTime) {
         super(user, itemId, dateTime);
 
         mActivity = TimelineActivity.getInstance();

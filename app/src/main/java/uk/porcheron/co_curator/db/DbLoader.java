@@ -135,7 +135,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 final ItemType type = ItemType.get(cTypeId);
 
                 final String cData = c.getString(3);
-                final String cDateTime = c.getString(4);
+                final int cDateTime = c.getInt(4);
 
                 if (cData != null) {
                     Log.v(TAG, "Item[" + i + "]: Save (itemId=" + cItemId + ",type=" + type.toString() + ",dateTime="+cDateTime + ",data='" + cData + "')");

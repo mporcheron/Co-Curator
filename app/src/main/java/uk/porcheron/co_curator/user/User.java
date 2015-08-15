@@ -22,28 +22,22 @@ public class User {
     public final boolean above;
     public final Paint bgPaint;
 
-    private static int mAdded = 0;
-
     public User(int globalUserId, int userId) {
         this.userId = userId;
         this.globalUserId = globalUserId;
-        this.offset = Style.userOffsets[mAdded];
+        this.offset = Style.userOffsets[Instance.addedUsers];
 
-        this.centrelineOffset = mAdded * (Style.lineWidth + Style.lineCentreGap);
+        this.centrelineOffset = Instance.addedUsers * (Style.lineWidth + Style.lineCentreGap);
         this.above = offset <= 0;
 
         this.bgColor = Instance.userId == userId ? Style.userMeBgColors[userId] : Style.userBgColors[userId];
-        Log.e(TAG, "I am user " + userId + ", the app is user " + Instance.userId + ", there pick colour " + (Instance.userId == userId ? "bright" : "faded"));
-        Log.e(TAG, "I am user " + globalUserId + ", the app is user " + Instance.globalUserId + "");
         this.fgColor = Style.userFgColors[userId];
-
-        Log.e(TAG, "I am user " + mAdded + "th user to be added, offset=" + offset + ", clOffset= " + centrelineOffset + "");
 
         Paint bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         bgPaint.setStyle(Paint.Style.FILL);
         bgPaint.setColor(bgColor);
         this.bgPaint = bgPaint;
 
-        mAdded++;
+        Instance.addedUsers++;
     }
 }

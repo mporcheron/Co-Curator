@@ -116,6 +116,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         layoutAbove.setPadding(0, 0, 0, Style.layoutHalfPadding);
         layoutBelow.setLayoutParams(params);
 
+        mFrameLayout.setOnLongClickListener(this);
         layoutAbove.setOnLongClickListener(this);
         layoutBelow.setOnLongClickListener(this);
 

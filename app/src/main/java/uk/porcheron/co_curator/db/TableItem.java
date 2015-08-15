@@ -24,7 +24,7 @@ public abstract class TableItem implements BaseColumns {
                     //" (" + TableUser.COL_GLOBAL_USER_ID + ")" + Sql.COMMA +
                     TableItem.COL_ITEM_TYPE + Sql.TYPE_INT + Sql.COMMA +
                     TableItem.COL_ITEM_DATA + Sql.TYPE_TEXT + Sql.COMMA +
-                    TableItem.COL_ITEM_DATETIME + Sql.TYPE_DT + " default CURRENT_TIMESTAMP" +
+                    TableItem.COL_ITEM_DATETIME + Sql.TYPE_INT +
                     " );";
 
     protected static final String SQL_DELETE =
