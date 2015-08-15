@@ -40,15 +40,14 @@ public class Client extends AsyncTask<String, String, Void> {
 
     @Override
     protected Void doInBackground(String... arg0) {
-        Log.d(TAG, "User[" + Instance.globalUserId + "] Connect to " + mDestinationIp + ":" + mDestinationPort);
+        Log.v(TAG, "User[" + Instance.globalUserId + "] Send message to " + mDestinationIp + ":" + mDestinationPort);
 
             try (
                     Socket socket = new Socket(mDestinationIp, mDestinationPort);
-                    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                    DataInputStream dataInputStream = new DataInputStream(socket.getInputStream())) {
+                    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
 
                 dataOutputStream.writeUTF(arg0[0]);
-                publishProgress(dataInputStream.readUTF());
+                publishProgress(null);
             } catch (UnknownHostException e) {
                 e.printStackTrace();
                 Log.e(TAG, e.toString());
@@ -64,7 +63,9 @@ public class Client extends AsyncTask<String, String, Void> {
 
     @Override
     protected void onProgressUpdate(String... response) {
-        Log.d(TAG, "Received message from server: " + response[0]);
+        if(response != null) {
+            Log.e(TAG, response[0]);
+        }
     }
 
 }

@@ -22,7 +22,8 @@ public class ClientManager {
     public static void postMessage(String action, Object... components) {
         StringBuilder mb = new StringBuilder(action + ColloDict.SEP + Instance.globalUserId);
         for(Object component : components) {
-            mb.append(ColloDict.SEP + component.toString());
+            mb.append(ColloDict.SEP);
+            mb.append(component.toString());
         }
         String message = mb.toString();
 
@@ -35,18 +36,19 @@ public class ClientManager {
         }
     }
 
-    public static void postMessage(int recipientGlobalUserId, String message) {
+    private static void postMessage(int recipientGlobalUserId, String message) {
         Log.d(TAG, "Post `" + message + "` to User[" + recipientGlobalUserId + "]");
         User user = Instance.users.getByGlobalUserId(recipientGlobalUserId);
         if(user.ip.isEmpty()) {
-            Log.d(TAG, "Could not send message('" + message + "'): No connection details for User[" + user.globalUserId + "]");
+            Log.v(TAG, "Could not send message('" + message + "'): No connection details for User[" + user.globalUserId + "]");
             return;
         }
 
         Client c = mClients.get(user.globalUserId);
         if(c != null) {
             while (c.getStatus() == AsyncTask.Status.RUNNING) {
-                Log.d(TAG, "Waiting for previous message to end");
+                Log.e(TAG, "Waiting for previous message to end");
+                c.cancel(true);
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {

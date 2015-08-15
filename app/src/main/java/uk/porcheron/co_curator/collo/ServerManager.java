@@ -28,7 +28,7 @@ public class ServerManager {
 
 
     public static void update() {
-        Log.d(TAG, "User[" + Instance.globalUserId + "] Update Servers");
+        Log.v(TAG, "User[" + Instance.globalUserId + "] Update Servers");
 
         for(User user : Instance.users) {
             if(user.globalUserId == Instance.globalUserId) {
@@ -44,7 +44,7 @@ public class ServerManager {
                 }
             }
 
-            Log.d(TAG, "User[" + Instance.globalUserId + "] Start listening at " + SoUtils.getIPAddress(true) + ":" + Collo.sPort(user.globalUserId));
+            Log.v(TAG, "User[" + Instance.globalUserId + "] Start listening at " + SoUtils.getIPAddress(true) + ":" + Collo.sPort(user.globalUserId));
             s = new Server(Collo.sPort(user.globalUserId));
             mServers.put(user.globalUserId, s);
             s.start();

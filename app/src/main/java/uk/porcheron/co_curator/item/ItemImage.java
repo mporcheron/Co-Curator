@@ -51,7 +51,7 @@ public class ItemImage extends Item {
         RectF b = getInnerBounds();
 
         if (mBitmap == null) {
-            Log.d(TAG, "Load image file " + mImagePath);
+            Log.v(TAG, "Load image file " + mImagePath);
             try {
                 FileInputStream fis = getContext().openFileInput(mImagePath + ".png");
                 mBitmap = BitmapFactory.decodeStream(fis);
@@ -92,7 +92,7 @@ public class ItemImage extends Item {
 
     @Override
     public boolean onTap() {
-        Log.d(TAG, "Image clicked!");
+        Log.v(TAG, "Image clicked!");
 
         Intent intent = new Intent(TimelineActivity.getInstance(), ImageDialogActivity.class);
         intent.putExtra(ImageDialogActivity.IMAGE, mImagePath);

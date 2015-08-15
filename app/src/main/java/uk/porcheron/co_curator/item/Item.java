@@ -35,6 +35,8 @@ public abstract class Item extends View {
     private float mRandomPadRight;
     private float mRandomPadRightHalf;
 
+    private boolean mDrawn = false;
+
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
@@ -67,6 +69,14 @@ public abstract class Item extends View {
     @Override
     protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension((int) mSlotBounds.width(), (int) mSlotBounds.height());
+    }
+
+    public void setDrawn(boolean newState) {
+        mDrawn = newState;
+    }
+
+    public boolean isDrawn() {
+        return mDrawn;
     }
 
     @Override

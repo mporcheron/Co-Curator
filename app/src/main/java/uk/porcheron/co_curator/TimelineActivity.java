@@ -131,14 +131,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         layoutAbove.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
-                Log.v(TAG, "Touched layoutAbove");
                 return gD.onTouchEvent(event);
             }
         });
         layoutBelow.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
-                Log.v(TAG, "Touched layoutBelow");
                 return gD.onTouchEvent(event);
             }
         });
@@ -198,7 +196,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "Received ActivityResult (requestCode=" + requestCode + ",resultCode=" + resultCode + ")");
+        Log.v(TAG, "Received ActivityResult (requestCode=" + requestCode + ",resultCode=" + resultCode + ")");
 
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -224,7 +222,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             String filePath = cursor.getString(columnIndex);
             cursor.close();
 
-            Log.d(TAG, "File selected by user: " + filePath);
+            Log.v(TAG, "File selected by user: " + filePath);
 
             new ImportImage().execute(filePath);
 
@@ -382,12 +380,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     public void redrawCentrelines() {
-        Log.d(TAG, "Redraw Centrelines");
+        Log.v(TAG, "Redraw Centrelines");
         updateCanvas(mSurfaceHolder);
     }
 
     private void updateCanvas(SurfaceHolder holder) {
-        Log.d(TAG, "Redaw canvas");
+        Log.v(TAG, "Redaw canvas");
 
         Canvas canvas = holder.lockCanvas();
 

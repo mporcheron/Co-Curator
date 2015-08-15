@@ -25,8 +25,11 @@ import java.util.Map;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.collo.ClientManager;
 import uk.porcheron.co_curator.collo.ColloDict;
+import uk.porcheron.co_curator.collo.ResponseHandler;
+import uk.porcheron.co_curator.collo.ResponseManager;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
+import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Phone;
@@ -38,7 +41,7 @@ import uk.porcheron.co_curator.util.Web;
  * <p/>
  * Created by map on 07/08/15.
  */
-public class ItemList extends ArrayList<Item> {
+public class ItemList extends ArrayList<Item> implements ResponseHandler {
     private static final String TAG = "CC:ItemList";
 
     private DbHelper mDbHelper;
@@ -54,6 +57,8 @@ public class ItemList extends ArrayList<Item> {
         mScrollView = scrollView;
         mLayoutAbove = layoutAbove;
         mLayoutBelow = layoutBelow;
+
+        ResponseManager.registerHandler(ColloDict.ACTION_NEW, this);
     }
 
     public boolean add(ItemType type, User user, String data, boolean addToLocalDb, boolean addToCloud) {
@@ -95,9 +100,9 @@ public class ItemList extends ArrayList<Item> {
             }
 
             insertAt++;
-            if(user.above) {
+            if(user.above && user.draw) {
                 insertAtAbove++;
-            } else {
+            } else if(user.draw) {
                 insertAtBelow++;
             }
         }
@@ -108,33 +113,9 @@ public class ItemList extends ArrayList<Item> {
 
         // Drawing
         if(!user.draw) {
-            Log.d(TAG, "Item[" + uniqueItemId + "]: Won't draw as user is not connected or us");
+            Log.v(TAG, "Item[" + uniqueItemId + "]: Won't draw as user is not connected or us");
         } else {
-            int minWidth = Phone.screenWidth;
-            if (user.above) {
-                mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), insertAtAbove));
-                minWidth = Math.max(mLayoutAbove.getWidth() + item.getMeasuredWidth(), minWidth);
-            } else {
-                mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), insertAtBelow));
-                minWidth = Math.max(mLayoutBelow.getWidth() + item.getMeasuredWidth(), minWidth);
-            }
-
-            mLayoutAbove.setMinimumWidth(minWidth);
-            mLayoutBelow.setMinimumWidth(minWidth);
-
-            float minAutoScrollWidth = minWidth - Style.autoscrollSlack - Phone.screenWidth;
-            Log.e(TAG, "minWidth = " + minWidth + "; slack = " + Style.autoscrollSlack + "; autoscroll = " + minAutoScrollWidth);
-            Log.e(TAG, "Scroll view is at " + mScrollView.getScrollX() + "," + mScrollView.getScrollY());
-
-            if (user.globalUserId == Instance.globalUserId || minAutoScrollWidth <= mScrollView.getScrollX()) {
-                final int targetX = minWidth;
-                mScrollView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mScrollView.smoothScrollTo(targetX, 0);
-                    }
-                }, 500);
-            }
+            drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
         }
 
         // Save to the Local Database or just draw?
@@ -164,7 +145,7 @@ public class ItemList extends ArrayList<Item> {
             return false;
         }
 
-        Log.d(TAG, "Item[" + uniqueItemId + "]: Created in Db (rowId=" + newRowId + ")");
+        Log.v(TAG, "Item[" + uniqueItemId + "]: Created in Db (rowId=" + newRowId + ")");
 
         // Save to the Local Database or just draw?
         if (addToCloud) {
@@ -176,6 +157,61 @@ public class ItemList extends ArrayList<Item> {
         }
 
         return true;
+    }
+
+    private void drawItem(User user, Item item, int pos) {
+        int minWidth = Phone.screenWidth;
+        if (user.above) {
+            mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), pos));
+            minWidth = Math.max(mLayoutAbove.getWidth() + item.getMeasuredWidth(), minWidth);
+        } else {
+            mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), pos));
+            minWidth = Math.max(mLayoutBelow.getWidth() + item.getMeasuredWidth(), minWidth);
+        }
+
+        mLayoutAbove.setMinimumWidth(minWidth);
+        mLayoutBelow.setMinimumWidth(minWidth);
+
+        float minAutoScrollWidth = minWidth - Style.autoscrollSlack - Phone.screenWidth;
+        if (user.globalUserId == Instance.globalUserId || minAutoScrollWidth <= mScrollView.getScrollX()) {
+            final int targetX = minWidth;
+            mScrollView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScrollView.smoothScrollTo(targetX, 0);
+                }
+            }, 500);
+        }
+
+        item.setDrawn(true);
+    }
+
+    public void retestDrawing() {
+        int insertAtAbove = 0;
+        int insertAtBelow = 0;
+        for(Item item : this) {
+            User user = item.getUser();
+
+            if(user.draw) {
+                if(!item.isDrawn()) {
+                    drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
+                    // draw
+                }
+            } else {
+                if(item.isDrawn()) {
+                    // remove from view
+                }
+            }
+
+            if(user.draw) {
+                if (user.above) {
+                    insertAtAbove++;
+                } else {
+                    insertAtBelow++;
+                }
+            }
+
+        }
     }
 
     private ItemNote createNote(int itemId, User user, int dateTime, String text) {
@@ -198,6 +234,17 @@ public class ItemList extends ArrayList<Item> {
 
     public Item getByItemId(int globalUserId, int itemId) {
         return mItemIds.get(globalUserId + "-" + itemId);
+    }
+
+    @Override
+    public boolean respond(String action, int globalUserId, String... data) {
+        try {
+            WebLoader.loadItemFromWeb(globalUserId, Integer.parseInt(data[0]));
+            return true;
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Invalid Ids received");
+            return false;
+        }
     }
 
     private class PostTextToCloud extends AsyncTask<String, Void, Boolean> {
@@ -225,7 +272,7 @@ public class ItemList extends ArrayList<Item> {
 
             JSONObject obj = Web.requestObj(Web.POST_ITEMS, nameValuePairs);
             if(obj != null && obj.has("success")) {
-                Log.d(TAG, "Item successfully uploaded, notify clients");
+                Log.v(TAG, "Item successfully uploaded, notify clients");
                 ClientManager.postMessage(ColloDict.ACTION_NEW, mItemId);
                 return true;
             } else {
@@ -266,7 +313,7 @@ public class ItemList extends ArrayList<Item> {
 
                 JSONObject obj = Web.requestObj(Web.POST_ITEMS, entity);
                 if(obj != null && obj.has("success")) {
-                    ClientManager.postMessage("newitem|" + Instance.globalUserId + "|"+ mItemId);
+                    ClientManager.postMessage(ColloDict.ACTION_NEW, mItemId);
                     return true;
                 }
             } catch (UnsupportedEncodingException e) {

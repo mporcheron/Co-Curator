@@ -7,6 +7,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.val.Instance;
@@ -37,7 +42,7 @@ public class Server extends Thread {
 
         try {
             mServerSocket = new ServerSocket(mPort);
-            Log.d(TAG, "User[" + Instance.globalUserId + "] listening at " + mServerSocket.getInetAddress() + ":" + mServerSocket.getLocalPort());
+            Log.v(TAG, "User[" + Instance.globalUserId + "] listening at " + mServerSocket.getInetAddress() + ":" + mServerSocket.getLocalPort());
 
             try {
                 while (true) {
@@ -48,7 +53,7 @@ public class Server extends Thread {
                     String messageFromClient = dataInputStream.readUTF();
 
                     mMessageCount++;
-                    Log.d(TAG, "Mesg[" + mMessageCount + "] from " +
+                    Log.v(TAG, "Mesg[" + mMessageCount + "] from " +
                             ":" + socket.getPort() + " = " + messageFromClient);
 
                     process(messageFromClient);
@@ -93,26 +98,20 @@ public class Server extends Thread {
         }
     }
 
-    private static void process(String mesg) {
-        String[] array = mesg.split("\\|");
-        switch (array[0]) {
-            case ColloDict.ACTION_NEW:
-                try {
-                    WebLoader.loadItemFromWeb(Integer.parseInt(array[1]), Integer.parseInt(array[2]));
-                } catch (NumberFormatException e) {
-                    Log.d(TAG, "Invalid Ids received");
-                }
-                break;
+    private static boolean process(String mesg) {
+        String[] array = mesg.split(ColloDict.SEP_SPLIT);
+        String[] data =  Arrays.copyOfRange(array, 2, array.length);
 
-            case ColloDict.ACTION_BIND:
-                Log.d(TAG, "Are we gonna bind with " + array[1]);
-                ColloGesture cg = ColloGesture.getInstance();
-                try {
-                    cg.havePossibleBinder(Float.parseFloat(array[2]), Float.parseFloat(array[3]), array[4]);
-                } catch (NumberFormatException e) {
-                    Log.d(TAG, "Invalid co-ordinates received");
-                }
-                break;
+        String action = array[0];
+        int globalUserId;
+
+        try {
+            globalUserId = Integer.parseInt(array[1]);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Aborting processing, invalid Global User ID received");
+            return false;
         }
+
+        return ResponseManager.respond(action, globalUserId, data);
     }
 }

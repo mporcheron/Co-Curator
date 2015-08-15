@@ -100,7 +100,7 @@ public class Web {
     }
 
     private static String request(String uri, List<NameValuePair> data) {
-        Log.d(TAG, "Send request to " + uri);
+        Log.v(TAG, "Send request to " + uri);
         try {
             return request(uri, new UrlEncodedFormEntity(data));
         } catch (UnsupportedEncodingException e) {

@@ -6,8 +6,10 @@ package uk.porcheron.co_curator.collo;
 public class ColloDict {
 
     public static final String SEP = "|";
+    public static final String SEP_SPLIT = "\\|";
 
     public static final String ACTION_NEW = "new";
     public static final String ACTION_BIND = "bind";
+    public static final String ACTION_DO_BIND = "dobind";
 
 }
