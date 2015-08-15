@@ -34,6 +34,7 @@ import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Instance;
+import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
 import uk.porcheron.co_curator.util.Web;
 
@@ -108,14 +109,19 @@ public class ItemList extends ArrayList<Item> {
         mItemIds.put(user.globalUserId + "-" + item.getItemId(), item);
         add(insertAt, item);
 
+        int minWidth = Phone.screenWidth;
+
         // Drawing
         if (user.above) {
             mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), insertAtAbove));
-            mLayoutBelow.setMinimumWidth(mLayoutAbove.getWidth());
+            minWidth = Math.max(mLayoutAbove.getWidth(), minWidth);
         } else {
             mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), insertAtBelow));
-            mLayoutAbove.setMinimumWidth(mLayoutBelow.getWidth());
+            minWidth = Math.max(mLayoutBelow.getWidth(), minWidth);
         }
+
+        mLayoutAbove.setMinimumWidth(minWidth);
+        mLayoutBelow.setMinimumWidth(minWidth);
 
         // Save to the Local Database or just draw?
         if (!addToLocalDb) {
