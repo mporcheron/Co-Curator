@@ -93,8 +93,7 @@ public class ItemList extends ArrayList<Item> {
         Iterator<Item> it = iterator();
         while(it.hasNext()) {
             Item j = it.next();
-            if(j.getDateTime() < dateTime) {
-                Log.d(TAG, "New item is newer, stop counting");
+            if(j.getDateTime() > dateTime) {
                 break;
             }
 
