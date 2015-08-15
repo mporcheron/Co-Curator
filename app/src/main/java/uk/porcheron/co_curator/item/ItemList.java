@@ -112,32 +112,36 @@ public class ItemList extends ArrayList<Item> {
         mItemIds.put(user.globalUserId + "-" + item.getItemId(), item);
         add(insertAt, item);
 
-        int minWidth = Phone.screenWidth;
 
         // Drawing
-        if (user.above) {
-            mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), insertAtAbove));
-            minWidth = Math.max(mLayoutAbove.getWidth() + item.getMeasuredWidth(), minWidth);
+        if(!user.draw) {
+            Log.d(TAG, "Item[" + uniqueItemId + "]: Won't draw as user is not connected or us");
         } else {
-            mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), insertAtBelow));
-            minWidth = Math.max(mLayoutBelow.getWidth() + item.getMeasuredWidth(), minWidth);
-        }
+            int minWidth = Phone.screenWidth;
+            if (user.above) {
+                mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), insertAtAbove));
+                minWidth = Math.max(mLayoutAbove.getWidth() + item.getMeasuredWidth(), minWidth);
+            } else {
+                mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), insertAtBelow));
+                minWidth = Math.max(mLayoutBelow.getWidth() + item.getMeasuredWidth(), minWidth);
+            }
 
-        mLayoutAbove.setMinimumWidth(minWidth);
-        mLayoutBelow.setMinimumWidth(minWidth);
+            mLayoutAbove.setMinimumWidth(minWidth);
+            mLayoutBelow.setMinimumWidth(minWidth);
 
-        float minAutoScrollWidth = minWidth - Style.autoscrollSlack - Phone.screenWidth;
-        Log.e(TAG, "minWidth = " + minWidth + "; slack = " + Style.autoscrollSlack + "; autoscroll = " + minAutoScrollWidth);
-        Log.e(TAG, "Scroll view is at " + mScrollView.getScrollX() + "," + mScrollView.getScrollY());
+            float minAutoScrollWidth = minWidth - Style.autoscrollSlack - Phone.screenWidth;
+            Log.e(TAG, "minWidth = " + minWidth + "; slack = " + Style.autoscrollSlack + "; autoscroll = " + minAutoScrollWidth);
+            Log.e(TAG, "Scroll view is at " + mScrollView.getScrollX() + "," + mScrollView.getScrollY());
 
-        if (user.globalUserId == Instance.globalUserId || minAutoScrollWidth <= mScrollView.getScrollX()) {
-            final int targetX = minWidth;
-            mScrollView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScrollView.smoothScrollTo(targetX, 0);
-                }
-            }, 500);
+            if (user.globalUserId == Instance.globalUserId || minAutoScrollWidth <= mScrollView.getScrollX()) {
+                final int targetX = minWidth;
+                mScrollView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mScrollView.smoothScrollTo(targetX, 0);
+                    }
+                }, 500);
+            }
         }
 
         // Save to the Local Database or just draw?

@@ -1,7 +1,6 @@
 package uk.porcheron.co_curator.user;
 
 import android.graphics.Paint;
-import android.util.Log;
 
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
@@ -21,6 +20,7 @@ public class User {
     public final float centrelineOffset;
     public final boolean above;
     public final Paint bgPaint;
+    public boolean draw = false;
 
     public User(int globalUserId, int userId) {
         this.userId = userId;
@@ -37,6 +37,10 @@ public class User {
         bgPaint.setStyle(Paint.Style.FILL);
         bgPaint.setColor(bgColor);
         this.bgPaint = bgPaint;
+
+        if(globalUserId == Instance.globalUserId) {
+            draw = true;
+        }
 
         Instance.addedUsers++;
     }

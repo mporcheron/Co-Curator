@@ -27,12 +27,10 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import uk.porcheron.co_curator.collo.ClientManager;
 import uk.porcheron.co_curator.collo.ServerManager;
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.db.WebLoader;
@@ -381,10 +379,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             int h = canvas.getHeight();
 
             for(User user : Instance.users) {
-                int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
-                int y2 = (int) (y1 + Style.lineWidth);
+                if (user.draw) {
+                    int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
+                    int y2 = (int) (y1 + Style.lineWidth);
 
-                canvas.drawRect(0, y1, w, y2, user.bgPaint);
+                    canvas.drawRect(0, y1, w, y2, user.bgPaint);
+                }
             }
         } catch(NullPointerException e) {
                 return;
