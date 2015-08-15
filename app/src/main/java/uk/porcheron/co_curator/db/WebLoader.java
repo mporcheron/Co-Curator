@@ -62,11 +62,12 @@ public class WebLoader {
                 try {
                     JSONObject userJ = (JSONObject) response.get(i);
                     int gId = userJ.getInt("globalUserId");
+                    int uId = userJ.getInt("userId");
                     String gIp = userJ.getString("ip");
 
                     User u = Instance.users.getByGlobalUserId(gId);
                     if(u == null) {
-                        u = Instance.users.add(userJ.getInt("globalUserId"), true);
+                        u = Instance.users.add(userJ.getInt("globalUserId"), uId, true);
                     }
 
                     Log.v(TAG, "User[" + gId + "] is at " + gIp);

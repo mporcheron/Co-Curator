@@ -49,7 +49,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private static boolean mCreated = false;
     private static TimelineActivity mInstance;
 
-    private Timer mUpdateTimer = new Timer();
+    private Timer mUpdateTimer;
     final Handler mUpdateHandler = new Handler();
 
     private SurfaceHolder mSurfaceHolder;
@@ -67,10 +67,13 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         int globalUserId = sharedPrefs.getInt(getString(R.string.prefGlobalUserId), -1);
         int userId = sharedPrefs.getInt(getString(R.string.prefUserId), -1);
         int groupId = sharedPrefs.getInt(getString(R.string.prefGroupId), -1);
-        if(globalUserId >= 0 && userId >= 0 && groupId >= 0) {
+        String serverAddress = sharedPrefs.getString(getString(R.string.prefServerAddress), null);
+        if(globalUserId >= 0 && userId >= 0 && groupId >= 0 && serverAddress != null) {
             Instance.globalUserId = globalUserId;
             Instance.userId = userId;
             Instance.groupId = groupId;
+            Instance.serverAddress = serverAddress;
+            Log.d(TAG, "I am " + globalUserId + ":" + userId + ":" + groupId);
         } else {
             Intent intent = new Intent(this, ParticipantActivity.class);
             startActivity(intent);
@@ -134,16 +137,21 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     @Override
     public void onResume() {
         Phone.collectAttrs();
-        mUpdateTimer = new Timer();
-        mUpdateTimer.schedule(mUpdateUserTask, 10000, 10000);
+        try {
+            mUpdateTimer = new Timer();
+            mUpdateTimer.schedule(mUpdateUserTask, 1000, 30000);
+        } catch(IllegalStateException e) {
+
+        }
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        super.onPause();
+        mUpdateUserTask.cancel();
         mUpdateTimer.cancel();
         mUpdateTimer.purge();
+        super.onPause();
     }
 
     @Override

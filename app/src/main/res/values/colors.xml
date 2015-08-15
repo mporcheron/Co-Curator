@@ -3,10 +3,15 @@
     <color name="background">#FF434343</color>
     <color name="imageBackground">#57010101</color>
 
-    <color name="userBg0">#FF7BBD31</color>
+    <color name="userBg0">#AA7BBD31</color>
     <color name="userBg1">#AA1B8DC8</color>
     <color name="userBg2">#AAFC5C93</color>
     <color name="userBg3">#AAF6AC61</color>
+
+    <color name="userMeBg0">#FF7BBD31</color>
+    <color name="userMeBg1">#FF1B8DC8</color>
+    <color name="userMeBg2">#FFFC5C93</color>
+    <color name="userMeBg3">#FFF6AC61</color>
 
     <color name="userFg0">#FF000000</color>
     <color name="userFg1">#FFFFFFFF</color>

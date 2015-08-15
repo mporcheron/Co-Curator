@@ -22,6 +22,7 @@ public class Style {
 
     public static int[] userPositions = new int[4];
     public static int[] userBgColors = new int[4];
+    public static int[] userMeBgColors = new int[4];
     public static int[] userFgColors = new int[4];
     public static int[] userOffsets = new int[4];
     public static int[] userLayers = new int[4];
@@ -68,6 +69,11 @@ public class Style {
         layoutHalfPadding = (int) ((Phone.screenHeight / 2) - (layoutCentreHeight / 2));
 
         userPositions = res.getIntArray(R.array.userPositions);
+
+        userMeBgColors[0] = res.getColor(R.color.userMeBg0);
+        userMeBgColors[1] = res.getColor(R.color.userMeBg1);
+        userMeBgColors[2] = res.getColor(R.color.userMeBg2);
+        userMeBgColors[3] = res.getColor(R.color.userMeBg3);
 
         userBgColors[0] = res.getColor(R.color.userBg0);
         userBgColors[1] = res.getColor(R.color.userBg1);

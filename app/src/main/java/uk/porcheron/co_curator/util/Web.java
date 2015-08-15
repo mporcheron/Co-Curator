@@ -23,18 +23,19 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import uk.porcheron.co_curator.val.Instance;
+
 /**
  * Utilities for posting and receiving information from the web.
  */
 public class Web {
     private static final String TAG = "CC:Web";
 
-    public static final String ROOT = "https://www.porcheron.uk/cocurator/";
-    public static final String LOGIN = ROOT + "login.php";
-    public static final String GET_USERS = ROOT + "getUsers.php";
-    public static final String GET_ITEMS = ROOT + "getItems.php";
-    public static final String GET_ITEM = ROOT + "getItem.php";
-    public static final String POST_ITEMS = ROOT + "post.php";
+    public static final String LOGIN = Instance.serverAddress + "/login.php";
+    public static final String GET_USERS = Instance.serverAddress + "/getUsers.php";
+    public static final String GET_ITEMS = Instance.serverAddress + "/getItems.php";
+    public static final String GET_ITEM = Instance.serverAddress + "/getItem.php";
+    public static final String POST_ITEMS = Instance.serverAddress + "/post.php";
 
     public static JSONObject requestObj(String uri, List<NameValuePair> data) {
         String response = request(uri, data);
@@ -97,6 +98,7 @@ public class Web {
     }
 
     private static String request(String uri, List<NameValuePair> data) {
+        Log.d(TAG, "Send request to " + uri);
         try {
             return request(uri, new UrlEncodedFormEntity(data));
         } catch (UnsupportedEncodingException e) {

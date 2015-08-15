@@ -46,6 +46,7 @@ public class ParticipantActivity extends Activity {
 
     private EditText mGlobalUserIdField;
     private EditText mGroupIdField;
+    private EditText mServerAddressField;
     private Button mButtonSignIn;
     private View mProgressView;
     private View mLoginFormView;
@@ -58,6 +59,7 @@ public class ParticipantActivity extends Activity {
         mSharedPreferences = getSharedPreferences(getString(R.string.prefFile), Context.MODE_PRIVATE);
         mGlobalUserIdField = (EditText) findViewById(R.id.globalUserId);
         mGroupIdField = (EditText) findViewById(R.id.groupId);
+        mServerAddressField = (EditText) findViewById(R.id.serverAddress);
 
         mGroupIdField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -99,6 +101,7 @@ public class ParticipantActivity extends Activity {
         // Store values at the time of the login attempt.
         String globalUserIdS = mGlobalUserIdField.getText().toString();
         String groupIdS = mGroupIdField.getText().toString();
+        String serverAddress = mServerAddressField.getText().toString();
 
         // Validate data
         boolean cancel = false;
@@ -130,7 +133,7 @@ public class ParticipantActivity extends Activity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(globalUserId, groupId);
+            mAuthTask = new UserLoginTask(globalUserId, groupId, serverAddress);
             mAuthTask.execute((Void) null);
         }
     }
@@ -181,15 +184,23 @@ public class ParticipantActivity extends Activity {
         private final int mGlobalUserId;
         private final int mGroupId;
         private String mErrorMessage;
+        private int mUserId = -1;
+        private final String mServerAddress;
 
-        UserLoginTask(int globalUserId, int groupId) {
+
+        UserLoginTask(int globalUserId, int groupId, String serverAddress) {
             mGlobalUserId = globalUserId;
             mGroupId = groupId;
             mErrorMessage = getString(R.string.errorLogin);
+            mServerAddress = serverAddress;
+
+            Instance.serverAddress = mServerAddress;
         }
 
         @Override
         protected String doInBackground(Void... params) {
+            Log.d(TAG, "Begin login to " + Web.LOGIN);
+
             List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
             nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + mGlobalUserId));
             nameValuePairs.add(new BasicNameValuePair("groupId", "" + mGroupId));
@@ -199,6 +210,13 @@ public class ParticipantActivity extends Activity {
 
             JSONObject response = Web.requestObj(Web.LOGIN, nameValuePairs);
             if(response != null && response.has("success")) {
+                try {
+                    mUserId = response.getInt("userId");
+                } catch (JSONException e) {
+                    mesg += ": Did not receive user ID";
+                    Log.e(TAG, "Login Failed: " + mesg);
+                    return mesg;
+                }
                 return null;
             } else if(response != null && response.has("error")) {
                 try {
@@ -209,7 +227,7 @@ public class ParticipantActivity extends Activity {
                     Log.e(TAG, "Login Failed: Did not receive error response!");
                 }
             } else {
-                Log.e(TAG, "Login failed: Unknown Login Error!");
+                Log.e(TAG, "Login Failed: Unknown Login Error!");
             }
 
             return mesg;
@@ -217,19 +235,25 @@ public class ParticipantActivity extends Activity {
 
         @Override
         protected void onPostExecute(final String response) {
+            Log.d(TAG, "Login response processed");
+
             mAuthTask = null;
             showProgress(false);
 
             if (response == null) {
                 Instance.globalUserId = mGlobalUserId;
                 Instance.groupId = mGroupId;
-                Instance.userId = 0;
+                Instance.userId = mUserId;
+                Instance.serverAddress = mServerAddress;
 
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putInt(getString(R.string.prefGlobalUserId), mGlobalUserId);
                 editor.putInt(getString(R.string.prefGroupId), mGroupId);
-                editor.putInt(getString(R.string.prefUserId), 0);
+                editor.putInt(getString(R.string.prefUserId), mUserId);
+                editor.putString(getString(R.string.prefServerAddress), mServerAddress);
                 editor.commit();
+
+                Log.d(TAG, "You are user " + mUserId);
 
                 Intent intent = new Intent(ParticipantActivity.this, TimelineActivity.class);
                 startActivity(intent);

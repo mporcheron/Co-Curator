@@ -13,6 +13,7 @@ public class Instance {
     public static int groupId;
     public static UserList users;
     public static ItemList items;
+    public static String serverAddress;
 
     public static User user() {
         return users.getByGlobalUserId(globalUserId);

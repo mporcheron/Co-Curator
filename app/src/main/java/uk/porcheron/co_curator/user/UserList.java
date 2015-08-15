@@ -24,12 +24,8 @@ public class UserList extends ArrayList<User> {
         mDbHelper = DbHelper.getInstance();
     }
 
-    public User add(int globalUserId, boolean addToLocalDb) {
-        return add(globalUserId, size(), addToLocalDb);
-    }
-
     public User add(int globalUserId, int userId, boolean addToLocalDb) {
-        Log.v(TAG, "User[" + globalUserId + "]: Add to List (userId=" + userId + ",addToLocalDb=" + addToLocalDb + ")");
+        Log.v(TAG, "User[" + globalUserId + "]: Add to List (globalUserId=" + globalUserId + ",userId=" + userId + ",addToLocalDb=" + addToLocalDb + ")");
 
         User user = new User(globalUserId, userId);
         add(user);
@@ -45,7 +41,7 @@ public class UserList extends ArrayList<User> {
 
         ContentValues values = new ContentValues();
         values.put(TableUser.COL_GLOBAL_USER_ID, globalUserId);
-        values.put(TableUser.COL_USER_ID, user.userId);
+        values.put(TableUser.COL_USER_ID, userId);
 
         long newRowId;
         newRowId = db.insert(

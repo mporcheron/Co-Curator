@@ -9,7 +9,7 @@ if ($stmt = $db->prepare('SELECT `globalUserId`, `userId`, `ip` FROM `user` WHER
 	if($res = $stmt->execute()) {
 		$data = [];
 		while($row = $res->fetchArray()) {
-			$data[] = ['globalUserId' => $row['globalUserId'], 'ip' => $row['ip']];
+			$data[] = ['globalUserId' => $row['globalUserId'], 'userId' => $row['userId'], 'ip' => $row['ip']];
 		}
 
 		$stmt->close();

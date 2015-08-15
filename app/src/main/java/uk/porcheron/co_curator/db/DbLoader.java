@@ -53,7 +53,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
             };
 
             String sortOrder =
-                    TableUser.COL_USER_ID + " ASC";
+                     "rowid ASC";
 
             Cursor c = db.query(
                     TableUser.TABLE_NAME,
@@ -80,7 +80,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
         // Current user doesn't exist?
         if (Instance.user() == null) {
             Log.d(TAG, "Create local user in local DB");
-            Instance.users.add(Instance.globalUserId, true);
+            Instance.users.add(Instance.globalUserId, Instance.userId, true);
         }
 
         // Get users from the cloud

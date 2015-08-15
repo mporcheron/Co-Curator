@@ -1,16 +1,21 @@
 <resources>
     <string name="appName" translatable="false">Co-Curator</string>
+
+    <!-- Preferences -->
     <string name="prefFile" translatable="false">cocurator</string>
     <string name="prefGlobalUserId" translatable="false">globalUserId</string>
     <string name="prefUserId" translatable="false">userId</string>
     <string name="prefGroupId" translatable="false">groupId</string>
+    <string name="prefServerAddress" translatable="false">serverAdress</string>
 
+    <!-- Loading dialog -->
     <string name="dialogAddingImage">Adding image to timeline…</string>
     <string name="dialogLoading">Loading timeline items…</string>
 
     <!-- Login Activity -->
     <string name="promptGlobalUserId">Participant ID</string>
     <string name="promptGroupId">Group ID</string>
+    <string name="promptServerAddress">Server</string>
     <string name="errorGlobalUserid">Invalid Participant ID</string>
     <string name="errorGroupId">Invalid Group ID</string>
     <string name="errorLogin">Login Failed</string>
