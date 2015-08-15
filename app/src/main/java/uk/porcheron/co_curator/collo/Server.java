@@ -9,7 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import uk.porcheron.co_curator.db.WebLoader;
-import uk.porcheron.co_curator.val.Collo;
 import uk.porcheron.co_curator.val.Instance;
 
 /**
@@ -97,11 +96,21 @@ public class Server extends Thread {
     private static void process(String mesg) {
         String[] array = mesg.split("\\|");
         switch (array[0]) {
-            case "newitem":
+            case ColloDict.ACTION_NEW:
                 try {
                     WebLoader.loadItemFromWeb(Integer.parseInt(array[1]), Integer.parseInt(array[2]));
                 } catch (NumberFormatException e) {
                     Log.d(TAG, "Invalid Ids received");
+                }
+                break;
+
+            case ColloDict.ACTION_BIND:
+                Log.d(TAG, "Are we gonna bind with " + array[1]);
+                ColloGesture cg = ColloGesture.getInstance();
+                try {
+                    cg.havePossibleBinder(Float.parseFloat(array[2]), Float.parseFloat(array[3]), array[4]);
+                } catch (NumberFormatException e) {
+                    Log.d(TAG, "Invalid co-ordinates received");
                 }
                 break;
         }

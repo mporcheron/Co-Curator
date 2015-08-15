@@ -17,6 +17,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -31,6 +33,7 @@ import android.widget.LinearLayout;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import uk.porcheron.co_curator.collo.ColloGesture;
 import uk.porcheron.co_curator.collo.ServerManager;
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.db.WebLoader;
@@ -123,6 +126,22 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mFrameLayout.setOnLongClickListener(this);
         layoutAbove.setOnLongClickListener(this);
         layoutBelow.setOnLongClickListener(this);
+
+        final GestureDetector gD  = new GestureDetector(this, ColloGesture.getInstance());
+        layoutAbove.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                Log.v(TAG, "Touched layoutAbove");
+                return gD.onTouchEvent(event);
+            }
+        });
+        layoutBelow.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                Log.v(TAG, "Touched layoutBelow");
+                return gD.onTouchEvent(event);
+            }
+        });
 
         if(mCreated) {
             return;

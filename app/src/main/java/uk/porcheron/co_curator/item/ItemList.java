@@ -6,9 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
@@ -17,14 +15,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +24,7 @@ import java.util.Map;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.collo.ClientManager;
+import uk.porcheron.co_curator.collo.ColloDict;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.user.User;
@@ -233,7 +226,7 @@ public class ItemList extends ArrayList<Item> {
             JSONObject obj = Web.requestObj(Web.POST_ITEMS, nameValuePairs);
             if(obj != null && obj.has("success")) {
                 Log.d(TAG, "Item successfully uploaded, notify clients");
-                ClientManager.postMessage("newitem|" + Instance.globalUserId + "|"+ mItemId);
+                ClientManager.postMessage(ColloDict.ACTION_NEW, mItemId);
                 return true;
             } else {
                 Log.e(TAG, "Could not post item to cloud");

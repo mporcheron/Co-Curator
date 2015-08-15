@@ -4,11 +4,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Collo;
 import uk.porcheron.co_curator.val.Instance;
@@ -24,7 +19,13 @@ public class ClientManager {
     ClientManager() {
     }
 
-    public static void postMessage(String message) {
+    public static void postMessage(String action, Object... components) {
+        StringBuilder mb = new StringBuilder(action + ColloDict.SEP + Instance.globalUserId);
+        for(Object component : components) {
+            mb.append(ColloDict.SEP + component.toString());
+        }
+        String message = mb.toString();
+
         for(User user : Instance.users) {
             if (user.globalUserId == Instance.globalUserId) {
                 continue;
