@@ -25,7 +25,9 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -103,6 +105,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
 
+        HorizontalScrollView scrollView = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
+        scrollView.setSmoothScrollingEnabled(true);
+
         mFrameLayout = (FrameLayout) findViewById(R.id.frameLayout);
 
         LinearLayout layoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
@@ -127,7 +132,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         // Load items
         Instance.users = new UserList();
-        Instance.items = new ItemList(layoutAbove, layoutBelow);
+        Instance.items = new ItemList(scrollView, layoutAbove, layoutBelow);
 
         new DbLoader().execute();
     }

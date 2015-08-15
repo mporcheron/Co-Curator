@@ -4,7 +4,9 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -50,11 +52,13 @@ public class ItemList extends ArrayList<Item> {
 
     private Map<String, Item> mItemIds = new HashMap<String, Item>();
 
+    private HorizontalScrollView mScrollView;
     private LinearLayout mLayoutAbove;
     private LinearLayout mLayoutBelow;
 
-    public ItemList(LinearLayout layoutAbove, LinearLayout layoutBelow) {
+    public ItemList(HorizontalScrollView scrollView, LinearLayout layoutAbove, LinearLayout layoutBelow) {
         mDbHelper = DbHelper.getInstance();
+        mScrollView = scrollView;
         mLayoutAbove = layoutAbove;
         mLayoutBelow = layoutBelow;
     }
@@ -113,14 +117,28 @@ public class ItemList extends ArrayList<Item> {
         // Drawing
         if (user.above) {
             mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), insertAtAbove));
-            minWidth = Math.max(mLayoutAbove.getWidth(), minWidth);
+            minWidth = Math.max(mLayoutAbove.getWidth() + item.getMeasuredWidth(), minWidth);
         } else {
             mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), insertAtBelow));
-            minWidth = Math.max(mLayoutBelow.getWidth(), minWidth);
+            minWidth = Math.max(mLayoutBelow.getWidth() + item.getMeasuredWidth(), minWidth);
         }
 
         mLayoutAbove.setMinimumWidth(minWidth);
         mLayoutBelow.setMinimumWidth(minWidth);
+
+        float minAutoScrollWidth = minWidth - Style.autoscrollSlack - Phone.screenWidth;
+        Log.e(TAG, "minWidth = " + minWidth + "; slack = " + Style.autoscrollSlack + "; autoscroll = " + minAutoScrollWidth);
+        Log.e(TAG, "Scroll view is at " + mScrollView.getScrollX() + "," + mScrollView.getScrollY());
+
+        if (user.globalUserId == Instance.globalUserId || minAutoScrollWidth <= mScrollView.getScrollX()) {
+            final int targetX = minWidth;
+            mScrollView.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScrollView.smoothScrollTo(targetX, 0);
+                }
+            }, 500);
+        }
 
         // Save to the Local Database or just draw?
         if (!addToLocalDb) {

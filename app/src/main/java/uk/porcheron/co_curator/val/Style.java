@@ -20,6 +20,8 @@ public class Style {
 
     public static float layoutCentreHeight;
 
+    public static float autoscrollSlack;
+
     public static int[] userPositions = new int[4];
     public static int[] userBgColors = new int[4];
     public static int[] userMeBgColors = new int[4];
@@ -67,6 +69,8 @@ public class Style {
         layoutCentreHeight = res.getDimension(R.dimen.layoutCentreHeight);
         layoutHalfHeight = (int) ((Phone.screenHeight / 2) + layoutCentreHeight);
         layoutHalfPadding = (int) ((Phone.screenHeight / 2) - (layoutCentreHeight / 2));
+
+        autoscrollSlack = res.getDimension(R.dimen.autoscrollSlack);
 
         userPositions = res.getIntArray(R.array.userPositions);
 
