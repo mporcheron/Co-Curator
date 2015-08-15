@@ -73,6 +73,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             Instance.userId = userId;
             Instance.groupId = groupId;
             Instance.serverAddress = serverAddress;
+            Instance.addedUsers = 0;
             Log.d(TAG, "I am " + globalUserId + ":" + userId + ":" + groupId);
         } else {
             Intent intent = new Intent(this, ParticipantActivity.class);
