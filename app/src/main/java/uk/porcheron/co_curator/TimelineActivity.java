@@ -68,7 +68,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         int userId = sharedPrefs.getInt(getString(R.string.prefUserId), -1);
         int groupId = sharedPrefs.getInt(getString(R.string.prefGroupId), -1);
         String serverAddress = sharedPrefs.getString(getString(R.string.prefServerAddress), null);
-        if(globalUserId >= 0 && userId >= 0 && groupId >= 0 && serverAddress != null) {
+        if(globalUserId >= 0 && userId >= 0 && groupId >= 0 && serverAddress != null && !serverAddress.isEmpty()) {
             Instance.globalUserId = globalUserId;
             Instance.userId = userId;
             Instance.groupId = groupId;

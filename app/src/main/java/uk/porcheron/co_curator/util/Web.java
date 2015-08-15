@@ -31,6 +31,8 @@ import uk.porcheron.co_curator.val.Instance;
 public class Web {
     private static final String TAG = "CC:Web";
 
+    public static final String IMAGE_DIR = Instance.serverAddress + "/uploads/";
+
     public static final String LOGIN = Instance.serverAddress + "/login.php";
     public static final String GET_USERS = Instance.serverAddress + "/getUsers.php";
     public static final String GET_ITEMS = Instance.serverAddress + "/getItems.php";

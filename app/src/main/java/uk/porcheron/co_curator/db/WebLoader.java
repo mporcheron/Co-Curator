@@ -105,7 +105,7 @@ public class WebLoader {
                         final ItemType type = ItemType.get(itemJ.getInt("type"));
 
                         if (type == ItemType.PHOTO) {
-                            Bitmap b = getBitmapFromURL(jsonData);
+                            Bitmap b = getBitmapFromURL(Web.IMAGE_DIR + jsonData);
                             try {
                                 jsonData = Image.save(activity, b);
                             } catch (IOException e) {
@@ -152,7 +152,7 @@ public class WebLoader {
                     final ItemType type = ItemType.get(response.getInt("type"));
 
                     if (type == ItemType.PHOTO) {
-                        Bitmap b = getBitmapFromURL(jsonData);
+                        Bitmap b = getBitmapFromURL(Web.IMAGE_DIR + jsonData);
                         try {
                             jsonData = Image.save(activity, b);
                         } catch (IOException e) {
