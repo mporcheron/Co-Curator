@@ -1,0 +1,8 @@
+2015-08-15T10:48:29+01:00	NOT NULL constraint failed: item.globalItemId
+2015-08-15T10:58:52+01:00	NOT NULL constraint failed: item.globalItemId
+2015-08-15T10:59:11+01:00	NOT NULL constraint failed: item.globalUserId
+2015-08-15T10:59:36+01:00	NOT NULL constraint failed: item.globalUserId
+2015-08-15T10:59:56+01:00	NOT NULL constraint failed: item.globalUserId
+2015-08-15T11:00:20+01:00	UNIQUE constraint failed: item.globalItemId
+2015-08-15T11:00:21+01:00	UNIQUE constraint failed: item.globalItemId
+2015-08-15T11:00:35+01:00	UNIQUE constraint failed: item.globalItemId
