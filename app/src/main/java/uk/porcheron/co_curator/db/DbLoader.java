@@ -101,7 +101,8 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                     TableItem.COL_GLOBAL_USER_ID,
                     TableItem.COL_ITEM_TYPE,
                     TableItem.COL_ITEM_DATA,
-                    TableItem.COL_ITEM_DATETIME
+                    TableItem.COL_ITEM_DATETIME,
+                    TableItem.COL_ITEM_UPLOADED
             };
 
             String selection = "";
@@ -141,13 +142,14 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
                 final String cData = c.getString(3);
                 final int cDateTime = c.getInt(4);
+                final boolean cUploaded = c.getInt(5) == TableItem.VAL_ITEM_WILL_UPLOAD;
 
                 if (cData != null) {
                     Log.v(TAG, "Item[" + i + "]: Save (itemId=" + cItemId + ",type=" + type.toString() + ",dateTime="+cDateTime + ",data='" + cData + "')");
 
                     mActivity.runOnUiThread(new Runnable() {
                         public void run() {
-                            Instance.items.add(cItemId, type, user, cData, cDateTime, false, false);
+                            Instance.items.add(cItemId, type, user, cData, cDateTime, false, cUploaded);
                         }
                     });
                 } else {

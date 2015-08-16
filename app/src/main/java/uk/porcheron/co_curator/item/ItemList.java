@@ -130,33 +130,32 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         }
 
         // Save to the Local Database or just draw?
-        if (!addToLocalDb) {
-            return true;
+        if (addToLocalDb) {
+            SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put(TableItem.COL_GLOBAL_USER_ID, user.globalUserId);
+            values.put(TableItem.COL_ITEM_ID, itemId);
+            values.put(TableItem.COL_ITEM_TYPE, type.getTypeId());
+            values.put(TableItem.COL_ITEM_DATA, data);
+            values.put(TableItem.COL_ITEM_DATETIME, dateTime);
+            values.put(TableItem.COL_ITEM_UPLOADED, addToCloud ? TableItem.VAL_ITEM_WILL_UPLOAD : TableItem.VAL_ITEM_WONT_UPLOAD);
+
+            long newRowId;
+            newRowId = db.insert(
+                    TableItem.TABLE_NAME,
+                    null,
+                    values);
+
+            db.close();
+
+            if (newRowId < 0) {
+                Log.e(TAG, "Item[" + uniqueItemId + "]: Could not create in Db");
+                return false;
+            }
+
+            Log.v(TAG, "Item[" + uniqueItemId + "]: Created in Db (rowId=" + newRowId + ")");
         }
-
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(TableItem.COL_GLOBAL_USER_ID, user.globalUserId);
-        values.put(TableItem.COL_ITEM_ID, itemId);
-        values.put(TableItem.COL_ITEM_TYPE, type.getTypeId());
-        values.put(TableItem.COL_ITEM_DATA, data);
-        values.put(TableItem.COL_ITEM_DATETIME, dateTime);
-
-        long newRowId;
-        newRowId = db.insert(
-                TableItem.TABLE_NAME,
-                null,
-                values);
-
-        db.close();
-
-        if (newRowId < 0) {
-            Log.e(TAG, "Item[" + uniqueItemId + "]: Could not create in Db");
-            return false;
-        }
-
-        Log.v(TAG, "Item[" + uniqueItemId + "]: Created in Db (rowId=" + newRowId + ")");
 
         // Save to the Local Database or just draw?
         if (addToCloud) {
@@ -265,10 +264,10 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
     private class PostTextToCloud extends AsyncTask<String, Void, Boolean> {
 
-        private int mGlobalUserId;
-        private int mItemId;
-        private ItemType mItemType;
-        private int mDateTime;
+        protected int mGlobalUserId;
+        protected int mItemId;
+        protected ItemType mItemType;
+        protected int mDateTime;
 
         PostTextToCloud(int globalUserId, int itemId, ItemType itemType, int dateTime) {
             mGlobalUserId = globalUserId;
@@ -287,30 +286,39 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
             nameValuePairs.add(new BasicNameValuePair("itemDateTime", "" + mDateTime));
 
             JSONObject obj = Web.requestObj(Web.POST_ITEMS, nameValuePairs);
-            if(obj != null && obj.has("success")) {
-                Log.v(TAG, "Item successfully uploaded, notify clients");
-                ClientManager.postMessage(ColloDict.ACTION_NEW, mItemId);
-                return true;
-            } else {
+            return pushChanges(obj);
+        }
+
+        protected Boolean pushChanges(JSONObject request) {
+            if(request == null || !request.has("success")) {
                 Log.e(TAG, "Could not post item to cloud");
+                return Boolean.FALSE;
             }
 
-            return Boolean.FALSE;
+            Log.v(TAG, "Item successfully uploaded, notify clients");
+
+            // Update local DB
+            SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            String strFilter = TableItem.COL_GLOBAL_USER_ID + "=" + mGlobalUserId + " AND " +
+                    TableItem.COL_ID + "=" + mItemId;
+            ContentValues args = new ContentValues();
+            args.put(TableItem.COL_ITEM_UPLOADED, TableItem.VAL_ITEM_UPLOADED);
+            if(db.update(TableItem.TABLE_NAME, args, strFilter, null) != 1) {
+                Log.e(TAG, "Failed to set uploaded for item");
+            }
+            db.close();
+
+            // Tell collocated devices
+            ClientManager.postMessage(ColloDict.ACTION_NEW, mItemId);
+
+            return Boolean.TRUE;
         }
     }
 
-    private class PostImageToCloud extends AsyncTask<String, Void, Boolean> {
-
-        private int mGlobalUserId;
-        private int mItemId;
-        private ItemType mItemType;
-        private int mDateTime;
+    private class PostImageToCloud extends PostTextToCloud {
 
         PostImageToCloud(int globalUserId, int itemId, ItemType itemType, int dateTime) {
-            mGlobalUserId = globalUserId;
-            mItemId = itemId;
-            mItemType = itemType;
-            mDateTime = dateTime;
+            super(globalUserId, itemId, itemType, dateTime);
         }
 
         @Override
@@ -326,12 +334,8 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
                 File file = TimelineActivity.getInstance().getFileStreamPath(params[0] + ".png");
                 entity.addPart("itemData", new FileBody(file));
 
-
                 JSONObject obj = Web.requestObj(Web.POST_ITEMS, entity);
-                if(obj != null && obj.has("success")) {
-                    ClientManager.postMessage(ColloDict.ACTION_NEW, mItemId);
-                    return true;
-                }
+                return pushChanges(obj);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
