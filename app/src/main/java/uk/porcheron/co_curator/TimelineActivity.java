@@ -40,6 +40,7 @@ import uk.porcheron.co_curator.collo.ResponseHandler;
 import uk.porcheron.co_curator.collo.ResponseManager;
 import uk.porcheron.co_curator.collo.ServerManager;
 import uk.porcheron.co_curator.db.DbLoader;
+import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
@@ -284,7 +285,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            if(!Instance.items.add(ItemType.PHOTO, Instance.user(), result, true, true)) {
+            if(!Instance.items.add(ItemType.PHOTO, Instance.user(), result, false, true, true)) {
                 Log.e(TAG, "Failed to save photo");
             }
 
@@ -345,7 +346,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .setPositiveButton(getString(R.string.dialog_note_positive), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         String text = editText.getText().toString();
-                        if (!Instance.items.add(ItemType.NOTE, Instance.user(), text, true, true)) {
+                        if (!Instance.items.add(ItemType.NOTE, Instance.user(), text, false, true, true)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }
@@ -383,7 +384,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             insertUrl = "http://" + text;
                         }
 
-                        if(!Instance.items.add(ItemType.URL, Instance.user(), insertUrl, true, true)) {
+                        if(!Instance.items.add(ItemType.URL, Instance.user(), insertUrl, false, true, true)) {
                             promptNewItem(view, promptOnCancel);
                         }
                     }

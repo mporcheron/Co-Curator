@@ -57,6 +57,9 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
     private int mDrawn = 0;
 
+    public static final int ITEM_DELETED = 1;
+    public static final int ITEM_NOT_DELETED = 0;
+
     public ItemList(HorizontalScrollView scrollView, LinearLayout layoutAbove, LinearLayout layoutBelow) {
         mDbHelper = DbHelper.getInstance();
         mScrollView = scrollView;
@@ -64,21 +67,22 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         mLayoutBelow = layoutBelow;
 
         ResponseManager.registerHandler(ColloDict.ACTION_NEW, this);
+        ResponseManager.registerHandler(ColloDict.ACTION_DELETE, this);
     }
 
-    public boolean add(ItemType type, User user, String data, boolean addToLocalDb, boolean addToCloud) {
-        return add(size(), type, user, data, addToLocalDb, addToCloud);
+    public boolean add(ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
+        return add(size(), type, user, data, deleted, addToLocalDb, addToCloud);
     }
 
-    public boolean add(int itemId, ItemType type, User user, String data, boolean addToLocalDb, boolean addToCloud) {
-        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), addToLocalDb, addToCloud);
+    public boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
+        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
     }
 
-    public synchronized boolean add(int itemId, ItemType type, User user, String data, int dateTime, boolean addToLocalDb, boolean addToCloud) {
+    public synchronized boolean add(int itemId, ItemType type, User user, String data, int dateTime, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
         String uniqueItemId = user.globalUserId + "-" + itemId;
 
         Log.v(TAG, "Item[" + uniqueItemId + "]: Add to List (type=" + type + ",user=" + user.globalUserId +
-                ",data=" + data + ",dateTime=" + dateTime + ",addToLocalDb=" + addToLocalDb +
+                ",data=" + data + ",dateTime=" + dateTime + ",deleted=" + deleted + ",addToLocalDb=" + addToLocalDb +
                 ",addToCloud=" + addToCloud + ")");
 
         // Create the item
@@ -95,6 +99,8 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
             Log.e(TAG, "Item[" + uniqueItemId + "]: Unsupported type: " + type.getLabel());
             return false;
         }
+
+        item.setDeleted(deleted);
 
         int insertAt = 0, insertAtAbove = 0, insertAtBelow = 0;
         Iterator<Item> it = iterator();
@@ -124,14 +130,15 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         items.add(item);
 
         // Drawing
-        if(!user.draw()) {
-            Log.v(TAG, "Item[" + uniqueItemId + "]: Won't draw as user is not connected or us");
+        if(!user.draw() || deleted) {
+            Log.v(TAG, "Item[" + uniqueItemId + "]: Won't draw as user is not connected or us or is deleted");
         } else {
             drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
         }
 
         // Save to the Local Database or just draw?
         if (addToLocalDb) {
+            Log.v(TAG, "Add item to local DB");
             SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
             ContentValues values = new ContentValues();
@@ -141,6 +148,7 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
             values.put(TableItem.COL_ITEM_DATA, data);
             values.put(TableItem.COL_ITEM_DATETIME, dateTime);
             values.put(TableItem.COL_ITEM_UPLOADED, addToCloud ? TableItem.VAL_ITEM_WILL_UPLOAD : TableItem.VAL_ITEM_WONT_UPLOAD);
+            values.put(TableItem.COL_ITEM_DELETED, deleted);
 
             long newRowId;
             newRowId = db.insert(
@@ -159,7 +167,8 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         }
 
         // Save to the Local Database or just draw?
-        if (addToCloud) {
+        if (addToCloud && user.globalUserId == Instance.globalUserId) {
+            Log.v(TAG, "Upload item to cloud");
             if(type == ItemType.PHOTO) {
                 new PostImageToCloud(user.globalUserId, itemId, type, dateTime).execute(data);
             } else {
@@ -199,6 +208,53 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         item.setDrawn(true);
     }
 
+    public void remove(int globalUserId, int itemId, boolean removeFromLocalDb, boolean removeFromCloud, boolean notifyClients) {
+        Item i = getByItemId(globalUserId, itemId);
+        if(i == null) {
+            return;
+        }
+
+        // Remove from list
+        i.setDeleted(true);
+
+        // Remove from local DB
+        if(removeFromLocalDb) {
+            SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+            values.put(TableItem.COL_ITEM_DELETED, TableItem.VAL_ITEM_DELETED);
+
+            String whereClause = TableItem.COL_GLOBAL_USER_ID + "=? AND " +
+                    TableItem.COL_ITEM_ID + "=?";
+            String[] whereArgs = {"" + globalUserId, "" + itemId};
+
+            int rowsAffected = db.update(TableItem.TABLE_NAME, values, whereClause, whereArgs);
+            if (rowsAffected != 1) {
+                Log.e(TAG, "Failed to set deleted for Item[" + globalUserId + ":" + itemId + "]");
+            }
+
+            db.close();
+        }
+
+        // Remove from view
+        TimelineActivity.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Instance.items.retestDrawing();
+            }
+        });
+
+        // Delete from cloud
+        if(removeFromCloud) {
+            new DeleteFromCloud(globalUserId, itemId).execute();
+        }
+
+        // Notify neighbours
+        if(notifyClients) {
+            ClientManager.postMessage(ColloDict.ACTION_DELETE, itemId);
+        }
+    }
+
     public void retestDrawing() {
         mDrawn = 0;
         int insertAtAbove = 0;
@@ -206,7 +262,7 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         for(Item item : this) {
             User user = item.getUser();
 
-            if(user.draw()) {
+            if(user.draw() && !item.isDeleted()) {
                 if(!item.isDrawn()) {
                     Log.v(TAG, "User[" + user.globalUserId + "] is " + Instance.drawnUsers + "th user, offset=" + user.offset);
                     drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
@@ -258,13 +314,26 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
     @Override
     public boolean respond(String action, int globalUserId, String... data) {
+        int itemId = -1;
+
         try {
-            WebLoader.loadItemFromWeb(globalUserId, Integer.parseInt(data[0]));
-            return true;
+            itemId = Integer.parseInt(data[0]);
         } catch (NumberFormatException e) {
-            Log.e(TAG, "Invalid Ids received");
+            Log.e(TAG, "Invalid itemId received");
             return false;
         }
+
+        switch(action) {
+            case ColloDict.ACTION_NEW:
+                WebLoader.loadItemFromWeb(globalUserId, itemId);
+                return true;
+
+            case ColloDict.ACTION_DELETE:
+                remove(globalUserId, itemId, true, false, false);
+                return true;
+        }
+
+        return false;
     }
 
     private class PostTextToCloud extends AsyncTask<String, Void, Boolean> {
@@ -310,7 +379,7 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
             Log.e(TAG, "Set uploaded status to " + TableItem.VAL_ITEM_UPLOADED + " for " + mGlobalUserId + ":" + mItemId);
             String whereClause = TableItem.COL_GLOBAL_USER_ID + "=? AND " +
-                    TableItem.COL_ID + "=?";
+                    TableItem.COL_ITEM_ID + "=?";
             String[] whereArgs = {"" + mGlobalUserId, "" + mItemId};
 
             int rowsAffected = db.update(TableItem.TABLE_NAME, values, whereClause, whereArgs);
@@ -353,6 +422,30 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
             }
 
             return Boolean.FALSE;
+        }
+    }
+
+
+    private class DeleteFromCloud extends AsyncTask<Void, Void, Boolean> {
+
+        protected int mGlobalUserId;
+        protected int mItemId;
+        protected ItemType mItemType;
+        protected int mDateTime;
+
+        DeleteFromCloud(int globalUserId, int itemId) {
+            mGlobalUserId = globalUserId;
+            mItemId = itemId;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+            nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + mGlobalUserId));
+            nameValuePairs.add(new BasicNameValuePair("id", "" + mItemId));
+
+            JSONObject obj = Web.requestObj(Web.DELETE, nameValuePairs);
+            return obj != null && obj.has("success");
         }
     }
 

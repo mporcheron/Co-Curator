@@ -20,7 +20,7 @@ public class ColloGesture extends GestureDetector.SimpleOnGestureListener implem
 
     private static final int X_LEEWAY = 25;
     private static final int Y_LEEWAY = 500;
-    private static final float Y_MIN_DISTANCE = .1f;
+    private static final float Y_MIN_DISTANCE = .8f;
     private static final long WAIT_BEFORE_NEXT = 3000L;
     private static final long CONNECT_GAP = 10000L;
 

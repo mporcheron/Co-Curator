@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.porcheron.co_curator.TimelineActivity;
+import uk.porcheron.co_curator.item.Item;
+import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.SoUtils;
@@ -98,11 +100,15 @@ public class WebLoader {
                     JSONObject itemJ = (JSONObject) response.get(i);
 
                     final int itemId = itemJ.getInt("id");
-
-                    if (Instance.items.getByItemId(globalUserId, itemId) == null) {
+                    Item item = Instance.items.getByItemId(globalUserId, itemId);
+                    if (item == null) {
                         final User user = Instance.users.getByGlobalUserId(globalUserId);
+                        if(user == null) {
+                            continue;
+                        }
                         String jsonData = itemJ.getString("data");
                         final ItemType type = ItemType.get(itemJ.getInt("type"));
+                        final boolean deleted = itemJ.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
 
                         if (type == ItemType.PHOTO) {
                             Bitmap b = getBitmapFromURL(Web.IMAGE_DIR + jsonData);
@@ -119,9 +125,18 @@ public class WebLoader {
 
                         activity.runOnUiThread(new Runnable() {
                             public void run() {
-                                Instance.items.add(itemId, type, user, data, dateTime, true, false);
+                                Instance.items.add(itemId, type, user, data, dateTime, deleted, true, false);
                             }
                         });
+                    } else {
+                        Log.v(TAG, "Item already exists locally, compare deleted state");
+                        final int deleted = itemJ.getInt("deleted");
+
+                        Log.e(TAG, "web = " + deleted + ", locally =" + item.isDeleted());
+
+                        if(deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
+                            Instance.items.remove(globalUserId, itemId, true, false, false);
+                        }
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "Could not get items from the cloud");
@@ -150,6 +165,7 @@ public class WebLoader {
                     final User user = Instance.users.getByGlobalUserId(globalUserId);
                     String jsonData = response.getString("data");
                     final ItemType type = ItemType.get(response.getInt("type"));
+                    final boolean deleted = response.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
 
                     if (type == ItemType.PHOTO) {
                         Bitmap b = getBitmapFromURL(Web.IMAGE_DIR + jsonData);
@@ -166,7 +182,7 @@ public class WebLoader {
 
                     activity.runOnUiThread(new Runnable() {
                         public void run() {
-                            Instance.items.add(cItemId, type, user, data, dateTime, true, false);
+                            Instance.items.add(cItemId, type, user, data, dateTime, deleted, true, false);
                         }
                     });
                 } else {

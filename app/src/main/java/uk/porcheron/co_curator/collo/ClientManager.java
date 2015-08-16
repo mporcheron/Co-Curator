@@ -32,7 +32,7 @@ public class ClientManager {
         if(Instance.users == null) {
             return;
         }
-        
+
         for(User user : Instance.users) {
             if (user.globalUserId == Instance.globalUserId) {
                 continue;
@@ -57,11 +57,12 @@ public class ClientManager {
             while (c.getStatus() == AsyncTask.Status.RUNNING) {
                 Log.e(TAG, "Waiting for previous message (" + mPreviousMessage + ") to end");
                 c.cancel(true);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                break;
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
 

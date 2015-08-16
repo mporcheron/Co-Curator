@@ -102,7 +102,8 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                     TableItem.COL_ITEM_TYPE,
                     TableItem.COL_ITEM_DATA,
                     TableItem.COL_ITEM_DATETIME,
-                    TableItem.COL_ITEM_UPLOADED
+                    TableItem.COL_ITEM_UPLOADED,
+                    TableItem.COL_ITEM_DELETED
             };
 
             String selection = "";
@@ -142,16 +143,15 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
                 final String cData = c.getString(3);
                 final int cDateTime = c.getInt(4);
-                final boolean cUploaded = c.getInt(5) == TableItem.VAL_ITEM_WILL_UPLOAD;
-
-                Log.d(TAG, "Item[" + cItemId + "] has uploaded status as " + c.getInt(5));
+                final int cUploaded = c.getInt(5);
+                final boolean cDeleted = c.getInt(6) == TableItem.VAL_ITEM_DELETED;
 
                 if (cData != null) {
-                    Log.v(TAG, "Item[" + i + "]: Save (globalUserId=" + cGlobalUserId + ",itemId=" + cItemId + ",type=" + type.toString() + ",dateTime="+cDateTime + ",data='" + cData + "')");
+                    Log.v(TAG, "Item[" + i + "]: Save (globalUserId=" + cGlobalUserId + ",itemId=" + cItemId + ",type=" + type.toString() + ",dateTime="+cDateTime + ",data='" + cData + "',uploaded=" + cUploaded  + ",deleted=" + cDeleted + ")");
 
                     mActivity.runOnUiThread(new Runnable() {
                         public void run() {
-                            Instance.items.add(cItemId, type, user, cData, cDateTime, false, cUploaded);
+                            Instance.items.add(cItemId, type, user, cData, cDateTime, cDeleted, false, cUploaded == TableItem.VAL_ITEM_WILL_UPLOAD);
                         }
                     });
                 } else {

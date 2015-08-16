@@ -13,6 +13,7 @@ import java.util.Random;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -40,6 +41,7 @@ public abstract class Item extends View {
     private float mRandomPadRightHalf;
 
     private boolean mDrawn = false;
+    private boolean mDeleted = false;
 
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
@@ -75,12 +77,20 @@ public abstract class Item extends View {
         setMeasuredDimension((int) mSlotBounds.width(), (int) mSlotBounds.height());
     }
 
-    public void setDrawn(boolean newState) {
+    public final void setDrawn(boolean newState) {
         mDrawn = newState;
     }
 
-    public boolean isDrawn() {
+    public final boolean isDrawn() {
         return mDrawn;
+    }
+
+    public final void setDeleted(boolean newState) {
+        mDeleted = newState;
+    }
+
+    public final boolean isDeleted() {
+        return mDeleted;
     }
 
     @Override
@@ -161,19 +171,24 @@ public abstract class Item extends View {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Log.d(TAG, "Fling");
 
-            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                return false; // Right to left
-            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                return false; // Left to right
+            if(mUser.globalUserId != Instance.globalUserId) {
+                return false;
             }
 
-            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-                return false; // Bottom to top
-            }  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-                return false; // Top to bottom
-            }
-
-            return false;
+            Instance.items.remove(mUser.globalUserId, mItemId, true, true, true);
+            return true;
+//
+//            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+//                return false; // Right to left
+//            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+//                return false; // Left to right
+//            }
+//
+//            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+//                return false; // Bottom to top
+//            }  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+//                return false; // Top to bottom
+//            }
         }
 
         @Override

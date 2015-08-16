@@ -38,6 +38,7 @@ public class Web {
     public static final String GET_ITEMS = Instance.serverAddress + "/getItems.php";
     public static final String GET_ITEM = Instance.serverAddress + "/getItem.php";
     public static final String POST_ITEMS = Instance.serverAddress + "/post.php";
+    public static final String DELETE = Instance.serverAddress + "/delete.php";
 
     public static JSONObject requestObj(String uri, List<NameValuePair> data) {
         String response = request(uri, data);

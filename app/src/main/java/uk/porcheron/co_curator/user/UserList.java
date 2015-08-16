@@ -6,10 +6,12 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableUser;
 import uk.porcheron.co_curator.item.Item;
+import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.val.Instance;
 
 /**
@@ -73,7 +75,11 @@ public class UserList extends ArrayList<User> {
             Instance.drawnUsers++;
             u.willDraw();
 
-            for(Item i : Instance.items.getByGlobalUserId(globalUserId)) {
+            List<Item> list = Instance.items.getByGlobalUserId(globalUserId);
+            if (list == null) {
+                return;
+            }
+            for(Item i : list) {
                 i.reassessBounds();
             }
         }

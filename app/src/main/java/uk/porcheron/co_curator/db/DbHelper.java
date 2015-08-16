@@ -14,7 +14,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String TAG = "CC:DbHelper";
 
     public static final String DATABASE_NAME = "CoCurator.db";
-    public static final int DATABASE_VERSION = 3;
+    public static final int DATABASE_VERSION = 1;
 
     private static TimelineActivity mActivity = TimelineActivity.getInstance();
     private static DbHelper mInstance = null;
