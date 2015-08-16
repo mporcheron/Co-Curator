@@ -29,6 +29,10 @@ public class ClientManager {
         }
         String message = mb.toString();
 
+        if(Instance.users == null) {
+            return;
+        }
+        
         for(User user : Instance.users) {
             if (user.globalUserId == Instance.globalUserId) {
                 continue;

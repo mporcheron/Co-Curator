@@ -144,8 +144,10 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 final int cDateTime = c.getInt(4);
                 final boolean cUploaded = c.getInt(5) == TableItem.VAL_ITEM_WILL_UPLOAD;
 
+                Log.d(TAG, "Item[" + cItemId + "] has uploaded status as " + c.getInt(5));
+
                 if (cData != null) {
-                    Log.v(TAG, "Item[" + i + "]: Save (itemId=" + cItemId + ",type=" + type.toString() + ",dateTime="+cDateTime + ",data='" + cData + "')");
+                    Log.v(TAG, "Item[" + i + "]: Save (globalUserId=" + cGlobalUserId + ",itemId=" + cItemId + ",type=" + type.toString() + ",dateTime="+cDateTime + ",data='" + cData + "')");
 
                     mActivity.runOnUiThread(new Runnable() {
                         public void run() {

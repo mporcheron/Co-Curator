@@ -33,7 +33,11 @@ import android.widget.LinearLayout;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import uk.porcheron.co_curator.collo.ClientManager;
+import uk.porcheron.co_curator.collo.ColloDict;
 import uk.porcheron.co_curator.collo.ColloGesture;
+import uk.porcheron.co_curator.collo.ResponseHandler;
+import uk.porcheron.co_curator.collo.ResponseManager;
 import uk.porcheron.co_curator.collo.ServerManager;
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.db.WebLoader;
@@ -46,7 +50,7 @@ import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
 import uk.porcheron.co_curator.val.Instance;
 
-public class TimelineActivity extends Activity implements View.OnLongClickListener, SurfaceHolder.Callback {
+public class TimelineActivity extends Activity implements View.OnLongClickListener, SurfaceHolder.Callback, ResponseHandler {
     private static final String TAG = "CC:TimelineActivity";
 
     private static boolean mCreated = false;
@@ -60,6 +64,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private FrameLayout mFrameLayout;
 
     public static final int PICK_IMAGE = 101;
+
+    private boolean mUnbindAll = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +157,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Instance.users = new UserList();
         Instance.items = new ItemList(scrollView, layoutAbove, layoutBelow);
 
+        ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
+        mUnbindAll = true;
+
         new DbLoader().execute();
     }
 
@@ -175,6 +185,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mUpdateTimer.cancel();
         mUpdateTimer.purge();
         super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        ClientManager.postMessage(ColloDict.ACTION_UNBIND);
+        super.onDestroy();
     }
 
     @Override
@@ -228,6 +244,24 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             new ImportImage().execute(filePath);
 
         }
+    }
+
+    @Override
+    public boolean respond(String action, int globalUserId, String... data) {
+        switch(action) {
+            case ColloDict.ACTION_UNBIND:
+                Instance.users.unDrawUser(globalUserId);
+                TimelineActivity.getInstance().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Instance.items.retestDrawing();
+                        TimelineActivity.getInstance().redrawCentrelines();
+                    }
+                });
+                return true;
+        }
+
+        return false;
     }
 
     private class ImportImage extends AsyncTask<String,Void,String> {
@@ -452,6 +486,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         protected Void doInBackground(Void... params) {
             WebLoader.loadUsersFromWeb();
             ServerManager.update();
+            if(mUnbindAll) {
+                ClientManager.postMessage(ColloDict.ACTION_UNBIND);
+                mUnbindAll = false;
+            }
             return null;
         }
     }

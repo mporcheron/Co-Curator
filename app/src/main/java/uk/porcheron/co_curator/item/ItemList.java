@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
@@ -160,9 +161,9 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         // Save to the Local Database or just draw?
         if (addToCloud) {
             if(type == ItemType.PHOTO) {
-                new PostImageToCloud(user.globalUserId, item.getItemId(), type, dateTime).execute(data);
+                new PostImageToCloud(user.globalUserId, itemId, type, dateTime).execute(data);
             } else {
-                new PostTextToCloud(user.globalUserId, item.getItemId(), type, dateTime).execute(data);
+                new PostTextToCloud(user.globalUserId, itemId, type, dateTime).execute(data);
             }
         }
 
@@ -213,8 +214,12 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
                 }
             } else {
                 if(item.isDrawn()) {
-
-                    // remove from view
+                    if(user.above) {
+                        mLayoutAbove.removeView(item);
+                    } else {
+                        mLayoutBelow.removeView(item);
+                    }
+                    item.setDrawn(false);
                 }
             }
 
@@ -299,13 +304,20 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
             // Update local DB
             SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            String strFilter = TableItem.COL_GLOBAL_USER_ID + "=" + mGlobalUserId + " AND " +
-                    TableItem.COL_ID + "=" + mItemId;
-            ContentValues args = new ContentValues();
-            args.put(TableItem.COL_ITEM_UPLOADED, TableItem.VAL_ITEM_UPLOADED);
-            if(db.update(TableItem.TABLE_NAME, args, strFilter, null) != 1) {
-                Log.e(TAG, "Failed to set uploaded for item");
+
+            ContentValues values = new ContentValues();
+            values.put(TableItem.COL_ITEM_UPLOADED, TableItem.VAL_ITEM_UPLOADED);
+
+            Log.e(TAG, "Set uploaded status to " + TableItem.VAL_ITEM_UPLOADED + " for " + mGlobalUserId + ":" + mItemId);
+            String whereClause = TableItem.COL_GLOBAL_USER_ID + "=? AND " +
+                    TableItem.COL_ID + "=?";
+            String[] whereArgs = {"" + mGlobalUserId, "" + mItemId};
+
+            int rowsAffected = db.update(TableItem.TABLE_NAME, values, whereClause, whereArgs);
+            if(rowsAffected != 1) {
+                Log.e(TAG, "Failed to set uploaded for Item[" + mGlobalUserId + "-" + mItemId + "] - " + rowsAffected);
             }
+
             db.close();
 
             // Tell collocated devices
