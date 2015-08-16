@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.SparseArray;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
@@ -46,7 +47,8 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
     private DbHelper mDbHelper;
 
-    private Map<String, Item> mItemIds = new HashMap<String, Item>();
+    private Map<String, Item> mItemIds = new HashMap<>();
+    private SparseArray<List<Item>> mItemGlobalUserIds = new SparseArray<>();
 
     private HorizontalScrollView mScrollView;
     private LinearLayout mLayoutAbove;
@@ -102,9 +104,9 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
             }
 
             insertAt++;
-            if(user.above && user.draw) {
+            if(user.above && user.draw()) {
                 insertAtAbove++;
-            } else if(user.draw) {
+            } else if(user.draw()) {
                 insertAtBelow++;
             }
         }
@@ -112,9 +114,16 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         mItemIds.put(user.globalUserId + "-" + item.getItemId(), item);
         add(insertAt, item);
 
+        // List of user's items
+        List<Item> items = mItemGlobalUserIds.get(user.globalUserId);
+        if(items == null) {
+            items = new ArrayList<>();
+            mItemGlobalUserIds.put(user.globalUserId, items);
+        }
+        items.add(item);
 
         // Drawing
-        if(!user.draw) {
+        if(!user.draw()) {
             Log.v(TAG, "Item[" + uniqueItemId + "]: Won't draw as user is not connected or us");
         } else {
             drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
@@ -197,18 +206,20 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         for(Item item : this) {
             User user = item.getUser();
 
-            if(user.draw) {
+            if(user.draw()) {
                 if(!item.isDrawn()) {
+                    Log.v(TAG, "User[" + user.globalUserId + "] is " + Instance.drawnUsers + "th user, offset=" + user.offset);
                     drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
                     // draw
                 }
             } else {
                 if(item.isDrawn()) {
+
                     // remove from view
                 }
             }
 
-            if(user.draw) {
+            if(user.draw()) {
                 if (user.above) {
                     insertAtAbove++;
                 } else {
@@ -331,5 +342,9 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
     public int sizeVisible() {
         return mDrawn;
+    }
+
+    public List<Item> getByGlobalUserId(int globalUserId) {
+        return mItemGlobalUserIds.get(globalUserId);
     }
 }

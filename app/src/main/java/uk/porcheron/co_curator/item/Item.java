@@ -23,6 +23,10 @@ public abstract class Item extends View {
 
     private static Random mRandom = new Random();
 
+    private float mSetWidth;
+    private float mSetHeight;
+    private float mSetPadding;
+
     private User mUser;
     private int mItemId;
     private int mDateTime;
@@ -95,6 +99,10 @@ public abstract class Item extends View {
     }
 
     protected final RectF setBounds(float width, float height, float padding) {
+        mSetWidth = width;
+        mSetHeight = height;
+        mSetPadding = padding;
+
         float top;
         if (mUser.above) {
             top = Style.itemFullHeight + mUser.offset - height;
@@ -121,6 +129,10 @@ public abstract class Item extends View {
         }
 
         return mInnerBounds;
+    }
+
+    public final void reassessBounds() {
+        setBounds(mSetWidth, mSetHeight, mSetPadding);
     }
 
     protected final User getUser() {

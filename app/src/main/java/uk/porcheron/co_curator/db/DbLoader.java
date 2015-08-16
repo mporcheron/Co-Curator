@@ -17,6 +17,8 @@ import uk.porcheron.co_curator.val.Instance;
 public class DbLoader extends AsyncTask<Void, Void, Boolean> {
     private static final String TAG = "CC:DbLoader";
 
+    private static final boolean DRAW_ALL = false;
+
     private TimelineActivity mActivity = TimelineActivity.getInstance();
     private DbHelper mDbHelper = DbHelper.getInstance();
 
@@ -68,6 +70,9 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 int cUserId = c.getInt(1);
 
                 Instance.users.add(cGlobalUserId, cUserId, false);
+                if(DRAW_ALL) {
+                    Instance.users.drawUser(cGlobalUserId);
+                }
 
                 c.moveToNext();
             }
@@ -126,6 +131,9 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 User aUser = Instance.users.getByGlobalUserId(cGlobalUserId);
                 if (aUser == null) {
                     aUser = Instance.users.add(cGlobalUserId, Instance.users.size(), false);
+                    if(DRAW_ALL) {
+                        Instance.users.drawUser(globalUserId);
+                    }
                 }
                 final User user = aUser;
 

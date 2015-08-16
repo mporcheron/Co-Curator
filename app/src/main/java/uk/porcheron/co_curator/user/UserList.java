@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableUser;
+import uk.porcheron.co_curator.item.Item;
+import uk.porcheron.co_curator.val.Instance;
 
 /**
  * List of users within the user's group.
@@ -19,6 +21,7 @@ public class UserList extends ArrayList<User> {
     private DbHelper mDbHelper;
 
     private SparseArray<User> mGlobalUserIds = new SparseArray<>();
+    private SparseArray<Boolean> mDrawnUsers = new SparseArray<>();
 
     public UserList() {
         mDbHelper = DbHelper.getInstance();
@@ -64,5 +67,23 @@ public class UserList extends ArrayList<User> {
         return mGlobalUserIds.get(globalUserId);
     }
 
+    public synchronized void drawUser(int globalUserId) {
+        User u = getByGlobalUserId(globalUserId);
+        if(u != null && !u.draw()) {
+            Instance.drawnUsers++;
+            u.willDraw();
 
+            for(Item i : Instance.items.getByGlobalUserId(globalUserId)) {
+                i.reassessBounds();
+            }
+        }
+    }
+
+    public synchronized void unDrawUser(int globalUserId) {
+        User u = getByGlobalUserId(globalUserId);
+        if(u != null && u.draw()) {
+            Instance.drawnUsers--;
+            u.willUnDraw();
+        }
+    }
 }

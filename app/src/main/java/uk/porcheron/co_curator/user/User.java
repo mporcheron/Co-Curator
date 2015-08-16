@@ -1,6 +1,9 @@
 package uk.porcheron.co_curator.user;
 
 import android.graphics.Paint;
+import android.util.Log;
+
+import java.util.Arrays;
 
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
@@ -16,18 +19,18 @@ public class User {
     public String ip = null;
     public final int bgColor;
     public final int fgColor;
-    public final float offset;
-    public final float centrelineOffset;
-    public final boolean above;
+    public float offset;
+    public float centrelineOffset;
+    public boolean above;
     public final Paint bgPaint;
-    public boolean draw = false;
+    private boolean draw = false;
 
     public User(int globalUserId, int userId) {
         this.userId = userId;
         this.globalUserId = globalUserId;
-        this.offset = Style.userOffsets[Instance.addedUsers];
 
-        this.centrelineOffset = Instance.addedUsers * (Style.lineWidth + Style.lineCentreGap);
+        this.offset = Style.userOffsets[Instance.addedUsers];
+        this.centrelineOffset = Style.userPositions[Instance.addedUsers] * (Style.lineWidth + Style.lineCentreGap);
         this.above = offset <= 0;
 
         this.bgColor = Instance.userId == userId ? Style.userMeBgColors[userId] : Style.userBgColors[userId];
@@ -43,5 +46,25 @@ public class User {
         }
 
         Instance.addedUsers++;
+    }
+
+    void willDraw() {
+        int drawn = Instance.drawnUsers;
+
+        Log.e(TAG, "Will now also draw User[" + this.globalUserId + "], they are the " + Instance.drawnUsers + "th user to be drawn" );
+        Log.e(TAG, Arrays.toString(Style.userOffsets));
+
+        this.offset = Style.userOffsets[drawn];
+        this.centrelineOffset = Style.userPositions[drawn] * (Style.lineWidth + Style.lineCentreGap);
+        this.above = this.offset <= 0;
+        this.draw = true;
+    }
+
+    void willUnDraw() {
+        this.draw = false;
+    }
+
+    public boolean draw() {
+        return this.draw;
     }
 }

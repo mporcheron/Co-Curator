@@ -77,6 +77,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             Instance.groupId = groupId;
             Instance.serverAddress = serverAddress;
             Instance.addedUsers = 0;
+            Instance.drawnUsers = 0;
             Log.d(TAG, "I am " + globalUserId + ":" + userId + ":" + groupId);
         } else {
             Intent intent = new Intent(this, ParticipantActivity.class);
@@ -396,7 +397,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             int h = canvas.getHeight();
 
             for(User user : Instance.users) {
-                if (user.draw) {
+                if (user.draw()) {
                     int y1 = (int) (((h - Style.layoutCentreHeight) / 2) + user.centrelineOffset);
                     int y2 = (int) (y1 + Style.lineWidth);
 

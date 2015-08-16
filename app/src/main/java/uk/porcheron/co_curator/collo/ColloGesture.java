@@ -21,7 +21,7 @@ public class ColloGesture extends GestureDetector.SimpleOnGestureListener implem
     private static final int X_LEEWAY = 25;
     private static final int Y_LEEWAY = 500;
     private static final float Y_MIN_DISTANCE = .1f;
-    private static final long WAIT_BEFORE_NEXT = 4000L;
+    private static final long WAIT_BEFORE_NEXT = 3000L;
     private static final long CONNECT_GAP = 10000L;
 
     private final float mYDistanceTravelled;
@@ -123,8 +123,7 @@ public class ColloGesture extends GestureDetector.SimpleOnGestureListener implem
             try {
                 int otherGlobalUserId = Integer.parseInt(data[0]);
                 if(otherGlobalUserId == Instance.globalUserId) {
-                    User u = Instance.users.getByGlobalUserId(globalUserId);
-                    u.draw = true;
+                    Instance.users.drawUser(globalUserId);
 
                     TimelineActivity.getInstance().runOnUiThread(new Runnable() {
                         @Override
@@ -144,8 +143,7 @@ public class ColloGesture extends GestureDetector.SimpleOnGestureListener implem
         ColloGesture cg = ColloGesture.getInstance();
         try {
             if(cg.havePossibleBinder(Float.parseFloat(data[0]), Float.parseFloat(data[1]), data[2])) {
-                User u = Instance.users.getByGlobalUserId(globalUserId);
-                u.draw = true;
+                Instance.users.drawUser(globalUserId);
                 ClientManager.postMessage(ColloDict.ACTION_DO_BIND, globalUserId);
 
                 TimelineActivity.getInstance().runOnUiThread(new Runnable() {

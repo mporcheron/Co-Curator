@@ -14,7 +14,9 @@ public class Instance {
     public static UserList users;
     public static ItemList items;
     public static String serverAddress;
+
     public static int addedUsers = 0;
+    public static int drawnUsers = 0;
 
     public static User user() {
         return users.getByGlobalUserId(globalUserId);
