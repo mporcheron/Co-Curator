@@ -38,9 +38,6 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean result) {
         mActivity.hideLoadingDialog();
-        if (Instance.items.isEmpty()) {
-            mActivity.promptAdd();
-        }
     }
 
     protected void loadUsersFromDb() throws Exception {
@@ -167,6 +164,10 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
         mActivity.runOnUiThread(new Runnable() {
             public void run() {
                 mActivity.redrawCentrelines();
+
+                if (Instance.items.sizeVisible() == 0) {
+                    mActivity.promptAdd();
+                }
             }
         });
 

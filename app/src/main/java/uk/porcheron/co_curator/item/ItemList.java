@@ -52,6 +52,8 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
     private LinearLayout mLayoutAbove;
     private LinearLayout mLayoutBelow;
 
+    private int mDrawn = 0;
+
     public ItemList(HorizontalScrollView scrollView, LinearLayout layoutAbove, LinearLayout layoutBelow) {
         mDbHelper = DbHelper.getInstance();
         mScrollView = scrollView;
@@ -160,6 +162,8 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
     }
 
     private void drawItem(User user, Item item, int pos) {
+        mDrawn++;
+
         int minWidth = Phone.screenWidth;
         if (user.above) {
             mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), pos));
@@ -187,6 +191,7 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
     }
 
     public void retestDrawing() {
+        mDrawn = 0;
         int insertAtAbove = 0;
         int insertAtBelow = 0;
         for(Item item : this) {
@@ -322,5 +327,9 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
             return Boolean.FALSE;
         }
+    }
+
+    public int sizeVisible() {
+        return mDrawn;
     }
 }

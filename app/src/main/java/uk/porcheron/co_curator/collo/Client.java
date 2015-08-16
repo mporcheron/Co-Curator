@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -22,6 +23,8 @@ public class Client extends AsyncTask<String, String, Void> {
 
     private String mDestinationIp;
     private int mDestinationPort;
+
+    private static final int TIMEOUT = 1000;
 
     private String mWait = "WAIT";
 
@@ -42,10 +45,9 @@ public class Client extends AsyncTask<String, String, Void> {
     protected Void doInBackground(String... arg0) {
         Log.v(TAG, "User[" + Instance.globalUserId + "] Send message to " + mDestinationIp + ":" + mDestinationPort);
 
-            try (
-                    Socket socket = new Socket(mDestinationIp, mDestinationPort);
-                    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream())) {
-
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(mDestinationIp, mDestinationPort), TIMEOUT);
+                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
                 dataOutputStream.writeUTF(arg0[0]);
                 publishProgress(null);
             } catch (UnknownHostException e) {

@@ -16,6 +16,8 @@ public class ClientManager {
 
     private static SparseArray<Client> mClients = new SparseArray<>();
 
+    private static String mPreviousMessage;
+
     ClientManager() {
     }
 
@@ -44,10 +46,12 @@ public class ClientManager {
             return;
         }
 
+        mPreviousMessage = message;
+
         Client c = mClients.get(user.globalUserId);
         if(c != null) {
             while (c.getStatus() == AsyncTask.Status.RUNNING) {
-                Log.e(TAG, "Waiting for previous message to end");
+                Log.e(TAG, "Waiting for previous message (" + mPreviousMessage + ") to end");
                 c.cancel(true);
                 try {
                     Thread.sleep(1000);
