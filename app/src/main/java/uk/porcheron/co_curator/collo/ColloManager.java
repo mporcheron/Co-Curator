@@ -28,9 +28,9 @@ public class ColloManager {
 
     private static String mPreviousMessage;
 
-    public static final int BEAT_EVERY = 10000;
+    public static final int BEAT_EVERY = 15000;
     private static final int UPDATE_USERS_EVERY = 4;
-    private static final float HEARTBEAT_WAIT = 1.5f;
+    private static final float HEARTBEAT_WAIT = 2.5f;
 
     private static SparseArray<Long> mHeardFromAt = new SparseArray<>();
     private static SparseArray<Boolean> mUsersBoundTo = new SparseArray<>();

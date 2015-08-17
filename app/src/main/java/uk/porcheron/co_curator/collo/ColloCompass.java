@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Vibrator;
 import android.util.Log;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
@@ -39,9 +40,12 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     private long mReceivedBindAt = -1;
     private int mReceivedBindFromGlobalUserId = -1;
 
-    private double DIFFERENCE_TO_TRIGGER = 170;
-    private long TIME_TILL_NEXT_FIRE = 2000L;
-    private long TIME_GAP_FOR_BIND = 1500L;
+    private static double DIFFERENCE_TO_TRIGGER = 165;
+    private static long TIME_TILL_NEXT_FIRE = 2000L;
+    private static long TIME_GAP_FOR_BIND = 2000L;
+
+    private static long VIBRATE_REQUEST_BIND = 150;
+    private static long[] VIBRATE_DO_BIND = {50,100,50,150,50,100};
 
     public static ColloCompass getInstance() {
         if(mInstance == null) {
@@ -172,6 +176,9 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
         mNextFirePossibleAfter = now + TIME_TILL_NEXT_FIRE;
         mDoBindBefore = now + TIME_GAP_FOR_BIND;
 
+        Vibrator v = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(VIBRATE_REQUEST_BIND);
+
         ColloManager.broadcast(ColloDict.ACTION_BIND);
     }
 
@@ -179,6 +186,9 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
         if(broadcast) {
             ColloManager.broadcast(ColloDict.ACTION_DO_BIND, globalUserId);
         }
+
+        Vibrator v = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(VIBRATE_DO_BIND, -1);
 
         ColloManager.bindToUser(globalUserId);
     }
