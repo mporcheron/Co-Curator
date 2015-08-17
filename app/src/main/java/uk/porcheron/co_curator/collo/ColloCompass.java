@@ -41,7 +41,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
 
     private double DIFFERENCE_TO_TRIGGER = 170;
     private long TIME_TILL_NEXT_FIRE = 2000L;
-    private long TIME_GAP_FOR_BIND = 3000L;
+    private long TIME_GAP_FOR_BIND = 1500L;
 
     public static ColloCompass getInstance() {
         if(mInstance == null) {
@@ -104,12 +104,11 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                     if(Math.abs(v - mPitch) > DIFFERENCE_TO_TRIGGER) {
                         Log.d(TAG, "Rotated " + DIFFERENCE_TO_TRIGGER + "degrees => BIND");
 
-                        mNextFirePossibleAfter = now + TIME_TILL_NEXT_FIRE;
-                        mDoBindBefore = now + TIME_GAP_FOR_BIND;
-
-                        if(mReceivedBindAt + TIME_GAP_FOR_BIND > now) {
+                        if(mReceivedBindAt > 0 && mReceivedBindAt + TIME_GAP_FOR_BIND > now) {
+                            Log.v(TAG, "Binding close enough to previous bind request");
                             doBind(mReceivedBindFromGlobalUserId, true);
                         } else {
+                            Log.v(TAG, "Request bind");
                             requestBind();
                         }
                         break;
@@ -128,7 +127,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                 mReceivedBindAt = now;
                 mReceivedBindFromGlobalUserId = globalUserId;
 
-                if(mDoBindBefore <= now) {
+                if(mDoBindBefore > now) {
                     doBind(globalUserId, true);
                 }
                 break;
@@ -168,6 +167,11 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     }
 
     private void requestBind() {
+        long now = System.currentTimeMillis();
+
+        mNextFirePossibleAfter = now + TIME_TILL_NEXT_FIRE;
+        mDoBindBefore = now + TIME_GAP_FOR_BIND;
+
         ColloManager.broadcast(ColloDict.ACTION_BIND);
     }
 

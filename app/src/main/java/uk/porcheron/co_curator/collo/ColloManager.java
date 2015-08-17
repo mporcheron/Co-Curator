@@ -60,6 +60,17 @@ public class ColloManager {
         }
     }
 
+    private static void broadcast(int recipientGlobalUserId, String action, Object... components) {
+        StringBuilder mb = new StringBuilder(action + ColloDict.SEP + Instance.globalUserId);
+        for(Object component : components) {
+            mb.append(ColloDict.SEP);
+            mb.append(component.toString());
+        }
+        String message = mb.toString();
+
+        broadcast(recipientGlobalUserId, message);
+    }
+
     private static void broadcast(int recipientGlobalUserId, String message) {
 
         User user = Instance.users.getByGlobalUserId(recipientGlobalUserId);
@@ -207,14 +218,15 @@ public class ColloManager {
 
             if(params[0]) {
                 ColloManager.broadcast(ColloDict.ACTION_UNBIND);
-            } else {
-                ColloManager.broadcast(ColloDict.ACTION_HEARTBEAT);
             }
 
             long earliest = System.currentTimeMillis() - (int) (HEARTBEAT_WAIT * BEAT_EVERY);
             for(User u : Instance.users) {
+
                 Boolean boundTo = mUsersBoundTo.get(u.globalUserId);
                 if(boundTo != null && boundTo) {
+                    ColloManager.broadcast(ColloDict.ACTION_HEARTBEAT);
+
                     Long heardFrom = mHeardFromAt.get(u.globalUserId);
                     if(heardFrom != null && heardFrom < earliest) {
                         unBindFromUser(u.globalUserId);

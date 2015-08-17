@@ -23,8 +23,8 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:inputType="number"
-                android:text="https://www.porcheron.uk/cocurator" />
-<!-- http://10.126.3.53/~map/cocurator -->
+                android:text="http://10.94.12.43/~map/cocurator" />
+
             <EditText android:id="@+id/globalUserId" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/promptGlobalUserId"
                 android:maxLines="1"
