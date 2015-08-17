@@ -149,6 +149,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 if (cData != null) {
                     Log.v(TAG, "Item[" + i + "]: Save (globalUserId=" + cGlobalUserId + ",itemId=" + cItemId + ",type=" + type.toString() + ",dateTime="+cDateTime + ",data='" + cData + "',uploaded=" + cUploaded  + ",deleted=" + cDeleted + ")");
 
+                    Instance.items.registerForthcomingItem(cGlobalUserId,cItemId);
                     mActivity.runOnUiThread(new Runnable() {
                         public void run() {
                             Instance.items.add(cItemId, type, user, cData, cDateTime, cDeleted, false, cUploaded == TableItem.VAL_ITEM_WILL_UPLOAD);

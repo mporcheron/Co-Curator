@@ -85,8 +85,8 @@ public class WebLoader {
 
     }
 
-    protected static void loadItemsFromWeb(int globalUserId) {
-        Log.d(TAG, "Load items from cloud");
+    protected static void loadItemsFromWeb(final int globalUserId) {
+        Log.d(TAG, "Load items from cloud for User[" + globalUserId + "]");
 
         TimelineActivity activity = TimelineActivity.getInstance();
 
@@ -100,8 +100,8 @@ public class WebLoader {
                     JSONObject itemJ = (JSONObject) response.get(i);
 
                     final int itemId = itemJ.getInt("id");
-                    Item item = Instance.items.getByItemId(globalUserId, itemId);
-                    if (item == null) {
+
+                    if (!Instance.items.containsByItemId(globalUserId, itemId, true)) {
                         final User user = Instance.users.getByGlobalUserId(globalUserId);
                         if(user == null) {
                             continue;
@@ -123,6 +123,7 @@ public class WebLoader {
                         final String data = jsonData;
                         final int dateTime = itemJ.getInt("dateTime");
 
+                        Instance.items.registerForthcomingItem(globalUserId,itemId);
                         activity.runOnUiThread(new Runnable() {
                             public void run() {
                                 Instance.items.add(itemId, type, user, data, dateTime, deleted, true, false);
@@ -132,9 +133,14 @@ public class WebLoader {
                         Log.v(TAG, "Item already exists locally, compare deleted state");
                         final int deleted = itemJ.getInt("deleted");
 
-                        if(deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
-                            Instance.items.remove(globalUserId, itemId, true, false, false);
-                        }
+                        activity.runOnUiThread(new Runnable() {
+                            public void run() {
+                                Item item = Instance.items.getByItemId(globalUserId, itemId);
+                                if (deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
+                                    Instance.items.remove(globalUserId, itemId, true, false, false);
+                                }
+                            }
+                        });
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "Could not get items from the cloud");
@@ -178,6 +184,7 @@ public class WebLoader {
                     final String data = jsonData;
                     final int dateTime = response.getInt("dateTime");
 
+                    Instance.items.registerForthcomingItem(globalUserId,cItemId);
                     activity.runOnUiThread(new Runnable() {
                         public void run() {
                             Instance.items.add(cItemId, type, user, data, dateTime, deleted, true, false);

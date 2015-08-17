@@ -43,14 +43,15 @@ import uk.porcheron.co_curator.util.Web;
 public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHandler {
     private static final String TAG = "CC:ItemList";
 
-    private DbHelper mDbHelper;
+    private final DbHelper mDbHelper;
 
-    private Map<String, Item> mItemIds = new HashMap<>();
-    private SparseArray<List<Item>> mItemGlobalUserIds = new SparseArray<>();
+    private final Map<String, Item> mItemIds = new HashMap<>();
+    private final Map<String, Boolean> mForthcomingItemIds = new HashMap<>();
+    private final SparseArray<List<Item>> mItemGlobalUserIds = new SparseArray<>();
 
-    private HorizontalScrollView mScrollView;
-    private LinearLayout mLayoutAbove;
-    private LinearLayout mLayoutBelow;
+    private final HorizontalScrollView mScrollView;
+    private final LinearLayout mLayoutAbove;
+    private final LinearLayout mLayoutBelow;
 
     private int mDrawn = 0;
 
@@ -65,6 +66,10 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_NEW, this);
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DELETE, this);
+    }
+
+    public synchronized void registerForthcomingItem(int globalUserId, int itemId) {
+        mForthcomingItemIds.put(globalUserId + "-" + itemId, true);
     }
 
     public boolean add(ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
@@ -115,7 +120,8 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             }
         }
 
-        mItemIds.put(user.globalUserId + "-" + item.getItemId(), item);
+        Log.e(TAG, "We've recorded that we've got Item[" + uniqueItemId + "]");
+        mItemIds.put(uniqueItemId, item);
         add(insertAt, item);
 
         // List of user's items
@@ -302,6 +308,16 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         ItemImage image = new ItemImage(itemId, user, dateTime);
         image.setImagePath(imagePath);
         return image;
+    }
+
+    public boolean containsByItemId(int globalUserId, int itemId, boolean allowForthcoming) {
+        String uniqueId = globalUserId + "-" + itemId;
+
+        if(allowForthcoming) {
+            return mItemIds.containsKey(uniqueId) || mForthcomingItemIds.containsKey(uniqueId);
+        }
+
+        return mItemIds.containsKey(uniqueId);
     }
 
     public Item getByItemId(int globalUserId, int itemId) {
