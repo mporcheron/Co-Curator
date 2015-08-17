@@ -145,6 +145,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 //            }
 //        });
 
+        mUnbindAll = true;
+
         if(mCreated) {
             return;
         }
@@ -154,7 +156,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Instance.items = new ItemList(scrollView, layoutAbove, layoutBelow);
 
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
-        mUnbindAll = true;
 
         new DbLoader().execute();
     }
@@ -173,7 +174,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         // Reschedule IP pinging
         try {
             mUpdateTimer = new Timer();
-            mUpdateTimer.schedule(mUpdateUserTask, 1000, 30000);
+            mUpdateTimer.schedule(mUpdateUserTask, 1000, ColloManager.BEAT_EVERY);
         } catch(IllegalStateException e) {
 
         }
@@ -475,7 +476,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             mUpdateHandler.post(new Runnable() {
                 public void run() {
                     try {
-                        new UpdateUsersTask().execute();
+                        ColloManager.beat(mUnbindAll);
+                        mUnbindAll = false;
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
                     }
@@ -484,17 +486,4 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     };
 
-    class UpdateUsersTask extends AsyncTask<Void,Void,Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            WebLoader.loadUsersFromWeb();
-            ServerManager.update();
-            if(mUnbindAll) {
-                ColloManager.broadcast(ColloDict.ACTION_UNBIND);
-                mUnbindAll = false;
-            }
-            return null;
-        }
-    }
 }

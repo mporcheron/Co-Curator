@@ -176,13 +176,6 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
             ColloManager.broadcast(ColloDict.ACTION_DO_BIND, globalUserId);
         }
 
-        Instance.users.drawUser(globalUserId);
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Instance.items.retestDrawing();
-                TimelineActivity.getInstance().redrawCentrelines();
-            }
-        });
+        ColloManager.bindToUser(globalUserId);
     }
 }

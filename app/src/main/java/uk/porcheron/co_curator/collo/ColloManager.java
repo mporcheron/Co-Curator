@@ -11,6 +11,8 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.porcheron.co_curator.TimelineActivity;
+import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Collo;
 import uk.porcheron.co_curator.val.Instance;
@@ -25,6 +27,14 @@ public class ColloManager {
     private static SparseArray<BlockedIp> mClientBlacklist = new SparseArray<>();
 
     private static String mPreviousMessage;
+
+    public static final int BEAT_EVERY = 10000;
+    private static final int UPDATE_USERS_EVERY = 4;
+    private static final float HEARTBEAT_WAIT = 1.5f;
+
+    private static SparseArray<Long> mHeardFromAt = new SparseArray<>();
+    private static SparseArray<Boolean> mUsersBoundTo = new SparseArray<>();
+    private static int mBeatsTillNextUpdate = 0;
 
     ColloManager() {
     }
@@ -83,9 +93,9 @@ public class ColloManager {
     /**
      * Object that handles responses to messages received.
      */
-    public static interface ResponseHandler {
+    public interface ResponseHandler {
 
-        public boolean respond(String action, int globalUserId, String... data);
+        boolean respond(String action, int globalUserId, String... data);
 
     }
 
@@ -102,6 +112,11 @@ public class ColloManager {
         }
 
         public static boolean respond(String action, int globalUserId, String... data) {
+            if(action.equals(ColloDict.ACTION_HEARTBEAT)) {
+                mHeardFromAt.put(globalUserId, System.currentTimeMillis());
+                return true;
+            }
+
             ResponseHandler handler = mHandlers.get(action);
             if(handler == null) {
                 Log.e(TAG, "No ResponseHandler for Action[" + action + "]");;
@@ -123,8 +138,6 @@ public class ColloManager {
         private int mDestinationPort;
 
         private static final int TIMEOUT = 1000;
-
-        private String mWait = "WAIT";
 
         Client(int globalUserId, String ip, int port) {
             mGlobalUserId = globalUserId;
@@ -149,7 +162,11 @@ public class ColloManager {
                 publishProgress(null);
             } catch (IOException e) {
                 publishProgress("Error: " + e.toString());
-                mClientBlacklist.put(mGlobalUserId, new BlockedIp(mDestinationIp));
+
+                Boolean boundTo = mUsersBoundTo.get(mGlobalUserId);
+                if(boundTo != null && boundTo) {
+                    unBindFromUser(mGlobalUserId);
+                }
             }
 
             return null;
@@ -170,5 +187,65 @@ public class ColloManager {
         BlockedIp(String ip) {
             this.ip = ip;
         }
+    }
+
+    public static void beat(boolean unbindAll) {
+        new HeartbeatTask().execute(unbindAll);
+    }
+
+    static class HeartbeatTask extends AsyncTask<Boolean,Void,Void> {
+
+        @Override
+        protected Void doInBackground(Boolean... params) {
+            if(mBeatsTillNextUpdate == 0) {
+                WebLoader.loadUsersFromWeb();
+                ServerManager.update();
+                mBeatsTillNextUpdate = UPDATE_USERS_EVERY;
+            } else {
+                mBeatsTillNextUpdate--;
+            }
+
+            if(params[0]) {
+                ColloManager.broadcast(ColloDict.ACTION_UNBIND);
+            } else {
+                ColloManager.broadcast(ColloDict.ACTION_HEARTBEAT);
+            }
+
+            long earliest = System.currentTimeMillis() - (int) (HEARTBEAT_WAIT * BEAT_EVERY);
+            for(User u : Instance.users) {
+                Boolean boundTo = mUsersBoundTo.get(u.globalUserId);
+                if(boundTo != null && boundTo) {
+                    Long heardFrom = mHeardFromAt.get(u.globalUserId);
+                    if(heardFrom != null && heardFrom < earliest) {
+                        unBindFromUser(u.globalUserId);
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    public static void bindToUser(int globalUserId) {
+        mUsersBoundTo.put(globalUserId, true);
+        Instance.users.drawUser(globalUserId);
+        TimelineActivity.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Instance.items.retestDrawing();
+                TimelineActivity.getInstance().redrawCentrelines();
+            }
+        });
+    }
+
+    public static void unBindFromUser(int globalUserId) {
+        mUsersBoundTo.put(globalUserId, false);
+        Instance.users.unDrawUser(globalUserId);
+        TimelineActivity.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Instance.items.retestDrawing();
+                TimelineActivity.getInstance().redrawCentrelines();
+            }
+        });
     }
 }
