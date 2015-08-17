@@ -5,14 +5,13 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import uk.porcheron.co_curator.TimelineActivity;
-import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Phone;
 
 /**
  * Detect gestures used for connecting collocated devices.
  */
-public class ColloGesture extends GestureDetector.SimpleOnGestureListener implements ResponseHandler {
+public class ColloGesture extends GestureDetector.SimpleOnGestureListener implements ColloManager.ResponseHandler {
     private static final String TAG = "CC:ColloGesture";
 
     public static final String GESTURE_UP = "up";
@@ -20,7 +19,7 @@ public class ColloGesture extends GestureDetector.SimpleOnGestureListener implem
 
     private static final int X_LEEWAY = 25;
     private static final int Y_LEEWAY = 500;
-    private static final float Y_MIN_DISTANCE = .8f;
+    private static final float Y_MIN_DISTANCE = .3f;
     private static final long WAIT_BEFORE_NEXT = 3000L;
     private static final long CONNECT_GAP = 10000L;
 
@@ -39,8 +38,8 @@ public class ColloGesture extends GestureDetector.SimpleOnGestureListener implem
     public static ColloGesture getInstance() {
         if(mInstance == null) {
             mInstance = new ColloGesture();
-            ResponseManager.registerHandler(ColloDict.ACTION_BIND, mInstance);
-            ResponseManager.registerHandler(ColloDict.ACTION_DO_BIND, mInstance);
+            ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_BIND, mInstance);
+            ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DO_BIND, mInstance);
         }
         return mInstance;
     }
@@ -111,7 +110,7 @@ public class ColloGesture extends GestureDetector.SimpleOnGestureListener implem
         mBindY = y;
         mBindDir = e2.getY() < Y_LEEWAY ? GESTURE_UP : GESTURE_DOWN;
 
-        ClientManager.postMessage(ColloDict.ACTION_BIND, x, y, mBindDir);
+        ColloManager.broadcast(ColloDict.ACTION_BIND, x, y, mBindDir);
 
 
         return true;
@@ -144,7 +143,7 @@ public class ColloGesture extends GestureDetector.SimpleOnGestureListener implem
         try {
             if(cg.havePossibleBinder(Float.parseFloat(data[0]), Float.parseFloat(data[1]), data[2])) {
                 Instance.users.drawUser(globalUserId);
-                ClientManager.postMessage(ColloDict.ACTION_DO_BIND, globalUserId);
+                ColloManager.broadcast(ColloDict.ACTION_DO_BIND, globalUserId);
 
                 TimelineActivity.getInstance().runOnUiThread(new Runnable() {
                     @Override

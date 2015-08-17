@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
@@ -25,10 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import uk.porcheron.co_curator.TimelineActivity;
-import uk.porcheron.co_curator.collo.ClientManager;
 import uk.porcheron.co_curator.collo.ColloDict;
-import uk.porcheron.co_curator.collo.ResponseHandler;
-import uk.porcheron.co_curator.collo.ResponseManager;
+import uk.porcheron.co_curator.collo.ColloManager;
 import uk.porcheron.co_curator.db.DbHelper;
 import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.db.WebLoader;
@@ -43,7 +40,7 @@ import uk.porcheron.co_curator.util.Web;
  * <p/>
  * Created by map on 07/08/15.
  */
-public class ItemList extends ArrayList<Item> implements ResponseHandler {
+public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHandler {
     private static final String TAG = "CC:ItemList";
 
     private DbHelper mDbHelper;
@@ -66,8 +63,8 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
         mLayoutAbove = layoutAbove;
         mLayoutBelow = layoutBelow;
 
-        ResponseManager.registerHandler(ColloDict.ACTION_NEW, this);
-        ResponseManager.registerHandler(ColloDict.ACTION_DELETE, this);
+        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_NEW, this);
+        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DELETE, this);
     }
 
     public boolean add(ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
@@ -251,7 +248,7 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
 
         // Notify neighbours
         if(notifyClients) {
-            ClientManager.postMessage(ColloDict.ACTION_DELETE, itemId);
+            ColloManager.broadcast(ColloDict.ACTION_DELETE, itemId);
         }
     }
 
@@ -266,7 +263,6 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
                 if(!item.isDrawn()) {
                     Log.v(TAG, "User[" + user.globalUserId + "] is " + Instance.drawnUsers + "th user, offset=" + user.offset);
                     drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
-                    // draw
                 }
             } else {
                 if(item.isDrawn()) {
@@ -390,7 +386,7 @@ public class ItemList extends ArrayList<Item> implements ResponseHandler {
             db.close();
 
             // Tell collocated devices
-            ClientManager.postMessage(ColloDict.ACTION_NEW, mItemId);
+            ColloManager.broadcast(ColloDict.ACTION_NEW, mItemId);
 
             return Boolean.TRUE;
         }

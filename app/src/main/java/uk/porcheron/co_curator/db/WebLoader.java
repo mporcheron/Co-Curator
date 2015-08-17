@@ -132,8 +132,6 @@ public class WebLoader {
                         Log.v(TAG, "Item already exists locally, compare deleted state");
                         final int deleted = itemJ.getInt("deleted");
 
-                        Log.e(TAG, "web = " + deleted + ", locally =" + item.isDeleted());
-
                         if(deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
                             Instance.items.remove(globalUserId, itemId, true, false, false);
                         }

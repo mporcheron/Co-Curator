@@ -51,9 +51,6 @@ public class User {
     void willDraw() {
         int drawn = Instance.drawnUsers;
 
-        Log.e(TAG, "Will now also draw User[" + this.globalUserId + "], they are the " + Instance.drawnUsers + "th user to be drawn" );
-        Log.e(TAG, Arrays.toString(Style.userOffsets));
-
         this.offset = Style.userOffsets[drawn];
         this.centrelineOffset = Style.userPositions[drawn] * (Style.lineWidth + Style.lineCentreGap);
         this.above = this.offset <= 0;

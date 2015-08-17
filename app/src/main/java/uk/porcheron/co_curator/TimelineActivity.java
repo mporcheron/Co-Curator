@@ -17,8 +17,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -33,14 +31,11 @@ import android.widget.LinearLayout;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import uk.porcheron.co_curator.collo.ClientManager;
 import uk.porcheron.co_curator.collo.ColloDict;
-import uk.porcheron.co_curator.collo.ColloGesture;
-import uk.porcheron.co_curator.collo.ResponseHandler;
-import uk.porcheron.co_curator.collo.ResponseManager;
+import uk.porcheron.co_curator.collo.ColloManager;
+import uk.porcheron.co_curator.collo.ColloCompass;
 import uk.porcheron.co_curator.collo.ServerManager;
 import uk.porcheron.co_curator.db.DbLoader;
-import uk.porcheron.co_curator.db.TableItem;
 import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
@@ -51,7 +46,7 @@ import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
 import uk.porcheron.co_curator.val.Instance;
 
-public class TimelineActivity extends Activity implements View.OnLongClickListener, SurfaceHolder.Callback, ResponseHandler {
+public class TimelineActivity extends Activity implements View.OnLongClickListener, SurfaceHolder.Callback, ColloManager.ResponseHandler {
     private static final String TAG = "CC:TimelineActivity";
 
     private static boolean mCreated = false;
@@ -136,19 +131,19 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         layoutAbove.setOnLongClickListener(this);
         layoutBelow.setOnLongClickListener(this);
 
-        final GestureDetector gD  = new GestureDetector(this, ColloGesture.getInstance());
-        layoutAbove.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(final View view, final MotionEvent event) {
-                return gD.onTouchEvent(event);
-            }
-        });
-        layoutBelow.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(final View view, final MotionEvent event) {
-                return gD.onTouchEvent(event);
-            }
-        });
+//        final GestureDetector gD  = new GestureDetector(this, ColloGesture.getInstance());
+//        layoutAbove.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(final View view, final MotionEvent event) {
+//                return gD.onTouchEvent(event);
+//            }
+//        });
+//        layoutBelow.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(final View view, final MotionEvent event) {
+//                return gD.onTouchEvent(event);
+//            }
+//        });
 
         if(mCreated) {
             return;
@@ -158,7 +153,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Instance.users = new UserList();
         Instance.items = new ItemList(scrollView, layoutAbove, layoutBelow);
 
-        ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
+        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
         mUnbindAll = true;
 
         new DbLoader().execute();
@@ -171,6 +166,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     @Override
     public void onResume() {
         Phone.collectAttrs();
+
+        // Begin pitch tracking
+        ColloCompass.getInstance().resumeListening();
+
+        // Reschedule IP pinging
         try {
             mUpdateTimer = new Timer();
             mUpdateTimer.schedule(mUpdateUserTask, 1000, 30000);
@@ -182,15 +182,18 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     @Override
     public void onPause() {
+        ColloCompass.getInstance().pauseListening();
+
         mUpdateUserTask.cancel();
         mUpdateTimer.cancel();
         mUpdateTimer.purge();
+
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        ClientManager.postMessage(ColloDict.ACTION_UNBIND);
+        ColloManager.broadcast(ColloDict.ACTION_UNBIND);
         super.onDestroy();
     }
 
@@ -488,7 +491,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             WebLoader.loadUsersFromWeb();
             ServerManager.update();
             if(mUnbindAll) {
-                ClientManager.postMessage(ColloDict.ACTION_UNBIND);
+                ColloManager.broadcast(ColloDict.ACTION_UNBIND);
                 mUnbindAll = false;
             }
             return null;
