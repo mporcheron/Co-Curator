@@ -190,6 +190,7 @@ public class NoteDialog {
         mEditText.setGravity(View.TEXT_ALIGNMENT_TEXT_START);
         mEditText.setLineSpacing(0, Style.noteLineSpacing);
         mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PT, TEXT_SCALE_SIZE * Style.noteFontSize);
+        mEditText.setSelection(mEditText.getText().toString().length());
 
         final GestureDetector gD  = new GestureDetector(TimelineActivity.getInstance(), new DialogGestureListener());
         mEditText.setOnTouchListener(new View.OnTouchListener() {
