@@ -39,6 +39,7 @@ import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
+import uk.porcheron.co_curator.item.NoteDialog;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Image;
@@ -310,6 +311,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     promptNewItem(view, true);
                 }
             });
+            builder.setCancelable(false);
         }
 
         final ItemType[] types = ItemType.values();
@@ -327,7 +329,31 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         break;
 
                     case NOTE:
-                        addNewNote(view, forceAdd);
+                        new NoteDialog()
+                                .setAutoEdit(false)
+                                .setOnSubmitListener(new NoteDialog.OnSubmitListener() {
+                                    @Override
+                                    public void onSubmit(DialogInterface dialog, String text) {
+                                        Log.e(TAG, "Note Submitted");
+                                        if (forceAdd && text.isEmpty()) {
+                                            promptNewItem(view, true);
+                                        }
+                                        boolean create = Instance.items.add(ItemType.NOTE, Instance.user(), text, false, true, true);
+                                        if (forceAdd && !create) {
+                                            promptNewItem(view, true);
+                                        }
+                                    }
+                                })
+                                .setOnCancelListener(new NoteDialog.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        if (forceAdd) {
+                                            promptNewItem(view, true);
+                                        }
+                                    }
+                                })
+                                .create()
+                                .show();
                         break;
 
                     case URL:
