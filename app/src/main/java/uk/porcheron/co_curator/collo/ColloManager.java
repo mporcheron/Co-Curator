@@ -233,7 +233,7 @@ public class ColloManager {
                     Long heardFrom = mHeardFromAt.get(u.globalUserId);
                     if(heardFrom != null && heardFrom < earliest) {
                         Log.e(TAG, "Haven't heard from " + u.globalUserId + " for a while");
-                        unBindFromUser(u.globalUserId);
+                        //unBindFromUser(u.globalUserId);
                     }
                 }
             }
