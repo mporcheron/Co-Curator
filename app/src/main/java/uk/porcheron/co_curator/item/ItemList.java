@@ -215,6 +215,38 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         mForthcomingItemIds.put(globalUserId + "-" + itemId, true);
     }
 
+    public void unremove(Item item) {
+        int globalUserId = item.getUser().globalUserId;
+        int itemId = item.getItemId();
+
+        item.setDeleted(false);
+
+        // Unremove from view
+        TimelineActivity.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Instance.items.retestDrawing();
+            }
+        });
+
+        // Unremove from local DB
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TableItem.COL_ITEM_DELETED, TableItem.VAL_ITEM_NOT_DELETED);
+
+        String whereClause = TableItem.COL_GLOBAL_USER_ID + "=? AND " +
+                TableItem.COL_ITEM_ID + "=?";
+        String[] whereArgs = {"" + globalUserId, "" + itemId};
+
+        int rowsAffected = db.update(TableItem.TABLE_NAME, values, whereClause, whereArgs);
+        if (rowsAffected != 1) {
+            Log.e(TAG, "Failed to unset deleted for Item[" + globalUserId + ":" + itemId + "]");
+        }
+
+        db.close();
+    }
+
     public void remove(Item item, boolean removeFromLocalDb, boolean removeFromCloud, boolean notifyClients) {
         int globalUserId = item.getUser().globalUserId;
         int itemId = item.getItemId();

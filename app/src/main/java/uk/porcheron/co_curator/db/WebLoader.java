@@ -100,14 +100,14 @@ public class WebLoader {
                     JSONObject itemJ = (JSONObject) response.get(i);
 
                     final int itemId = itemJ.getInt("id");
+                    String jsonData = itemJ.getString("data");
+                    final ItemType type = ItemType.get(itemJ.getInt("type"));
 
                     if (!Instance.items.containsByItemId(globalUserId, itemId, true)) {
                         final User user = Instance.users.getByGlobalUserId(globalUserId);
                         if(user == null) {
                             continue;
                         }
-                        String jsonData = itemJ.getString("data");
-                        final ItemType type = ItemType.get(itemJ.getInt("type"));
                         final boolean deleted = itemJ.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
 
                         if (type == ItemType.PHOTO) {
@@ -130,14 +130,22 @@ public class WebLoader {
                             }
                         });
                     } else {
-                        Log.v(TAG, "Item already exists locally, compare deleted state");
+                        Log.v(TAG, "Item already exists locally, update it");
                         final int deleted = itemJ.getInt("deleted");
+                        final String data = jsonData;
 
                         activity.runOnUiThread(new Runnable() {
                             public void run() {
                                 Item item = Instance.items.getByItemId(globalUserId, itemId);
-                                if (item != null && deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
-                                    Instance.items.remove(item, true, false, false);
+                                if (item != null) {
+                                    if (deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
+                                        Instance.items.remove(item, true, false, false);
+                                    } else if (deleted == TableItem.VAL_ITEM_NOT_DELETED && item.isDeleted()) {
+                                        Instance.items.unremove(item);
+                                    }
+                                    if (type != ItemType.PHOTO && !item.getData().equals(data)) {
+                                        Instance.items.update(item, data, false, false);
+                                    }
                                 }
                             }
                         });
@@ -194,7 +202,7 @@ public class WebLoader {
                     });
                 } else {
                     //TODO: change to update
-                    Log.e(TAG, "Item already exists!");
+                    Log.e(TAG, "Item already exists, update it");
 
                     final String data = jsonData;
                     activity.runOnUiThread(new Runnable() {
