@@ -48,6 +48,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     private final Map<String, Item> mItemIds = new HashMap<>();
     private final Map<String, Boolean> mForthcomingItemIds = new HashMap<>();
     private final SparseArray<List<Item>> mItemGlobalUserIds = new SparseArray<>();
+    private final List<Item> mDrawnItems = new ArrayList<>();
 
     private final HorizontalScrollView mScrollView;
     private final LinearLayout mLayoutAbove;
@@ -63,6 +64,9 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         mScrollView = scrollView;
         mLayoutAbove = layoutAbove;
         mLayoutBelow = layoutBelow;
+
+        mLayoutAbove.removeAllViews();
+        mLayoutBelow.removeAllViews();
 
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_NEW, this);
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DELETE, this);
@@ -130,13 +134,15 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             items = new ArrayList<>();
             mItemGlobalUserIds.put(user.globalUserId, items);
         }
+
         items.add(item);
 
         // Drawing
+        final int layoutPosition = user.above ? insertAtAbove : insertAtBelow;
         if(!user.draw() || deleted) {
             Log.v(TAG, "Item[" + uniqueItemId + "]: Won't draw as user is not connected or us or is deleted");
         } else {
-            drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
+            drawItem(user, item, layoutPosition);
         }
 
         // Save to the Local Database or just draw?
@@ -183,7 +189,10 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     }
 
     private void drawItem(User user, Item item, int pos) {
-        mDrawn++;
+        if(mDrawnItems.contains(item)) {
+            Log.e(TAG, "Item is already drawn");
+            return;
+        }
 
         int minWidth = Phone.screenWidth;
         if (user.above) {
@@ -193,6 +202,9 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), pos));
             minWidth = Math.max(mLayoutBelow.getWidth() + item.getMeasuredWidth(), minWidth);
         }
+
+        mDrawnItems.add(item);
+        mDrawn++;
 
         mLayoutAbove.setMinimumWidth(minWidth);
         mLayoutBelow.setMinimumWidth(minWidth);
@@ -219,6 +231,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         // Remove from list
         i.setDeleted(true);
+        mDrawnItems.remove(i);
 
         // Remove from local DB
         if(removeFromLocalDb) {

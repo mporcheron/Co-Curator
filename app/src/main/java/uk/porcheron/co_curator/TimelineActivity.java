@@ -97,7 +97,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         decorView.setSystemUiVisibility(uiOptions);
 
         setContentView(R.layout.activity_timelime);
-        showLoadingDialog(R.string.dialogLoading);
 
         mInstance = this;
 
@@ -150,6 +149,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         if(mCreated) {
             return;
         }
+
+        showLoadingDialog(R.string.dialogLoading);
 
         // Load items
         Instance.users = new UserList();
