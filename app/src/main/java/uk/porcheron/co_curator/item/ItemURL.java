@@ -27,9 +27,9 @@ public class ItemURL extends ItemNote {
         super(itemId, user, dateTime);
     }
 
-    public void setURL(String url) {
+    public void setData(String url) {
         mURL = url;
-        setText(url.replace("http://", ""));
+        setData(url.replace("http://", ""));
     }
 
     @Override

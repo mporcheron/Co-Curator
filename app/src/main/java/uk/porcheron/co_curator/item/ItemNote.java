@@ -48,20 +48,12 @@ public class ItemNote extends Item {
     }
 
     @Override
-    public void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        RectF innerBounds = getInnerBounds();
-        mTextView.setDrawingCacheEnabled(true);
-        canvas.drawBitmap(mTextView.getDrawingCache(), innerBounds.left, innerBounds.top, mPaintFg);
-        mTextView.setDrawingCacheEnabled(false);
-    }
-
-    public String getText() {
+    public String getData() {
         return mText;
     }
 
-    public void setText(String text) {
+    @Override
+    public void setData(String text) {
         mText = text;
 
         RectF innerBounds = setBounds(Style.noteWidth, Style.noteHeight, Style.notePadding);
@@ -79,6 +71,16 @@ public class ItemNote extends Item {
     }
 
     @Override
+    public void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+
+        RectF innerBounds = getInnerBounds();
+        mTextView.setDrawingCacheEnabled(true);
+        canvas.drawBitmap(mTextView.getDrawingCache(), innerBounds.left, innerBounds.top, mPaintFg);
+        mTextView.setDrawingCacheEnabled(false);
+    }
+
+    @Override
     public boolean onTap() {
         return false;
     }
@@ -90,9 +92,7 @@ public class ItemNote extends Item {
                 .setOnSubmitListener(new NoteDialog.OnSubmitListener() {
                     @Override
                     public void onSubmit(DialogInterface dialog, String text) {
-                        Log.e(TAG, "Holla, text changed!");
-                        ItemNote.this.setText(text);
-                        ItemNote.this.invalidate();;
+                        Instance.items.update(ItemNote.this, text, true, true);
                     }
                 })
                 .setOnDeleteListener(new NoteDialog.OnDeleteListener() {
@@ -102,7 +102,7 @@ public class ItemNote extends Item {
                             return;
                         }
 
-                        Instance.items.remove(getUser().globalUserId, getItemId(), true, true, true);
+                        Instance.items.remove(ItemNote.this, true, true, true);
                     }
                 })
                 .create()

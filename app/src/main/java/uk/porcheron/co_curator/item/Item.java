@@ -72,6 +72,10 @@ public abstract class Item extends View {
         });
     }
 
+    public abstract String getData();
+
+    abstract void setData(String data);
+
     @Override
     protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         setMeasuredDimension((int) mSlotBounds.width(), (int) mSlotBounds.height());
@@ -85,7 +89,7 @@ public abstract class Item extends View {
         return mDrawn;
     }
 
-    public final void setDeleted(boolean newState) {
+    final void setDeleted(boolean newState) {
         mDeleted = newState;
     }
 

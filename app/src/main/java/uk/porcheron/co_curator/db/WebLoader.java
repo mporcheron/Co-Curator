@@ -136,8 +136,8 @@ public class WebLoader {
                         activity.runOnUiThread(new Runnable() {
                             public void run() {
                                 Item item = Instance.items.getByItemId(globalUserId, itemId);
-                                if (deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
-                                    Instance.items.remove(globalUserId, itemId, true, false, false);
+                                if (item != null && deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
+                                    Instance.items.remove(item, true, false, false);
                                 }
                             }
                         });
@@ -152,7 +152,7 @@ public class WebLoader {
 
     }
 
-    public static void loadItemFromWeb(int globalUserId, int itemId) {
+    public static void loadItemFromWeb(final int globalUserId, final int itemId) {
         Log.d(TAG, "Get Item[" + globalUserId + ":" + itemId + "] from cloud");
 
         TimelineActivity activity = TimelineActivity.getInstance();
@@ -164,12 +164,14 @@ public class WebLoader {
         JSONObject response = Web.requestObj(Web.GET_ITEM, nameValuePairs);
         if (response != null) {
             try {
-                if (Instance.items.getByItemId(globalUserId, itemId) == null) {
+                final ItemType type = ItemType.get(response.getInt("type"));
+                String jsonData = response.getString("data");
+                final boolean deleted = response.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
+
+                final Item item = Instance.items.getByItemId(globalUserId, itemId);
+                if (item == null) {
                     final int cItemId = response.getInt("id");
                     final User user = Instance.users.getByGlobalUserId(globalUserId);
-                    String jsonData = response.getString("data");
-                    final ItemType type = ItemType.get(response.getInt("type"));
-                    final boolean deleted = response.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
 
                     if (type == ItemType.PHOTO) {
                         Bitmap b = getBitmapFromURL(Web.IMAGE_DIR + jsonData);
@@ -193,6 +195,18 @@ public class WebLoader {
                 } else {
                     //TODO: change to update
                     Log.e(TAG, "Item already exists!");
+
+                    final String data = jsonData;
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            if (deleted && !item.isDeleted()) {
+                                Instance.items.remove(item, true, false, false);
+                            }
+                            if (type != ItemType.PHOTO && !item.getData().equals(data)) {
+                                Instance.items.update(item, data, false, false);
+                            }
+                        }
+                    });
                 }
             } catch (JSONException e) {
                 Log.e(TAG, "Could not get Item[" + itemId + "] from the cloud");

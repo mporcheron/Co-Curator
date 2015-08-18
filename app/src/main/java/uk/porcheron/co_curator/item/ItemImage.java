@@ -86,7 +86,11 @@ public class ItemImage extends Item {
 
     }
 
-    public void setImagePath(String imagePath) {
+    @Override
+    public String getData() { return mImagePath; }
+
+    @Override
+    public void setData(String imagePath) {
         mImagePath = imagePath;
     }
 
