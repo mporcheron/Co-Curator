@@ -95,7 +95,7 @@ public class NoteDialog {
             @Override
             public void onCancel(DialogInterface dialog) {
                 final String text = mEditText.getText().toString();
-                if(text.isEmpty() || text.equals(mOriginalText)) {
+                if(text.isEmpty() || text.equals(mOriginalText) || mDeleted) {
                     if(mDeleted && mOnDeleteListener != null) {
                         mOnDeleteListener.onDelete(dialog);
                     } else if(mOnCancelListener != null) {

@@ -329,31 +329,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         break;
 
                     case NOTE:
-                        new NoteDialog()
-                                .setAutoEdit(true)
-                                .setOnSubmitListener(new NoteDialog.OnSubmitListener() {
-                                    @Override
-                                    public void onSubmit(DialogInterface dialog, String text) {
-                                        Log.e(TAG, "Note Submitted");
-                                        if (forceAdd && text.isEmpty()) {
-                                            promptNewItem(view, true);
-                                        }
-                                        boolean create = Instance.items.add(ItemType.NOTE, Instance.user(), text, false, true, true);
-                                        if (forceAdd && !create) {
-                                            promptNewItem(view, true);
-                                        }
-                                    }
-                                })
-                                .setOnCancelListener(new NoteDialog.OnCancelListener() {
-                                    @Override
-                                    public void onCancel(DialogInterface dialog) {
-                                        if (forceAdd) {
-                                            promptNewItem(view, true);
-                                        }
-                                    }
-                                })
-                                .create()
-                                .show();
+                        addNewNote(view, forceAdd);
                         break;
 
                     case URL:
@@ -368,34 +344,31 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void addNewNote(final View view, final boolean promptOnCancel) {
-        final EditText editText = new EditText(TimelineActivity.this);
-        editText.setSingleLine(false);
-
-        AlertDialog dialog = new AlertDialog.Builder(TimelineActivity.this)
-                .setTitle(getString(R.string.dialog_note_title))
-                .setView(editText)
-                .setPositiveButton(getString(R.string.dialog_note_positive), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String text = editText.getText().toString();
-                        if (!Instance.items.add(ItemType.NOTE, Instance.user(), text, false, true, true)) {
-                            promptNewItem(view, promptOnCancel);
+        new NoteDialog()
+                .setAutoEdit(true)
+                .setOnSubmitListener(new NoteDialog.OnSubmitListener() {
+                    @Override
+                    public void onSubmit(DialogInterface dialog, String text) {
+                        Log.e(TAG, "Note Submitted");
+                        if (promptOnCancel && text.isEmpty()) {
+                            promptNewItem(view, true);
+                        }
+                        boolean create = Instance.items.add(ItemType.NOTE, Instance.user(), text, false, true, true);
+                        if (promptOnCancel && !create) {
+                            promptNewItem(view, true);
                         }
                     }
                 })
-                .setNegativeButton(getString(R.string.dialog_note_negative), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+                .setOnCancelListener(new NoteDialog.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
                         if (promptOnCancel) {
                             promptNewItem(view, true);
                         }
                     }
                 })
-                .create();
-
-        dialog.show();
-        editText.requestFocus();
-
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                .create()
+                .show();
     }
 
     private void addNewUrl(final View view, final boolean promptOnCancel) {
