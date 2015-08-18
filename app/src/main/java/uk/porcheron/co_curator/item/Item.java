@@ -159,6 +159,8 @@ public abstract class Item extends View {
 
     protected abstract boolean onTap();
 
+    protected abstract boolean onLongPress();
+
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
@@ -170,13 +172,14 @@ public abstract class Item extends View {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             Log.d(TAG, "Fling");
+            return false;
 
-            if(mUser.globalUserId != Instance.globalUserId) {
-                return false;
-            }
-
-            Instance.items.remove(mUser.globalUserId, mItemId, true, true, true);
-            return true;
+//            if(mUser.globalUserId != Instance.globalUserId) {
+//                return false;
+//            }
+//
+//            Instance.items.remove(mUser.globalUserId, mItemId, true, true, true);
+//            return true;
 //
 //            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 //                return false; // Right to left
@@ -193,9 +196,12 @@ public abstract class Item extends View {
 
         @Override
         public void onLongPress(MotionEvent event) {
-            super.onLongPress(event);
-            Log.d(TAG, "onLongPress");
-            TimelineActivity.getInstance().onLongClick(Item.this);
+            if(mOuterBounds.contains(event.getX(), event.getY())) {
+                Item.this.onLongPress();
+            } else {
+                TimelineActivity.getInstance().onLongClick(Item.this);
+                super.onLongPress(event);
+            }
         }
     }
 }

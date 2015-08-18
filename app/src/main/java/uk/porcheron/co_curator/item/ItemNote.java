@@ -1,12 +1,14 @@
 package uk.porcheron.co_curator.item;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.EllipsizingTextView;
+import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -27,7 +30,7 @@ public class ItemNote extends Item {
 
     private String mText;
     private TextPaint mPaintFg;
-    private TextView mTextView;
+    private EllipsizingTextView mTextView;
 
     public ItemNote(Context context) { super(context); }
 
@@ -42,17 +45,6 @@ public class ItemNote extends Item {
         mPaintFg.setColor(user.fgColor);
         mPaintFg.setTextSize(Style.noteFontSize);
 
-        RectF innerBounds = setBounds(Style.noteWidth, Style.noteHeight, Style.notePadding);
-
-        mTextView = new EllipsizingTextView(TimelineActivity.getInstance());
-        mTextView.layout((int) innerBounds.left, (int) innerBounds.top,
-                (int) innerBounds.right, (int) innerBounds.bottom);
-        mTextView.setGravity(Gravity.CENTER_VERTICAL);
-        mTextView.setEllipsize(TextUtils.TruncateAt.END);
-        mTextView.setMaxLines(Style.noteLines);
-        mTextView.setLineSpacing(0, Style.noteLineSpacing);
-        mTextView.setTextSize(TypedValue.COMPLEX_UNIT_PT, Style.noteFontSize);
-        mTextView.setTextColor(user.fgColor);
     }
 
     @Override
@@ -71,12 +63,52 @@ public class ItemNote extends Item {
 
     public void setText(String text) {
         mText = text;
+
+        RectF innerBounds = setBounds(Style.noteWidth, Style.noteHeight, Style.notePadding);
+
+        mTextView = new EllipsizingTextView(TimelineActivity.getInstance());
+        mTextView.layout((int) innerBounds.left, (int) innerBounds.top,
+                (int) innerBounds.right, (int) innerBounds.bottom);
+        mTextView.setGravity(Gravity.CENTER_VERTICAL);
+        mTextView.setEllipsize(TextUtils.TruncateAt.END);
+        mTextView.setMaxLines(Style.noteLines);
+        mTextView.setLineSpacing(0, Style.noteLineSpacing);
+        mTextView.setTextSize(TypedValue.COMPLEX_UNIT_PT, Style.noteFontSize);
+        mTextView.setTextColor(getUser().fgColor);
         mTextView.setText(text);
     }
 
     @Override
     public boolean onTap() {
         return false;
+    }
+
+    @Override
+    protected boolean onLongPress() {
+        new NoteDialog()
+                .setText(mText)
+                .setOnSubmitListener(new NoteDialog.OnSubmitListener() {
+                    @Override
+                    public void onSubmit(DialogInterface dialog, String text) {
+                        Log.e(TAG, "Holla, text changed!");
+                        ItemNote.this.setText(text);
+                        ItemNote.this.invalidate();;
+                    }
+                })
+                .setOnDeleteListener(new NoteDialog.OnDeleteListener() {
+                    @Override
+                    public void onDelete(DialogInterface dialog) {
+                        if(getUser().globalUserId != Instance.globalUserId) {
+                            return;
+                        }
+
+                        Instance.items.remove(getUser().globalUserId, getItemId(), true, true, true);
+                    }
+                })
+                .create()
+                .show();
+
+        return true;
     }
 
 }

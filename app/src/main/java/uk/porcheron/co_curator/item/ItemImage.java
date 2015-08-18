@@ -102,4 +102,9 @@ public class ItemImage extends Item {
         return true;
     }
 
+    @Override
+    protected boolean onLongPress() {
+        return false;
+    }
+
 }
