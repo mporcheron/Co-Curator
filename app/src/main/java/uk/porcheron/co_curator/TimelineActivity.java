@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -37,6 +38,7 @@ import uk.porcheron.co_curator.collo.ColloCompass;
 import uk.porcheron.co_curator.collo.ServerManager;
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.db.WebLoader;
+import uk.porcheron.co_curator.item.ItemImage;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.NoteDialog;
@@ -248,8 +250,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
             Log.v(TAG, "File selected by user: " + filePath);
 
-            new ImportImage().execute(filePath);
-
+            ItemImage.fileToFile(filePath);
         }
     }
 
@@ -271,34 +272,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         return false;
     }
 
-    private class ImportImage extends AsyncTask<String,Void,String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            Bitmap bitmap = BitmapFactory.decodeFile(params[0]);
-
-            try {
-                return Image.save(TimelineActivity.this, bitmap);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to save image");
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            if(!Instance.items.add(ItemType.PHOTO, Instance.user(), result, false, true, true)) {
-                Log.e(TAG, "Failed to save photo");
-            }
-
-            hideLoadingDialog();
-
-        }
-    }
 
     public void promptNewItem(final View view, final boolean forceAdd) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TimelineActivity.this);

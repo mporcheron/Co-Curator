@@ -41,6 +41,8 @@ public class Web {
     public static final String DELETE = Instance.serverAddress + "/delete.php";
     public static final String UPDATE = Instance.serverAddress + "/update.php";
 
+    public static final String GET_WWW_SCREENSHOT = Instance.serverAddress + "/getScreenshot.php?";
+
     public static JSONObject requestObj(String uri, List<NameValuePair> data) {
         String response = request(uri, data);
 

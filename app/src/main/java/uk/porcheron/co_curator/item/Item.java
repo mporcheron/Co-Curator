@@ -74,7 +74,7 @@ public abstract class Item extends View {
 
     public abstract String getData();
 
-    abstract void setData(String data);
+    abstract String setData(String data);
 
     @Override
     protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -169,33 +169,7 @@ public abstract class Item extends View {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            Log.d(TAG, "SingleTapConfirmed");
             return onTap();
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.d(TAG, "Fling");
-            return false;
-
-//            if(mUser.globalUserId != Instance.globalUserId) {
-//                return false;
-//            }
-//
-//            Instance.items.remove(mUser.globalUserId, mItemId, true, true, true);
-//            return true;
-//
-//            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-//                return false; // Right to left
-//            }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-//                return false; // Left to right
-//            }
-//
-//            if(e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-//                return false; // Bottom to top
-//            }  else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
-//                return false; // Top to bottom
-//            }
         }
 
         @Override

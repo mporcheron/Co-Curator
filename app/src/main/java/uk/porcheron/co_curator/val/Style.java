@@ -46,11 +46,14 @@ public class Style {
     public static float imageWidth;
     public static float imageHeight;
     public static float imagePadding;
-    public static float imageThumbScaleBy;
 
     public static float urlWidth;
     public static float urlHeight;
     public static float urlPadding;
+
+    public static float videoWidth;
+    public static float videoHeight;
+    public static float videoPadding;
 
     public static float noteWidth;
     public static float noteHeight;
@@ -106,11 +109,14 @@ public class Style {
         imageWidth = res.getDimension(R.dimen.imageWidth);
         imageHeight = res.getDimension(R.dimen.imageHeight);
         imagePadding = res.getDimension(R.dimen.imagePadding);
-        imageThumbScaleBy = res.getInteger(R.integer.imageThumbScaleBy) / 100f;
 
         urlWidth = res.getDimension(R.dimen.urlWidth);
         urlHeight = res.getDimension(R.dimen.urlHeight);
         urlPadding = res.getDimension(R.dimen.urlPadding);
+
+        videoWidth = res.getDimension(R.dimen.imageWidth);
+        videoHeight = res.getDimension(R.dimen.imageHeight);
+        videoPadding = res.getDimension(R.dimen.imagePadding);
 
         noteWidth = res.getDimension(R.dimen.noteWidth);
         noteHeight = res.getDimension(R.dimen.noteHeight);

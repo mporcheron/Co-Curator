@@ -53,7 +53,7 @@ public class ItemNote extends Item {
     }
 
     @Override
-    public void setData(String text) {
+    public String setData(String text) {
         mText = text;
 
         RectF innerBounds = setBounds(Style.noteWidth, Style.noteHeight, Style.notePadding);
@@ -68,6 +68,8 @@ public class ItemNote extends Item {
         mTextView.setTextSize(TypedValue.COMPLEX_UNIT_PT, Style.noteFontSize);
         mTextView.setTextColor(getUser().fgColor);
         mTextView.setText(text);
+
+        return text;
     }
 
     @Override

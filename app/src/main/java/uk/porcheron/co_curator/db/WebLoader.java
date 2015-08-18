@@ -18,35 +18,24 @@ import java.util.List;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.Item;
+import uk.porcheron.co_curator.item.ItemImage;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
+import uk.porcheron.co_curator.item.ItemURL;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.SoUtils;
 import uk.porcheron.co_curator.val.Collo;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
+import uk.porcheron.co_curator.val.Phone;
+import uk.porcheron.co_curator.val.Style;
 
 /**
  * Utilities for loading resources from the web.
  */
 public class WebLoader {
     private static final String TAG = "CC:WebLoader";
-
-    public static Bitmap getBitmapFromURL(String src) {
-        try {
-            java.net.URL url = new java.net.URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            return BitmapFactory.decodeStream(input);
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to get image from URL: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public static void loadUsersFromWeb() {
         Log.d(TAG, "Load users from cloud");
@@ -97,73 +86,17 @@ public class WebLoader {
         if (response != null) {
             for (int i = 0; i < response.length(); i++) {
                 try {
-                    JSONObject itemJ = (JSONObject) response.get(i);
-
-                    final int itemId = itemJ.getInt("id");
-                    String jsonData = itemJ.getString("data");
-                    final ItemType type = ItemType.get(itemJ.getInt("type"));
-
-                    if (!Instance.items.containsByItemId(globalUserId, itemId, true)) {
-                        final User user = Instance.users.getByGlobalUserId(globalUserId);
-                        if(user == null) {
-                            continue;
-                        }
-                        final boolean deleted = itemJ.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
-
-                        if (type == ItemType.PHOTO) {
-                            Bitmap b = getBitmapFromURL(Web.IMAGE_DIR + jsonData);
-                            try {
-                                jsonData = Image.save(activity, b);
-                            } catch (IOException e) {
-                                Log.e(TAG, "Failed to download image " + jsonData);
-                                e.printStackTrace();
-                            }
-                        }
-
-                        final String data = jsonData;
-                        final int dateTime = itemJ.getInt("dateTime");
-
-                        Instance.items.registerForthcomingItem(globalUserId,itemId);
-                        activity.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Instance.items.add(itemId, type, user, data, dateTime, deleted, true, false);
-                            }
-                        });
-                    } else {
-                        Log.v(TAG, "Item already exists locally, update it");
-                        final int deleted = itemJ.getInt("deleted");
-                        final String data = jsonData;
-
-                        activity.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Item item = Instance.items.getByItemId(globalUserId, itemId);
-                                if (item != null) {
-                                    if (deleted == TableItem.VAL_ITEM_DELETED && !item.isDeleted()) {
-                                        Instance.items.remove(item, true, false, false);
-                                    } else if (deleted == TableItem.VAL_ITEM_NOT_DELETED && item.isDeleted()) {
-                                        Instance.items.unremove(item);
-                                    }
-                                    if (type != ItemType.PHOTO && !item.getData().equals(data)) {
-                                        Instance.items.update(item, data, false, false);
-                                    }
-                                }
-                            }
-                        });
-                    }
+                    processItem(globalUserId, (JSONObject) response.get(i));
                 } catch (JSONException e) {
-                    Log.e(TAG, "Could not get items from the cloud");
+                    Log.e(TAG, "Could not process item");
                     e.printStackTrace();
                 }
-
             }
         }
-
     }
 
     public static void loadItemFromWeb(final int globalUserId, final int itemId) {
         Log.d(TAG, "Get Item[" + globalUserId + ":" + itemId + "] from cloud");
-
-        TimelineActivity activity = TimelineActivity.getInstance();
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + globalUserId));
@@ -172,56 +105,63 @@ public class WebLoader {
         JSONObject response = Web.requestObj(Web.GET_ITEM, nameValuePairs);
         if (response != null) {
             try {
-                final ItemType type = ItemType.get(response.getInt("type"));
-                String jsonData = response.getString("data");
-                final boolean deleted = response.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
-
-                final Item item = Instance.items.getByItemId(globalUserId, itemId);
-                if (item == null) {
-                    final int cItemId = response.getInt("id");
-                    final User user = Instance.users.getByGlobalUserId(globalUserId);
-
-                    if (type == ItemType.PHOTO) {
-                        Bitmap b = getBitmapFromURL(Web.IMAGE_DIR + jsonData);
-                        try {
-                            jsonData = Image.save(activity, b);
-                        } catch (IOException e) {
-                            Log.e(TAG, "Failed to download image " + jsonData);
-                            e.printStackTrace();
-                        }
-                    }
-
-                    final String data = jsonData;
-                    final int dateTime = response.getInt("dateTime");
-
-                    Instance.items.registerForthcomingItem(globalUserId,cItemId);
-                    activity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            Instance.items.add(cItemId, type, user, data, dateTime, deleted, true, false);
-                        }
-                    });
-                } else {
-                    //TODO: change to update
-                    Log.e(TAG, "Item already exists, update it");
-
-                    final String data = jsonData;
-                    activity.runOnUiThread(new Runnable() {
-                        public void run() {
-                            if (deleted && !item.isDeleted()) {
-                                Instance.items.remove(item, true, false, false);
-                            }
-                            if (type != ItemType.PHOTO && !item.getData().equals(data)) {
-                                Instance.items.update(item, data, false, false);
-                            }
-                        }
-                    });
-                }
+                processItem(globalUserId, response);
             } catch (JSONException e) {
-                Log.e(TAG, "Could not get Item[" + itemId + "] from the cloud");
+                Log.e(TAG, "Could not process Item[" + itemId + "] from the cloud");
                 e.printStackTrace();
             }
         } else {
             Log.e(TAG, "Could not get Item[" + itemId + "] from the cloud");
+        }
+    }
+
+    private static void processItem(final int globalUserId, JSONObject response) throws JSONException {
+        TimelineActivity activity = TimelineActivity.getInstance();
+
+        final int itemId = response.getInt("id");
+        final ItemType type = ItemType.get(response.getInt("type"));
+        final boolean deleted = response.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
+        String nonFinalData = response.getString("data");
+
+        boolean contains = Instance.items.containsByItemId(globalUserId, itemId, true);
+        if (!contains) {
+            final User user = Instance.users.getByGlobalUserId(globalUserId);
+
+            if (type == ItemType.PHOTO) {
+                String url = Web.IMAGE_DIR + nonFinalData;
+
+                nonFinalData = ItemImage.urlToFile(url, globalUserId);
+
+                if(nonFinalData == null) {
+                    Log.e(TAG, "Failed to download image " + nonFinalData);
+                    return;
+                }
+            }
+
+            final String data = nonFinalData;
+            final int dateTime = response.getInt("dateTime");
+
+            Instance.items.registerForthcomingItem(globalUserId, itemId);
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    Instance.items.add(itemId, type, user, data, dateTime, deleted, true, false);
+                }
+            });
+        } else {
+            Log.e(TAG, "Item already exists, update it");
+
+            final String data = nonFinalData;
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    final Item item = Instance.items.getByItemId(globalUserId, itemId);
+                    if (deleted && !item.isDeleted()) {
+                        Instance.items.remove(item, true, false, false);
+                    }
+                    if (type != ItemType.PHOTO && !item.getData().equals(data)) {
+                        Instance.items.update(item, data, false, false);
+                    }
+                }
+            });
         }
     }
 }
