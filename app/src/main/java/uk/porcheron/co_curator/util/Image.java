@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import uk.porcheron.co_curator.val.Instance;
+import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -19,21 +20,47 @@ public class Image {
     public static String save(Context context, Bitmap bitmap) throws IOException, IllegalArgumentException {
         String filename = Instance.globalUserId + "-" + Instance.userId + "-" + System.currentTimeMillis();
 
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        // General Bitmap
+        int imageWidth = Phone.screenWidth;
+        int imageHeight = Phone.screenHeight;
+
+        float thumbScale = imageWidth / (float) width;
+        if(height * thumbScale < imageHeight) {
+            thumbScale = imageHeight / (float) height;
+        }
+
+        int scaleWidth = (int) (width * thumbScale);
+        int scaleHeight = (int) (height * thumbScale);
+
+        Log.d(TAG, "Scaled Image is is (" + scaleWidth + "," + scaleHeight + ")");
+        bitmap = Bitmap.createScaledBitmap(bitmap, scaleWidth, scaleHeight, true);
+
+
+        // Thumbnail Generation
         int thumbWidth = (int) (Style.imageWidth - 2 * Style.imagePadding);
         int thumbHeight = (int) (Style.imageHeight - 2 * Style.imagePadding);
 
-        //float ratio = (float) bitmap.getWidth() / (float) bitmap.getHeight();
-        int width = (int) (bitmap.getWidth());// * Style.imageThumbScaleBy);
-        int height = (int) (bitmap.getHeight());// * Style.imageThumbScaleBy);
+        Log.d(TAG, "Image is (" + width + "," + height + ")");
 
-        //Log.v(TAG, "Scale the image from (" + bitmap.getWidth() + "," + bitmap.getHeight() + ") to (" + width + "," + height + ")");
-        //Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        thumbScale = thumbWidth / (float) width;
+        if(height * thumbScale < thumbHeight) {
+            thumbScale = thumbHeight / (float) height;
+        }
 
-        int x = (int) ((width / 2f) - (thumbWidth / 2f));
-        int y = (int) ((height / 2f) - (thumbHeight / 2f));
+        scaleWidth = (int) (width * thumbScale);
+        scaleHeight = (int) (height * thumbScale);
 
-        Log.v(TAG, "Create the thumbnail image (" + x + "," + y + ") (" + width + "," + height + ")");
-        Bitmap thumbnail = Bitmap.createBitmap(bitmap, x, y, (int) thumbWidth, (int) thumbHeight);
+        Log.d(TAG, "Scaled Image is is (" + scaleWidth + "," + scaleHeight + ")");
+        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaleWidth, scaleHeight, true);
+
+        int x = (int) ((scaleWidth / 2f) - (thumbWidth / 2f));
+        int y = (int) ((scaleHeight / 2f) - (thumbHeight / 2f));
+
+        Log.d(TAG, "Thumbnail Image is is (" + thumbWidth + "," + thumbHeight + ")");
+        Bitmap thumbnail = Bitmap.createBitmap(scaledBitmap, x, y, thumbWidth, thumbHeight);
 
         final FileOutputStream fos = context.openFileOutput(filename + ".png", Context.MODE_PRIVATE);
         if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
@@ -46,6 +73,7 @@ public class Image {
             Log.e(TAG, "Could not save bitmap locally");
         }
         fosThumb.close();
+
         return filename;
     }
 
