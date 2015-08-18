@@ -231,7 +231,7 @@ public class ColloManager {
                     ColloManager.broadcast(u.globalUserId, ColloDict.ACTION_HEARTBEAT);
 
                     Long heardFrom = mHeardFromAt.get(u.globalUserId);
-                    if(heardFrom != null && heardFrom < earliest) {
+                    if(heardFrom != null && heardFrom > 0 && heardFrom < earliest) {
                         Log.e(TAG, "Haven't heard from " + u.globalUserId + " for a while");
                         //unBindFromUser(u.globalUserId);
                     }
