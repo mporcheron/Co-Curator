@@ -27,6 +27,7 @@
         <activity
             android:name=".ParticipantActivity"
             android:label="@string/appName"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
         <activity android:name=".ImageDialogActivity" android:theme="@style/imageDialogTheme" />
