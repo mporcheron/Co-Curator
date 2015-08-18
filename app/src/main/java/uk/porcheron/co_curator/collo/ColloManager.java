@@ -29,8 +29,8 @@ public class ColloManager {
     private static String mPreviousMessage;
 
     public static final int BEAT_EVERY = 15000;
-    private static final int UPDATE_USERS_EVERY = 4;
-    private static final float HEARTBEAT_WAIT = 2.5f;
+    private static final int UPDATE_USERS_EVERY = 2;
+    private static final float HEARTBEAT_WAIT = 5f;
 
     private static SparseArray<Long> mHeardFromAt = new SparseArray<>();
     private static SparseArray<Boolean> mUsersBoundTo = new SparseArray<>();
@@ -56,7 +56,7 @@ public class ColloManager {
                 continue;
             }
 
-            broadcast(user.globalUserId, message);
+            broadcast(user.globalUserId, message, true);
         }
     }
 
@@ -68,10 +68,14 @@ public class ColloManager {
         }
         String message = mb.toString();
 
-        broadcast(recipientGlobalUserId, message);
+        broadcast(recipientGlobalUserId, message, true);
     }
 
-    private static void broadcast(int recipientGlobalUserId, String message) {
+    private static void broadcast(int recipientGlobalUserId, String message, boolean send) {
+        if(recipientGlobalUserId == Instance.globalUserId) {
+            Log.e(TAG, "Can't talk to yourself");
+            return;
+        }
 
         User user = Instance.users.getByGlobalUserId(recipientGlobalUserId);
         if(user.ip.isEmpty()) {
@@ -125,6 +129,9 @@ public class ColloManager {
         public static boolean respond(String action, int globalUserId, String... data) {
             if(action.equals(ColloDict.ACTION_HEARTBEAT)) {
                 mHeardFromAt.put(globalUserId, System.currentTimeMillis());
+                if(isBoundTo(globalUserId) == false) {
+                    ColloManager.bindToUser(globalUserId);
+                }
                 return true;
             }
 
@@ -141,7 +148,7 @@ public class ColloManager {
     /**
      * Created by map on 14/08/15.
      */
-    public static class Client extends AsyncTask<String, String, Void> {
+    public static class Client extends AsyncTask<String, Void, Void> {
         private static final String TAG = "CC:ColloClient";
 
         private int mGlobalUserId;
@@ -165,30 +172,27 @@ public class ColloManager {
 //                return null;
 //            }
 
-            Log.v(TAG, "User[" + Instance.globalUserId + "] Send message[" + message[0] + "] to User[" + mGlobalUserId + "] at " + mDestinationIp + ":" + mDestinationPort);
-            try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress(mDestinationIp, mDestinationPort), TIMEOUT);
-                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                dataOutputStream.writeUTF(message[0]);
-                publishProgress(null);
-            } catch (IOException e) {
-                publishProgress("Error: " + e.toString());
+            int attempts = 3;
+            while(attempts-- > 0) {
+                Log.v(TAG, "User[" + Instance.globalUserId + "] Send message[" + message[0] + "] to User[" + mGlobalUserId + "] at " + mDestinationIp + ":" + mDestinationPort);
+                try (Socket socket = new Socket()) {
+                    socket.connect(new InetSocketAddress(mDestinationIp, mDestinationPort), TIMEOUT);
+                    DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                    dataOutputStream.writeUTF(message[0]);
+                    break;
+                } catch (IOException e) {
+                    Log.e(TAG, e.toString());
 
-                Boolean boundTo = mUsersBoundTo.get(mGlobalUserId);
-                if(boundTo != null && boundTo) {
-                    unBindFromUser(mGlobalUserId);
+//                Boolean boundTo = mUsersBoundTo.get(mGlobalUserId);
+//                if(boundTo != null && boundTo) {
+//                    unBindFromUser(mGlobalUserId);
+//                }
                 }
             }
 
             return null;
         }
 
-        @Override
-        protected void onProgressUpdate(String... response) {
-            if(response != null) {
-                Log.e(TAG, response[0]);
-            }
-        }
 
     }
 
@@ -223,12 +227,12 @@ public class ColloManager {
             long earliest = System.currentTimeMillis() - (int) (HEARTBEAT_WAIT * BEAT_EVERY);
             for(User u : Instance.users) {
 
-                Boolean boundTo = mUsersBoundTo.get(u.globalUserId);
-                if(boundTo != null && boundTo) {
-                    ColloManager.broadcast(ColloDict.ACTION_HEARTBEAT);
+                if(isBoundTo(u.globalUserId)) {
+                    ColloManager.broadcast(u.globalUserId, ColloDict.ACTION_HEARTBEAT);
 
                     Long heardFrom = mHeardFromAt.get(u.globalUserId);
                     if(heardFrom != null && heardFrom < earliest) {
+                        Log.e(TAG, "Haven't heard from " + u.globalUserId + " for a while");
                         unBindFromUser(u.globalUserId);
                     }
                 }
@@ -238,7 +242,13 @@ public class ColloManager {
     }
 
     public static void bindToUser(int globalUserId) {
+        if(globalUserId == Instance.globalUserId) {
+            Log.e(TAG, "Can't bind to yourself");
+            return;
+        }
+
         mUsersBoundTo.put(globalUserId, true);
+        mHeardFromAt.put(globalUserId, -1L);
         Instance.users.drawUser(globalUserId);
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
             @Override
@@ -251,6 +261,7 @@ public class ColloManager {
 
     public static void unBindFromUser(int globalUserId) {
         mUsersBoundTo.put(globalUserId, false);
+        mHeardFromAt.put(globalUserId, -1L);
         Instance.users.unDrawUser(globalUserId);
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
             @Override
@@ -259,5 +270,10 @@ public class ColloManager {
                 TimelineActivity.getInstance().redrawCentrelines();
             }
         });
+    }
+
+    public static boolean isBoundTo(int globalUserId) {
+        Boolean boundTo = mUsersBoundTo.get(globalUserId);
+        return boundTo != null && boundTo;
     }
 }

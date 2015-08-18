@@ -41,7 +41,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     private int mReceivedBindFromGlobalUserId = -1;
 
     private static double DIFFERENCE_TO_TRIGGER = 165;
-    private static long TIME_TILL_NEXT_FIRE = 2000L;
+    private static long TIME_TILL_NEXT_FIRE = 4000L;
     private static long TIME_GAP_FOR_BIND = 2000L;
 
     private static long VIBRATE_REQUEST_BIND = 150;
@@ -67,6 +67,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
 
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_BIND, mInstance);
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DO_BIND, mInstance);
+        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DO_GROUP_BIND, mInstance);
     }
 
     public void pauseListening() {
@@ -101,23 +102,25 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                 mPitch = sum / mOrientations.size();
 
                 if(mNextFirePossibleAfter > now) {
+                    mPreviousRotateValues.add(mPitch);
                     return;
                 }
 
                 for(double v : mPreviousRotateValues) {
                     if(Math.abs(v - mPitch) > DIFFERENCE_TO_TRIGGER) {
+
                         Log.d(TAG, "Rotated " + DIFFERENCE_TO_TRIGGER + "degrees => BIND");
 
                         if(mReceivedBindAt > 0 && mReceivedBindAt + TIME_GAP_FOR_BIND > now) {
                             Log.v(TAG, "Binding close enough to previous bind request");
                             doBind(mReceivedBindFromGlobalUserId, true);
                         } else {
-                            Log.v(TAG, "Request bind");
                             requestBind();
                         }
                         break;
                     }
                 }
+
                 mPreviousRotateValues.add(mPitch);
             }
         }
@@ -132,6 +135,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                 mReceivedBindFromGlobalUserId = globalUserId;
 
                 if(mDoBindBefore > now) {
+                    Log.e(TAG, "Received bind from " + globalUserId + ", will bind to them");
                     doBind(globalUserId, true);
                 }
                 break;
@@ -139,38 +143,34 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
             case ColloDict.ACTION_DO_BIND:
                 try {
                     int otherGlobalUserId = Integer.parseInt(data[0]);
+                    Log.e(TAG, "Received doBind from " + otherGlobalUserId);
                     if (otherGlobalUserId == Instance.globalUserId) {
                         doBind(globalUserId, false);
+                    }
+
+                    if(ColloManager.isBoundTo(globalUserId)) {
+                        Log.e(TAG, "We're bound to " + globalUserId + " so, " + otherGlobalUserId + " bind with us too");
+                                doBind(otherGlobalUserId, true);
+                    }
+
+                    if(ColloManager.isBoundTo(otherGlobalUserId)) {
+                        Log.e(TAG, "We're bound to " + otherGlobalUserId + " so " + globalUserId + "  bind with us too");
+                        doBind(globalUserId, true);
                     }
                 } catch(NumberFormatException e) {
                     Log.e(TAG, ColloDict.ACTION_DO_BIND + " did not come with otherGlobalUserId");
                 }
                 break;
 
-        }
 
-//        try {
-//            if(cg.havePossibleBinder(Float.parseFloat(data[0]), Float.parseFloat(data[1]), data[2])) {
-//                Instance.users.drawUser(globalUserId);
-//                ColloManager.broadcast(ColloDict.ACTION_DO_BIND, globalUserId);
-//
-//                TimelineActivity.getInstance().runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Instance.items.retestDrawing();
-//                        TimelineActivity.getInstance().redrawCentrelines();
-//                    }
-//                });
-//            }
-//            return true;
-//        } catch (NumberFormatException e) {
-//            Log.e(TAG, "Invalid co-ordinates received");
-//        }
+        }
 
         return false;
     }
 
     private void requestBind() {
+        Log.v(TAG, "Request bind");
+
         long now = System.currentTimeMillis();
 
         mNextFirePossibleAfter = now + TIME_TILL_NEXT_FIRE;
@@ -183,6 +183,10 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     }
 
     private void doBind(int globalUserId, boolean broadcast) {
+        if(ColloManager.isBoundTo(globalUserId)) {
+            return;
+        }
+
         if(broadcast) {
             ColloManager.broadcast(ColloDict.ACTION_DO_BIND, globalUserId);
         }

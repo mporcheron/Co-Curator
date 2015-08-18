@@ -133,6 +133,10 @@ public class ServerManager {
 
         private static boolean process(String mesg) {
             String[] array = mesg.split(ColloDict.SEP_SPLIT);
+            if(array.length < 2) {
+                Log.e(TAG, "Message can't be processed: " + mesg);
+                return false;
+            }
             String[] data =  Arrays.copyOfRange(array, 2, array.length);
 
             String action = array[0];
