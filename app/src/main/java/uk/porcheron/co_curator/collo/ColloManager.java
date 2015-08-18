@@ -129,9 +129,6 @@ public class ColloManager {
         public static boolean respond(String action, int globalUserId, String... data) {
             if(action.equals(ColloDict.ACTION_HEARTBEAT)) {
                 mHeardFromAt.put(globalUserId, System.currentTimeMillis());
-                if(isBoundTo(globalUserId) == false) {
-                    ColloManager.bindToUser(globalUserId);
-                }
                 return true;
             }
 
@@ -222,11 +219,13 @@ public class ColloManager {
 
             if(params[0]) {
                 ColloManager.broadcast(ColloDict.ACTION_UNBIND);
+                for(User u : Instance.users) {
+                    unBindFromUser(u.globalUserId);
+                }
             }
 
             long earliest = System.currentTimeMillis() - (int) (HEARTBEAT_WAIT * BEAT_EVERY);
             for(User u : Instance.users) {
-
                 if(isBoundTo(u.globalUserId)) {
                     ColloManager.broadcast(u.globalUserId, ColloDict.ACTION_HEARTBEAT);
 
@@ -260,7 +259,11 @@ public class ColloManager {
     }
 
     public static void unBindFromUser(int globalUserId) {
-        mUsersBoundTo.put(globalUserId, false);
+        if(globalUserId == Instance.globalUserId) {
+            return;
+        }
+
+        mUsersBoundTo.remove(globalUserId);
         mHeardFromAt.put(globalUserId, -1L);
         Instance.users.unDrawUser(globalUserId);
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
@@ -273,7 +276,11 @@ public class ColloManager {
     }
 
     public static boolean isBoundTo(int globalUserId) {
+        if(globalUserId == Instance.globalUserId) {
+            return false;
+        }
+
         Boolean boundTo = mUsersBoundTo.get(globalUserId);
-        return boundTo != null && boundTo;
+        return boundTo != null && boundTo.booleanValue() && Instance.users.getByGlobalUserId(globalUserId).draw();
     }
 }

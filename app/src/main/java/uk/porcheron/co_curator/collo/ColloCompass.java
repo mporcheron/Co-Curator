@@ -135,7 +135,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                 mReceivedBindFromGlobalUserId = globalUserId;
 
                 if(mDoBindBefore > now) {
-                    Log.e(TAG, "Received bind from " + globalUserId + ", will bind to them");
+                    Log.d(TAG, "Received bind from " + globalUserId + ", will bind to them");
                     doBind(globalUserId, true);
                 }
                 break;
@@ -143,14 +143,15 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
             case ColloDict.ACTION_DO_BIND:
                 try {
                     int otherGlobalUserId = Integer.parseInt(data[0]);
-                    Log.e(TAG, "Received doBind from " + otherGlobalUserId);
+                    Log.e(TAG, "Received doBind from " + globalUserId);
+
                     if (otherGlobalUserId == Instance.globalUserId) {
                         doBind(globalUserId, false);
                     }
 
                     if(ColloManager.isBoundTo(globalUserId)) {
                         Log.e(TAG, "We're bound to " + globalUserId + " so, " + otherGlobalUserId + " bind with us too");
-                                doBind(otherGlobalUserId, true);
+                        doBind(globalUserId, true);
                     }
 
                     if(ColloManager.isBoundTo(otherGlobalUserId)) {
@@ -184,6 +185,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
 
     private void doBind(int globalUserId, boolean broadcast) {
         if(ColloManager.isBoundTo(globalUserId)) {
+            Log.e(TAG, "Can't bind to " + globalUserId + ", already bound to them!");
             return;
         }
 

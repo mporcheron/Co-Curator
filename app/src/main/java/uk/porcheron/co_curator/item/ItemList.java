@@ -348,9 +348,6 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         mDrawnItems.add(item);
         mDrawn++;
 
-        mLayoutAbove.setMinimumWidth(minWidth);
-        mLayoutBelow.setMinimumWidth(minWidth);
-
         float minAutoScrollWidth = minWidth - Style.autoscrollSlack - Phone.screenWidth;
         if (user.globalUserId == Instance.globalUserId || minAutoScrollWidth <= mScrollView.getScrollX()) {
             final int targetX = minWidth;
@@ -384,6 +381,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
                     } else {
                         mLayoutBelow.removeView(item);
                     }
+                    mDrawnItems.remove(item);
                     item.setDrawn(false);
                 }
             }
