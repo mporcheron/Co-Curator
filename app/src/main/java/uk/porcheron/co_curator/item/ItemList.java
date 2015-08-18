@@ -68,6 +68,9 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         mLayoutAbove.removeAllViews();
         mLayoutBelow.removeAllViews();
 
+        mLayoutAbove.setMinimumWidth(Phone.screenWidth);
+        mLayoutBelow.setMinimumWidth(Phone.screenWidth);
+
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_NEW, this);
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_UPDATE, this);
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DELETE, this);
