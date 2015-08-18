@@ -330,7 +330,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
                     case NOTE:
                         new NoteDialog()
-                                .setAutoEdit(false)
+                                .setAutoEdit(true)
                                 .setOnSubmitListener(new NoteDialog.OnSubmitListener() {
                                     @Override
                                     public void onSubmit(DialogInterface dialog, String text) {
