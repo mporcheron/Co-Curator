@@ -111,76 +111,76 @@ public class WebLoader {
         final ItemType type = ItemType.get(response.getInt("type"));
         final boolean deleted = response.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
         final int dateTime = response.getInt("dateTime");
-        String nonFinalData = response.getString("data");
+        final String data = response.getString("data");
 
         boolean contains = Instance.items.containsByItemId(globalUserId, itemId, true);
         if (!contains) {
             final User user = Instance.users.getByGlobalUserId(globalUserId);
 
             if (type == ItemType.PHOTO) {
-                String url = Web.IMAGE_DIR + nonFinalData;
+                String url = Web.IMAGE_DIR + data;
+                String filename = data;
 
-                //String filename = globalUserId + "-" + System.currentTimeMillis();
                 int width = ItemPhoto.getThumbnailWidth();
                 int height = ItemPhoto.getThumbnailHeight();
 
-                nonFinalData = Image.urlToFile(url, nonFinalData, globalUserId, width, height, new Image.OnCompleteRunner() {
-                    @Override
-                    public void run(String fileName) {
-                        saveItem(globalUserId, itemId, type, user, fileName, dateTime, deleted);
-                    }
-                });
-
-                if (nonFinalData == null) {
-                    Log.e(TAG, "Failed to download image");
-                }
+                newPhotoItem(globalUserId, itemId, type, user, data, url, filename, width, height, dateTime, deleted);
             } else if (type == ItemType.URL) {
-                final String url = nonFinalData;
-                final String b64Url = Web.b64encode(nonFinalData);
-                final String filename = itemId + "-" + b64Url;
-                String requestUrl = Web.GET_URL_SCREENSHOT + b64Url;
+                String b64Url = Web.b64encode(data);
+                String filename = itemId + "-" + b64Url;
+                String url = Web.GET_URL_SCREENSHOT + b64Url;
 
-                boolean isVideo = ItemUrl.isVideo(nonFinalData);
+                boolean isVideo = ItemUrl.isVideo(data);
                 int width = ItemUrl.getThumbnailWidth(isVideo);
                 int height = ItemUrl.getThumbnailHeight(isVideo);
 
-                nonFinalData = Image.urlToFile(requestUrl, filename, globalUserId, width, height, new Image.OnCompleteRunner() {
-                    @Override
-                    public void run(String filename1) {
-                        Log.d(TAG, "Screenshot saved as " + filename1);
-                        saveItem(globalUserId, itemId, type, user, url, dateTime, deleted);
-                    }
-                });
-
-                if (nonFinalData == null) {
-                    Log.e(TAG, "Failed to download screenshot");
-                }
+                newPhotoItem(globalUserId, itemId, type, user, data, url, filename, width, height, dateTime, deleted);
             } else {
-                saveItem(globalUserId, itemId, type, user, nonFinalData, dateTime, deleted);
+                newTextItem(globalUserId, itemId, type, user, data, dateTime, deleted);
             }
         } else {
             Log.e(TAG, "Item already exists, update it");
 
-            final String data = nonFinalData;
             activity.runOnUiThread(new Runnable() {
                 public void run() {
                     final Item item = Instance.items.getByItemId(globalUserId, itemId);
 
                     if (deleted && !item.isDeleted()) {
                         Instance.items.remove(item, true, false, false);
-                    } else if(!deleted && item.isDeleted()) {
+                    } else if (!deleted && item.isDeleted()) {
                         Instance.items.unremove(item);
                     }
 
-                    if (type != ItemType.NOTE && !item.getData().equals(data)) {
-                        Instance.items.update(item, data, false, false);
+                    if (!item.getData().equals(data)) {
+                        if (type == ItemType.NOTE) {
+                            updateTextItem(item, data);
+                            Instance.items.update(item, data, false, false);
+                        } else if (type == ItemType.PHOTO) {
+                            String url = Web.IMAGE_DIR + data;
+                            String filename = data;
+
+                            int width = ItemPhoto.getThumbnailWidth();
+                            int height = ItemPhoto.getThumbnailHeight();
+
+                            updatePhotoItem(globalUserId, item, data, url, filename, width, height);
+                        } else if (type == ItemType.URL) {
+                            String b64Url = Web.b64encode(data);
+                            String filename = itemId + "-" + b64Url;
+                            String url = Web.GET_URL_SCREENSHOT + b64Url;
+
+                            boolean isVideo = ItemUrl.isVideo(data);
+                            int width = ItemUrl.getThumbnailWidth(isVideo);
+                            int height = ItemUrl.getThumbnailHeight(isVideo);
+
+                            updatePhotoItem(globalUserId, item, data, url, filename, width, height);
+                        }
                     }
                 }
             });
         }
     }
 
-    private static void saveItem(final int globalUserId, final int itemId, final ItemType type, final User user, final String data, final int dateTime, final boolean deleted) {
+    private static void newTextItem(final int globalUserId, final int itemId, final ItemType type, final User user, final String data, final int dateTime, final boolean deleted) {
         Instance.items.registerForthcomingItem(globalUserId, itemId);
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
             public void run() {
@@ -189,5 +189,35 @@ public class WebLoader {
                 Instance.items.add(itemId, type, user, data, dateTime, deleted, true, false);
             }
         });
+    }
+
+    private static void newPhotoItem(final int globalUserId, final int itemId, final ItemType type, final User user, final String data, String url, String filename, final int width, final int height, final int dateTime, final boolean deleted) {
+        String result = Image.urlToFile(url, filename, globalUserId, width, height, new Image.OnCompleteRunner() {
+            @Override
+            public void run(String filename1) {
+                newTextItem(globalUserId, itemId, type, user, data, dateTime, deleted);
+            }
+        });
+
+        if (result == null) {
+            Log.e(TAG, "Failed to download image");
+        }
+    }
+
+    private static void updateTextItem(Item item, final String data) {
+        Instance.items.update(item, data, false, false);
+    }
+
+    private static void updatePhotoItem(final int globalUserId, final Item item, final String data, String url, String filename, final int width, final int height) {
+        String result = Image.urlToFile(url, filename, globalUserId, width, height, new Image.OnCompleteRunner() {
+            @Override
+            public void run(String filename1) {
+                updateTextItem(item, data);
+            }
+        });
+
+        if (result == null) {
+            Log.e(TAG, "Failed to download image");
+        }
     }
 }
