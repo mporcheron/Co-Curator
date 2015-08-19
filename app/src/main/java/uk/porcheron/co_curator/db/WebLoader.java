@@ -156,13 +156,13 @@ public class WebLoader {
                             updateTextItem(item, data);
                             Instance.items.update(item, data, false, false);
                         } else if (type == ItemType.PHOTO) {
-                            String url = Web.IMAGE_DIR + data;
-                            String filename = data;
-
-                            int width = ItemPhoto.getThumbnailWidth();
-                            int height = ItemPhoto.getThumbnailHeight();
-
-                            updatePhotoItem(globalUserId, item, data, url, filename, width, height);
+//                            String url = Web.IMAGE_DIR + data;
+//                            String filename = data;
+//
+//                            int width = ItemPhoto.getThumbnailWidth();
+//                            int height = ItemPhoto.getThumbnailHeight();
+//
+//                            updatePhotoItem(globalUserId, item, data, url, filename, width, height);
                         } else if (type == ItemType.URL) {
                             String b64Url = Web.b64encode(data);
                             String filename = itemId + "-" + b64Url;
@@ -192,7 +192,7 @@ public class WebLoader {
     }
 
     private static void newPhotoItem(final int globalUserId, final int itemId, final ItemType type, final User user, final String data, String url, String filename, final int width, final int height, final int dateTime, final boolean deleted) {
-        String result = Image.urlToFile(url, filename, globalUserId, width, height, new Image.OnCompleteRunner() {
+        String result = Image.urlToFile(url, filename, width, height, new Image.OnCompleteRunner() {
             @Override
             public void run(String filename1) {
                 newTextItem(globalUserId, itemId, type, user, data, dateTime, deleted);
@@ -209,7 +209,7 @@ public class WebLoader {
     }
 
     private static void updatePhotoItem(final int globalUserId, final Item item, final String data, String url, String filename, final int width, final int height) {
-        String result = Image.urlToFile(url, filename, globalUserId, width, height, new Image.OnCompleteRunner() {
+        String result = Image.urlToFile(url, filename, width, height, new Image.OnCompleteRunner() {
             @Override
             public void run(String filename1) {
                 updateTextItem(item, data);
