@@ -165,9 +165,13 @@ public class WebLoader {
             activity.runOnUiThread(new Runnable() {
                 public void run() {
                     final Item item = Instance.items.getByItemId(globalUserId, itemId);
+
                     if (deleted && !item.isDeleted()) {
                         Instance.items.remove(item, true, false, false);
+                    } else if(!deleted && item.isDeleted()) {
+                        Instance.items.unremove(item);
                     }
+
                     if (type != ItemType.NOTE && !item.getData().equals(data)) {
                         Instance.items.update(item, data, false, false);
                     }
