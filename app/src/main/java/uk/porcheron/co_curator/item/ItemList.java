@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
@@ -39,7 +40,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     private final SparseArray<List<Item>> mItemGlobalUserIds = new SparseArray<>();
     private final List<Item> mDrawnItems = new ArrayList<>();
 
-    private final HorizontalScrollView mScrollView;
+    private final ItemScrollView mScrollView;
     private final LinearLayout mLayoutAbove;
     private final LinearLayout mLayoutBelow;
 
@@ -48,7 +49,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     public static final int ITEM_DELETED = 1;
     public static final int ITEM_NOT_DELETED = 0;
 
-    public ItemList(HorizontalScrollView scrollView, LinearLayout layoutAbove, LinearLayout layoutBelow) {
+    public ItemList(ItemScrollView scrollView, LinearLayout layoutAbove, LinearLayout layoutBelow) {
         mDbHelper = DbHelper.getInstance();
         mScrollView = scrollView;
         mLayoutAbove = layoutAbove;
@@ -417,5 +418,6 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         return false;
     }
+
 
 }

@@ -29,7 +29,6 @@ public class ItemPhoto extends Item {
 
     private TimelineActivity mActivity;
 
-    private Bitmap mBitmap = null;
     private Bitmap mBitmapThumbnail = null;
     private String mImagePath;
 
@@ -53,21 +52,7 @@ public class ItemPhoto extends Item {
 
         RectF b = getInnerBounds();
 
-        if (mBitmap == null) {
-            Log.v(TAG, "Load image file " + mImagePath);
-            try {
-                FileInputStream fis = getContext().openFileInput(mImagePath + ".png");
-                mBitmap = BitmapFactory.decodeStream(fis);
-                fis.close();
-
-                if (mBitmap == null) {
-                    Log.e(TAG, "Could not decode file to bitmap " + mImagePath);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Could not open " + mImagePath);
-            }
-
-
+        if(mBitmapThumbnail == null) {
             try {
                 FileInputStream fis = getContext().openFileInput(mImagePath + "-thumb.png");
                 mBitmapThumbnail = BitmapFactory.decodeStream(fis);
@@ -81,8 +66,9 @@ public class ItemPhoto extends Item {
             }
         }
 
-        if (mBitmap != null && mBitmapThumbnail != null) {
+        if (mBitmapThumbnail != null) {
             canvas.drawBitmap(mBitmapThumbnail, b.left, b.top, Style.normalPaint);
+            mBitmapThumbnail = null;
         } else {
             canvas.drawRect(b, Style.normalPaint);
         }
@@ -95,7 +81,6 @@ public class ItemPhoto extends Item {
     @Override
     public String setData(String imagePath) {
         mImagePath = imagePath;
-        mBitmap = null;
         mBitmapThumbnail = null;
         return imagePath;
     }

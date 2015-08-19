@@ -30,6 +30,7 @@ import uk.porcheron.co_curator.collo.ColloManager;
 import uk.porcheron.co_curator.collo.ColloCompass;
 import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.ItemPhoto;
+import uk.porcheron.co_curator.item.ItemScrollView;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemUrl;
@@ -106,7 +107,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
 
-        HorizontalScrollView scrollView = (HorizontalScrollView) findViewById(R.id.horizontalScrollView);
+        ItemScrollView scrollView = (ItemScrollView) findViewById(R.id.horizontalScrollView);
         scrollView.setSmoothScrollingEnabled(true);
 
         mFrameLayout = (FrameLayout) findViewById(R.id.frameLayout);

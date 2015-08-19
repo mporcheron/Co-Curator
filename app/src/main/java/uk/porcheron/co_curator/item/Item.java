@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.Toast;
 
 import java.util.Random;
 
@@ -183,4 +185,5 @@ public abstract class Item extends View {
             }
         }
     }
+
 }

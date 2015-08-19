@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <HorizontalScrollView
+    <uk.porcheron.co_curator.item.ItemScrollView
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:id="@+id/horizontalScrollView"
@@ -53,6 +53,6 @@
         </FrameLayout>
 
         </LinearLayout>
-    </HorizontalScrollView>
+    </uk.porcheron.co_curator.item.ItemScrollView>
 
 </RelativeLayout>
