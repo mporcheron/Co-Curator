@@ -29,7 +29,7 @@
     <dimen name="autoscrollSlack">100dp</dimen>
 
     <dimen name="itemXGapMin">25dp</dimen>
-    <dimen name="itemXGapMax">100dp</dimen>
+    <dimen name="itemXGapMax">50dp</dimen>
     <dimen name="itemOutlineSize">2dp</dimen>
     <dimen name="itemStemNarrowBy">4dp</dimen>
     <integer name="itemRoundedCorners">12</integer>

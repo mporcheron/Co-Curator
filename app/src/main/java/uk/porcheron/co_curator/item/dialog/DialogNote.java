@@ -45,6 +45,7 @@ public class DialogNote extends AbstractDialog {
 
         mEditText = new EditText(getActivity());
         mEditText.setSingleLine(false);
+        mEditText.setHorizontallyScrolling(false);
         setView(mEditText);
     }
 
