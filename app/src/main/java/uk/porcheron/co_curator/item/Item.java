@@ -174,7 +174,8 @@ public abstract class Item extends View {
 
         @Override
         public void onLongPress(MotionEvent event) {
-            if(mOuterBounds.contains(event.getX(), event.getY())) {
+            if(getUser().globalUserId == Instance.globalUserId &&
+                    mOuterBounds.contains(event.getX(), event.getY())) {
                 Item.this.onLongPress();
             } else {
                 TimelineActivity.getInstance().onLongClick(Item.this);

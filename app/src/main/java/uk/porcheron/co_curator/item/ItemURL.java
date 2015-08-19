@@ -7,9 +7,11 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
@@ -109,23 +111,38 @@ public class ItemUrl extends ItemPhoto {
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override
                     public void onSubmit(DialogInterface dialog, String text) {
-                        Log.d(TAG, "Submit changes");
-                        //Instance.items.update(ItemUrl.this, text, true, true);
+                        Log.d(TAG, "Update Url to " + text);
+
+                        final String url = text;
+                        final String filename = Web.b64encode(text);
+                        String requestUrl = Web.GET_URL_SCREENSHOT + filename;
+
+                        boolean isVideo = ItemUrl.isVideo(text);
+                        int width = ItemUrl.getThumbnailWidth(isVideo);
+                        int height = ItemUrl.getThumbnailHeight(isVideo);
+
+                        String result = Image.urlToFile(requestUrl, filename, Instance.globalUserId, width, height, new Image.OnCompleteRunner() {
+                            @Override
+                            public void run(String filename1) {
+                                Log.d(TAG, "Screenshot saved as " + filename1);
+                                TimelineActivity.getInstance().runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Instance.items.update(ItemUrl.this, url, true, true);
+                                    }
+                                });
+                            }
+                        });
                     }
                 })
                 .setOnDeleteListener(new DialogNote.OnDeleteListener() {
                     @Override
-                    public void onDelete(DialogInterface dialog) {
-                        if(getUser().globalUserId != Instance.globalUserId) {
-                            return;
-                        }
-
+                    public void onDelete (DialogInterface dialog) {
                         Instance.items.remove(ItemUrl.this, true, true, true);
                     }
                 })
                 .create()
                 .show();
 
-        return true;
+                return true;
+        }
     }
-}

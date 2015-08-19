@@ -98,10 +98,6 @@ public class ItemNote extends Item {
                 .setOnDeleteListener(new DialogNote.OnDeleteListener() {
                     @Override
                     public void onDelete(DialogInterface dialog) {
-                        if(getUser().globalUserId != Instance.globalUserId) {
-                            return;
-                        }
-
                         Instance.items.remove(ItemNote.this, true, true, true);
                     }
                 })
