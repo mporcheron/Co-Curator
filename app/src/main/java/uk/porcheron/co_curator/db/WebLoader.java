@@ -1,7 +1,5 @@
 package uk.porcheron.co_curator.db;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import org.apache.http.NameValuePair;
@@ -10,26 +8,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.Item;
-import uk.porcheron.co_curator.item.ItemImage;
-import uk.porcheron.co_curator.item.ItemList;
+import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemType;
-import uk.porcheron.co_curator.item.ItemURL;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.util.SoUtils;
-import uk.porcheron.co_curator.val.Collo;
-import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.util.Image;
+import uk.porcheron.co_curator.util.SoUtils;
+import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.util.Web;
-import uk.porcheron.co_curator.val.Phone;
-import uk.porcheron.co_curator.val.Style;
 
 /**
  * Utilities for loading resources from the web.
@@ -131,7 +121,7 @@ public class WebLoader {
             if (type == ItemType.PHOTO) {
                 String url = Web.IMAGE_DIR + nonFinalData;
 
-                nonFinalData = ItemImage.urlToFile(url, globalUserId, new ItemImage.OnCompleteRunner() {
+                nonFinalData = Image.urlToFile(url, globalUserId, new Image.OnCompleteRunner() {
                     @Override
                     public void run(String fileName) {
                         saveItem(globalUserId, itemId, type, user, fileName, dateTime, deleted);

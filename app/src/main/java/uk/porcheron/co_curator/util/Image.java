@@ -3,6 +3,7 @@ package uk.porcheron.co_curator.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.FileOutputStream;
@@ -11,6 +12,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import uk.porcheron.co_curator.TimelineActivity;
+import uk.porcheron.co_curator.item.ItemPhoto;
+import uk.porcheron.co_curator.item.ItemURL;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
@@ -21,6 +25,10 @@ import uk.porcheron.co_curator.val.Style;
 public class Image {
     private static final String TAG = "CC:Image";
 
+    public interface OnCompleteRunner {
+        void run(String fileName);
+    }
+    
     public static Bitmap getBitmapFromURL(String src) {
         try {
             Log.d(TAG, "Download image from " + src);
@@ -88,12 +96,12 @@ public class Image {
 //        int height = bitmap.getHeight();
 //
 //        // General Bitmap
-//        int imageWidth = Phone.screenWidth;
-//        int imageHeight = Phone.screenHeight;
+//        int photoWidth = Phone.screenWidth;
+//        int photoHeight = Phone.screenHeight;
 //
-//        float thumbScale = imageWidth / (float) width;
-//        if(height * thumbScale < imageHeight) {
-//            thumbScale = imageHeight / (float) height;
+//        float thumbScale = photoWidth / (float) width;
+//        if(height * thumbScale < photoHeight) {
+//            thumbScale = photoHeight / (float) height;
 //        }
 //
 //        int scaleWidth = (int) (width * thumbScale);
@@ -104,8 +112,8 @@ public class Image {
 //
 //
 //        // Thumbnail Generation
-//        int thumbWidth = (int) (Style.imageWidth - 2 * Style.imagePadding);
-//        int thumbHeight = (int) (Style.imageHeight - 2 * Style.imagePadding);
+//        int thumbWidth = (int) (Style.photoWidth - 2 * Style.photoPadding);
+//        int thumbHeight = (int) (Style.photoHeight - 2 * Style.photoPadding);
 //
 //        Log.d(TAG, "Image is (" + width + "," + height + ")");
 //
@@ -141,4 +149,118 @@ public class Image {
 //        return filename;
 //    }
 
+    public static synchronized String fileToFile(String file, OnCompleteRunner onCompleteRunner) {
+        String filename = Instance.globalUserId + "-" + System.currentTimeMillis();
+
+        Bitmap b =  BitmapFactory.decodeFile(file);
+
+        int imageWidth = (int) (Style.photoWidth - (2 * Style.photoPadding));
+        int imageHeight = (int) (Style.photoHeight - (2 * Style.photoPadding));
+
+        return bitmapToFile(b, filename, imageWidth, imageHeight, Instance.globalUserId, onCompleteRunner);
+    }
+
+    public static synchronized String urlToFile(String url, int globalUserId, OnCompleteRunner onCompleteRunner) {
+        int imageWidth = (int) (Style.photoWidth - (2 * Style.photoPadding));
+        int imageHeight = (int) (Style.photoHeight - (2 * Style.photoPadding));
+
+        return urlToFile(url, globalUserId, imageWidth, imageHeight, onCompleteRunner);
+    }
+
+    public static synchronized String urlToFile(String url, int globalUserId, int imageWidth, int imageHeight, OnCompleteRunner onCompleteRunner) {
+        String filename = globalUserId + "-" + System.currentTimeMillis();
+
+        Log.d(TAG, "Download " + url + " and save as " + filename);
+
+        new UrlToFile(url, filename, globalUserId, imageWidth, imageHeight, onCompleteRunner).execute();
+        return filename;
+    }
+
+    public final static synchronized String bitmapToFile(Bitmap bitmap, String filename, int imageWidth, int imageHeight, int globalUserId, final OnCompleteRunner onCompleteRunner) {
+
+        try {
+            Image.save(TimelineActivity.getInstance(), bitmap, filename);
+            new ScaleImage(bitmap, filename, globalUserId, imageWidth, imageHeight, true, new OnCompleteRunner() {
+
+                @Override
+                public void run(String result) {
+                    if(onCompleteRunner != null) {
+                        onCompleteRunner.run(result);
+                    }
+                }
+            }).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static class UrlToFile extends AsyncTask<Void,Void,Bitmap> {
+
+        private String mUrl;
+        private String mFilename;
+        private int mGlobalUserId;
+        private int mImageWidth;
+        private int mImageHeight;
+        private OnCompleteRunner mOnCompleteRunner = null;
+
+        UrlToFile(String url, String filename, int globalUserId, int imageWidth, int imageHeight, OnCompleteRunner onCompleteRunner) {
+            mUrl = url;
+            mGlobalUserId = globalUserId;
+            mFilename = filename;
+            mImageWidth = imageWidth;
+            mImageHeight = imageHeight;
+            mOnCompleteRunner = onCompleteRunner;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            return Image.getBitmapFromURL(mUrl);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            bitmapToFile(bitmap, mFilename, mImageWidth, mImageHeight, mGlobalUserId, mOnCompleteRunner);
+        }
+    }
+
+    private static class ScaleImage extends AsyncTask<Void,Void,String> {
+
+        private TimelineActivity mActivity;
+        private Bitmap mBitmap;
+        private String mFilename;
+        private int mGlobalUserId;
+        private OnCompleteRunner mOnComplete;
+        private int mImageWidth;
+        private int mImageHeight;
+        private boolean mCrop;
+
+        ScaleImage(Bitmap bitmap, String filename, int globalUserId, int imageWidth, int imageHeight, boolean crop, OnCompleteRunner onComplete) {
+            mActivity = TimelineActivity.getInstance();
+            mBitmap = bitmap;
+            mFilename = filename;
+            mGlobalUserId = globalUserId;
+            mOnComplete = onComplete;
+            mImageWidth = imageWidth;
+            mImageHeight = imageHeight;
+            mCrop = crop;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                //Bitmap scaledBitmap = Image.save(mActivity, mBitmap, mFilename, Phone.screenWidth, Phone.screenHeight, false);
+                Image.save(mActivity, mBitmap, mFilename + "-thumb", mImageWidth, mImageHeight, mCrop);
+                return mFilename;
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            mOnComplete.run(result);
+        }
+    }
 }

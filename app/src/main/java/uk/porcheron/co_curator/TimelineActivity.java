@@ -8,11 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -28,17 +25,14 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import uk.porcheron.co_curator.collo.ColloDict;
 import uk.porcheron.co_curator.collo.ColloManager;
 import uk.porcheron.co_curator.collo.ColloCompass;
-import uk.porcheron.co_curator.collo.ServerManager;
 import uk.porcheron.co_curator.db.DbLoader;
-import uk.porcheron.co_curator.db.WebLoader;
-import uk.porcheron.co_curator.item.ItemImage;
+import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.NoteDialog;
@@ -250,10 +244,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
             Log.v(TAG, "File selected by user: " + filePath);
 
-            ItemImage.fileToFile(filePath, new ItemImage.OnCompleteRunner() {
+            Image.fileToFile(filePath, new Image.OnCompleteRunner() {
                 @Override
                 public void run(String fileName) {
-                    if(fileName != null && !Instance.items.add(ItemType.PHOTO, Instance.user(), fileName, false, true, true)) {
+                    if (fileName != null && !Instance.items.add(ItemType.PHOTO, Instance.user(), fileName, false, true, true)) {
                         Log.e(TAG, "Failed to save image");
                     }
 

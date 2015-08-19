@@ -41,9 +41,9 @@
     <integer name="noteFontSize">4</integer>
     <integer name="noteLineSpacing">12</integer>
 
-    <dimen name="imageWidth">65dp</dimen>
-    <dimen name="imageHeight">65dp</dimen>
-    <dimen name="imagePadding">2.5dp</dimen>
+    <dimen name="photoWidth">65dp</dimen>
+    <dimen name="photoHeight">65dp</dimen>
+    <dimen name="photoPadding">2.5dp</dimen>
 
     <dimen name="urlWidth">100dp</dimen>
     <dimen name="urlHeight">100dp</dimen>

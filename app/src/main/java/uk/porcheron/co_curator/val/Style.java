@@ -1,11 +1,7 @@
 package uk.porcheron.co_curator.val;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Paint;
-import android.graphics.Point;
-import android.view.Display;
-import android.view.WindowManager;
 
 import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.TimelineActivity;
@@ -43,9 +39,9 @@ public class Style {
     public static float itemStemNarrowBy;
     public static float itemFullHeight;
 
-    public static float imageWidth;
-    public static float imageHeight;
-    public static float imagePadding;
+    public static float photoWidth;
+    public static float photoHeight;
+    public static float photoPadding;
 
     public static float urlWidth;
     public static float urlHeight;
@@ -106,17 +102,17 @@ public class Style {
         itemStemNarrowBy = res.getDimension(R.dimen.itemStemNarrowBy);
         itemFullHeight = ((Phone.screenHeight / 2) - (res.getDimension(R.dimen.layoutCentreHeight) / 2));
 
-        imageWidth = res.getDimension(R.dimen.imageWidth);
-        imageHeight = res.getDimension(R.dimen.imageHeight);
-        imagePadding = res.getDimension(R.dimen.imagePadding);
+        photoWidth = res.getDimension(R.dimen.photoWidth);
+        photoHeight = res.getDimension(R.dimen.photoHeight);
+        photoPadding = res.getDimension(R.dimen.photoPadding);
 
         urlWidth = res.getDimension(R.dimen.urlWidth);
         urlHeight = res.getDimension(R.dimen.urlHeight);
         urlPadding = res.getDimension(R.dimen.urlPadding);
 
-        videoWidth = res.getDimension(R.dimen.imageWidth);
-        videoHeight = res.getDimension(R.dimen.imageHeight);
-        videoPadding = res.getDimension(R.dimen.imagePadding);
+        videoWidth = res.getDimension(R.dimen.photoWidth);
+        videoHeight = res.getDimension(R.dimen.photoHeight);
+        videoPadding = res.getDimension(R.dimen.photoPadding);
 
         noteWidth = res.getDimension(R.dimen.noteWidth);
         noteHeight = res.getDimension(R.dimen.noteHeight);

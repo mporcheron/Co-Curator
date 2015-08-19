@@ -2,21 +2,11 @@ package uk.porcheron.co_curator.item;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +23,6 @@ import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
-import uk.porcheron.co_curator.util.Web;
 
 /**
  * List of items
@@ -120,7 +109,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         } else if (type == ItemType.URL) {
             item = new ItemURL(itemId, user, dateTime);
         } else if (type == ItemType.PHOTO) {
-            item = new ItemImage(itemId, user, dateTime);
+            item = new ItemPhoto(itemId, user, dateTime);
         }
 
         if (item == null) {
