@@ -78,7 +78,7 @@ public class ColloManager {
         }
 
         User user = Instance.users.getByGlobalUserId(recipientGlobalUserId);
-        if(user.ip.isEmpty()) {
+        if(user == null || user.ip.isEmpty()) {
             return;
         }
 
