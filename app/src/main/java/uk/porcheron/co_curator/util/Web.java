@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.util;
 
+import android.util.Base64;
 import android.util.Log;
 
 import org.apache.http.HttpEntity;
@@ -41,7 +42,7 @@ public class Web {
     public static final String DELETE = Instance.serverAddress + "/delete.php";
     public static final String UPDATE = Instance.serverAddress + "/update.php";
 
-    public static final String GET_WWW_SCREENSHOT = Instance.serverAddress + "/getScreenshot.php?";
+    public static final String GET_URL_SCREENSHOT = Instance.serverAddress + "/getScreenshot.php?url=";
 
     public static JSONObject requestObj(String uri, List<NameValuePair> data) {
         String response = request(uri, data);
@@ -143,4 +144,13 @@ public class Web {
         }
     }
 
+    public static String b64encode(String text) {
+        byte[] data = null;
+        try {
+            data = text.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e1) {
+            e1.printStackTrace();
+        }
+        return Base64.encodeToString(data, Base64.DEFAULT);
+    }
 }

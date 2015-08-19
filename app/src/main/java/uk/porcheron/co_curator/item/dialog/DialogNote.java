@@ -1,10 +1,8 @@
-package uk.porcheron.co_curator.item;
+package uk.porcheron.co_curator.item.dialog;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -13,9 +11,6 @@ import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -29,10 +24,10 @@ import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
 /**
- * Created by map on 18/08/15.
+ * Dialog for Note items.
  */
-public class NoteDialog {
-    private static final String TAG = "CC:NoteDialog";
+public class DialogNote {
+    private static final String TAG = "CC:DialogNote";
 
     private TimelineActivity mActivity;
 
@@ -56,7 +51,7 @@ public class NoteDialog {
     private final EditText mEditText;
 
 
-    public NoteDialog() {
+    public DialogNote() {
         mActivity = TimelineActivity.getInstance();
 
         mEditText = new EditText(mActivity);
@@ -64,33 +59,37 @@ public class NoteDialog {
                 .setView(mEditText);
     }
 
-    public NoteDialog setOnSubmitListener(final OnSubmitListener onSubmitListener) {
+    protected EditText getEditText() {
+        return mEditText;
+    }
+
+    public DialogNote setOnSubmitListener(final OnSubmitListener onSubmitListener) {
         mOnSubmitListener = onSubmitListener;
         return this;
     }
 
-    public NoteDialog setOnCancelListener(final OnCancelListener onCancelListener) {
+    public DialogNote setOnCancelListener(final OnCancelListener onCancelListener) {
         mOnCancelListener = onCancelListener;
         return this;
     }
 
-    public NoteDialog setOnDeleteListener(final OnDeleteListener onDeleteListener) {
+    public DialogNote setOnDeleteListener(final OnDeleteListener onDeleteListener) {
         mOnDeleteListener = onDeleteListener;
         return this;
     }
 
-    public NoteDialog setAutoEdit(boolean value) {
+    public DialogNote setAutoEdit(boolean value) {
         mAutoEdit = value;
         return this;
     }
 
-    public NoteDialog setText(String text) {
+    public DialogNote setText(String text) {
         mOriginalText = text;
         mEditText.setText(text);
         return this;
     }
 
-    public NoteDialog create() {
+    public DialogNote create() {
         mBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {

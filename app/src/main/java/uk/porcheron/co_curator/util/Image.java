@@ -13,11 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import uk.porcheron.co_curator.TimelineActivity;
-import uk.porcheron.co_curator.item.ItemPhoto;
-import uk.porcheron.co_curator.item.ItemURL;
 import uk.porcheron.co_curator.val.Instance;
-import uk.porcheron.co_curator.val.Phone;
-import uk.porcheron.co_curator.val.Style;
 
 /**
  * Utilities for handling images within the application.
@@ -26,7 +22,7 @@ public class Image {
     private static final String TAG = "CC:Image";
 
     public interface OnCompleteRunner {
-        void run(String fileName);
+        void run(String filename);
     }
     
     public static Bitmap getBitmapFromURL(String src) {
@@ -88,88 +84,15 @@ public class Image {
 
         return bitmap;
     }
-//
-//    public static String save(Context context, Bitmap bitmap) throws IOException, IllegalArgumentException {
-//        String filename = Instance.globalUserId + "-" + Instance.userId + "-" + System.currentTimeMillis();
-//
-//        int width = bitmap.getWidth();
-//        int height = bitmap.getHeight();
-//
-//        // General Bitmap
-//        int photoWidth = Phone.screenWidth;
-//        int photoHeight = Phone.screenHeight;
-//
-//        float thumbScale = photoWidth / (float) width;
-//        if(height * thumbScale < photoHeight) {
-//            thumbScale = photoHeight / (float) height;
-//        }
-//
-//        int scaleWidth = (int) (width * thumbScale);
-//        int scaleHeight = (int) (height * thumbScale);
-//
-//        Log.d(TAG, "Scaled Image is is (" + scaleWidth + "," + scaleHeight + ")");
-//        bitmap = Bitmap.createScaledBitmap(bitmap, scaleWidth, scaleHeight, true);
-//
-//
-//        // Thumbnail Generation
-//        int thumbWidth = (int) (Style.photoWidth - 2 * Style.photoPadding);
-//        int thumbHeight = (int) (Style.photoHeight - 2 * Style.photoPadding);
-//
-//        Log.d(TAG, "Image is (" + width + "," + height + ")");
-//
-//        thumbScale = thumbWidth / (float) width;
-//        if(height * thumbScale < thumbHeight) {
-//            thumbScale = thumbHeight / (float) height;
-//        }
-//
-//        scaleWidth = (int) (width * thumbScale);
-//        scaleHeight = (int) (height * thumbScale);
-//
-//        Log.d(TAG, "Scaled Image is is (" + scaleWidth + "," + scaleHeight + ")");
-//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaleWidth, scaleHeight, true);
-//
-//        int x = (int) ((scaleWidth / 2f) - (thumbWidth / 2f));
-//        int y = (int) ((scaleHeight / 2f) - (thumbHeight / 2f));
-//
-//        Log.d(TAG, "Thumbnail Image is is (" + thumbWidth + "," + thumbHeight + ")");
-//        Bitmap thumbnail = Bitmap.createBitmap(scaledBitmap, x, y, thumbWidth, thumbHeight);
-//
-//        final FileOutputStream fos = context.openFileOutput(filename + ".png", Context.MODE_PRIVATE);
-//        if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
-//            Log.e(TAG, "Could not save bitmap locally");
-//        }
-//        fos.close();
-//
-//        final FileOutputStream fosThumb = context.openFileOutput(filename + "-thumb.png", Context.MODE_PRIVATE);
-//        if (!thumbnail.compress(Bitmap.CompressFormat.PNG, 100, fosThumb)) {
-//            Log.e(TAG, "Could not save bitmap locally");
-//        }
-//        fosThumb.close();
-//
-//        return filename;
-//    }
 
-    public static synchronized String fileToFile(String file, OnCompleteRunner onCompleteRunner) {
+    public static synchronized String fileToFile(String file, int width, int height, OnCompleteRunner onCompleteRunner) {
         String filename = Instance.globalUserId + "-" + System.currentTimeMillis();
-
         Bitmap b =  BitmapFactory.decodeFile(file);
 
-        int imageWidth = (int) (Style.photoWidth - (2 * Style.photoPadding));
-        int imageHeight = (int) (Style.photoHeight - (2 * Style.photoPadding));
-
-        return bitmapToFile(b, filename, imageWidth, imageHeight, Instance.globalUserId, onCompleteRunner);
+        return bitmapToFile(b, filename, width, height, Instance.globalUserId, onCompleteRunner);
     }
 
-    public static synchronized String urlToFile(String url, int globalUserId, OnCompleteRunner onCompleteRunner) {
-        int imageWidth = (int) (Style.photoWidth - (2 * Style.photoPadding));
-        int imageHeight = (int) (Style.photoHeight - (2 * Style.photoPadding));
-
-        return urlToFile(url, globalUserId, imageWidth, imageHeight, onCompleteRunner);
-    }
-
-    public static synchronized String urlToFile(String url, int globalUserId, int imageWidth, int imageHeight, OnCompleteRunner onCompleteRunner) {
-        String filename = globalUserId + "-" + System.currentTimeMillis();
-
+    public static synchronized String urlToFile(String url, String filename, int globalUserId, int imageWidth, int imageHeight, OnCompleteRunner onCompleteRunner) {
         Log.d(TAG, "Download " + url + " and save as " + filename);
 
         new UrlToFile(url, filename, globalUserId, imageWidth, imageHeight, onCompleteRunner).execute();
@@ -220,7 +143,9 @@ public class Image {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            bitmapToFile(bitmap, mFilename, mImageWidth, mImageHeight, mGlobalUserId, mOnCompleteRunner);
+            if(bitmap != null) {
+                bitmapToFile(bitmap, mFilename, mImageWidth, mImageHeight, mGlobalUserId, mOnCompleteRunner);
+            }
         }
     }
 

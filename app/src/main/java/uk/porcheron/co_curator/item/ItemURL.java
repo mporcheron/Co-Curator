@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.util.AttributeSet;
 
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.Web;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -23,7 +24,9 @@ public class ItemURL extends ItemPhoto {
             "http://www.youtube.com",
             "https://www.youtube.com",
             "http://youtube.com",
-            "https://youtube.com"
+            "https://youtube.com",
+            "http://youtu.be",
+            "https://youtu.be"
     };
 
     public ItemURL(Context context) { super(context); }
@@ -40,31 +43,15 @@ public class ItemURL extends ItemPhoto {
 
     public String setData(String url) {
         mURL = url;
+        mIsVideo = isVideo(url);
 
-        for (String youtubeUrl : YOUTUBE_URLS) {
-            if (url.startsWith(youtubeUrl)) {
-                mIsVideo = true;
-                break;
-            }
+        if(mIsVideo) {
+            setBounds(Style.videoWidth, Style.videoHeight, Style.videoPadding);
+        } else {
+            setBounds(Style.urlWidth, Style.urlHeight, Style.urlPadding);
         }
 
-        return super.setData(url);
-//        int photoWidth, photoHeight;
-//        url = Web.GET_WWW_SCREENSHOT + url;
-//
-//        if (mIsVideo) {
-//            photoWidth = (int) (Style.videoWidth - (2 * Style.videoPadding));
-//            photoHeight = (int) (Style.videoHeight - (2 * Style.videoPadding));
-//            setBounds(Style.videoWidth, Style.videoHeight, Style.videoPadding);
-//        } else {
-//            photoWidth = (int) (Style.urlWidth - (2 * Style.urlPadding));
-//            photoHeight = (int) (Style.urlHeight - (2 * Style.urlPadding));
-//            setBounds(Style.urlWidth, Style.urlHeight, Style.urlPadding);
-//        }
-//
-//        String filename = getUser().globalUserId + "-" + System.currentTimeMillis();
-//
-//        return super.setData(ItemURL.urlToFile(url, photoWidth, photoHeight, getUser().globalUserId));
+        return super.setData(Web.b64encode(url));
     }
 
     @Override
@@ -72,5 +59,38 @@ public class ItemURL extends ItemPhoto {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mURL));
         getContext().startActivity(browserIntent);
         return true;
+    }
+
+    public static boolean isVideo(String url) {
+        for (String youtubeUrl : YOUTUBE_URLS) {
+            if (url.startsWith(youtubeUrl)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int getThumbnailWidth(boolean isVideo) {
+        if (isVideo) {
+            return (int) (Style.videoWidth - (2 * Style.videoPadding));
+        } else {
+            return (int) (Style.urlWidth - (2 * Style.urlPadding));
+        }
+    }
+
+    public static int getThumbnailHeight(boolean isVideo) {
+        if (isVideo) {
+            return (int) (Style.videoHeight - (2 * Style.videoPadding));
+        } else {
+            return (int) (Style.urlHeight - (2 * Style.urlPadding));
+        }
+    }
+
+    public static int getThumbnailWidth() {
+        return getThumbnailWidth(false);
+    }
+
+    public static int getThumbnailHeight() {
+        return getThumbnailHeight(false);
     }
 }

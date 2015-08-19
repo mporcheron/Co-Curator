@@ -110,9 +110,9 @@ public class Style {
         urlHeight = res.getDimension(R.dimen.urlHeight);
         urlPadding = res.getDimension(R.dimen.urlPadding);
 
-        videoWidth = res.getDimension(R.dimen.photoWidth);
-        videoHeight = res.getDimension(R.dimen.photoHeight);
-        videoPadding = res.getDimension(R.dimen.photoPadding);
+        videoWidth = res.getDimension(R.dimen.videoWidth);
+        videoHeight = res.getDimension(R.dimen.videoHeight);
+        videoPadding = res.getDimension(R.dimen.videoPadding);
 
         noteWidth = res.getDimension(R.dimen.noteWidth);
         noteHeight = res.getDimension(R.dimen.noteHeight);

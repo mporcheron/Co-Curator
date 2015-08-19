@@ -49,7 +49,7 @@
     <dimen name="urlHeight">100dp</dimen>
     <dimen name="urlPadding">3dp</dimen>
 
-    <dimen name="videoWidth">65dp</dimen>
+    <dimen name="videoWidth">116dp</dimen>
     <dimen name="videoHeight">65dp</dimen>
     <dimen name="videoPadding">2.5dp</dimen>
 

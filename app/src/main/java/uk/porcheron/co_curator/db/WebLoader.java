@@ -121,7 +121,11 @@ public class WebLoader {
             if (type == ItemType.PHOTO) {
                 String url = Web.IMAGE_DIR + nonFinalData;
 
-                nonFinalData = Image.urlToFile(url, globalUserId, new Image.OnCompleteRunner() {
+                //String filename = globalUserId + "-" + System.currentTimeMillis();
+                int width = ItemPhoto.getThumbnailWidth();
+                int height = ItemPhoto.getThumbnailHeight();
+
+                nonFinalData = Image.urlToFile(url, nonFinalData, globalUserId, width, height, new Image.OnCompleteRunner() {
                     @Override
                     public void run(String fileName) {
                         saveItem(globalUserId, itemId, type, user, fileName, dateTime, deleted);

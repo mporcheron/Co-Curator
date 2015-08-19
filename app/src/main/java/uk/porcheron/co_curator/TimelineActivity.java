@@ -18,9 +18,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
@@ -35,10 +32,13 @@ import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
-import uk.porcheron.co_curator.item.NoteDialog;
+import uk.porcheron.co_curator.item.ItemURL;
+import uk.porcheron.co_curator.item.dialog.DialogNote;
+import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.Image;
+import uk.porcheron.co_curator.util.Web;
 import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
 import uk.porcheron.co_curator.val.Instance;
@@ -56,7 +56,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private ProgressDialog mProgressDialog;
     private FrameLayout mFrameLayout;
 
-    public static final int PICK_IMAGE = 101;
+    public static final int PICK_PHOTO = 101;
 
     private boolean mUnbindAll = true;
 
@@ -224,7 +224,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             return;
         }
 
-        if (requestCode == PICK_IMAGE) {
+        if (requestCode == PICK_PHOTO) {
             if (data == null) {
                 Log.e(TAG, "No data retrieved...");
                 return;
@@ -244,7 +244,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
             Log.v(TAG, "File selected by user: " + filePath);
 
-            Image.fileToFile(filePath, new Image.OnCompleteRunner() {
+            int width = ItemPhoto.getThumbnailWidth();
+            int height = ItemPhoto.getThumbnailHeight();
+
+            Image.fileToFile(filePath, width, height, new Image.OnCompleteRunner() {
                 @Override
                 public void run(String fileName) {
                     if (fileName != null && !Instance.items.add(ItemType.PHOTO, Instance.user(), fileName, false, true, true)) {
@@ -320,9 +323,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void addNewNote(final View view, final boolean promptOnCancel) {
-        new NoteDialog()
+        new DialogNote()
                 .setAutoEdit(true)
-                .setOnSubmitListener(new NoteDialog.OnSubmitListener() {
+                .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override
                     public void onSubmit(DialogInterface dialog, String text) {
                         Log.e(TAG, "Note Submitted");
@@ -335,7 +338,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         }
                     }
                 })
-                .setOnCancelListener(new NoteDialog.OnCancelListener() {
+                .setOnCancelListener(new DialogNote.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         if (promptOnCancel) {
@@ -348,41 +351,63 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void addNewUrl(final View view, final boolean promptOnCancel) {
-        final EditText editText = new EditText(TimelineActivity.this);
-        editText.setSingleLine(true);
-        editText.setInputType(EditorInfo.TYPE_TEXT_VARIATION_URI);
+        new DialogUrl()
+                .setAutoEdit(true)
+                .setOnSubmitListener(new DialogNote.OnSubmitListener() {
+                    @Override
+                    public void onSubmit(DialogInterface dialog, String text) {
+                        Log.e(TAG, "URL Submitted");
 
-        AlertDialog dialog = new AlertDialog.Builder(TimelineActivity.this)
-                .setTitle(getString(R.string.dialog_url_title))
-                .setView(editText)
-                .setPositiveButton(getString(R.string.dialog_url_positive), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        String text = editText.getText().toString();
-
-                        String insertUrl = text;
-                        if(!text.startsWith("http")) {
-                            insertUrl = "http://" + text;
+                        if (promptOnCancel && text.isEmpty()) {
+                            promptNewItem(view, true);
                         }
 
-                        if(!Instance.items.add(ItemType.URL, Instance.user(), insertUrl, false, true, true)) {
-                            promptNewItem(view, promptOnCancel);
+                        showLoadingDialog(R.string.dialogAddingUrl);
+
+                        if(!text.startsWith("http://") && !text.startsWith("https://")) {
+                            text = "http://" + text;
                         }
+
+                        final String url = text;
+                        final String filename = Web.b64encode(text);
+                        String fetchFrom = Web.GET_URL_SCREENSHOT + filename;
+
+                        boolean isVideo = ItemURL.isVideo(url);
+                        int width = ItemURL.getThumbnailWidth(isVideo);
+                        int height = ItemURL.getThumbnailHeight(isVideo);
+
+                        Image.urlToFile(fetchFrom, filename, Instance.globalUserId, width, height, new Image.OnCompleteRunner() {
+                            @Override
+                            public void run(String filename) {
+                                boolean result = true;
+                                if (filename == null) {
+                                    Log.e(TAG, "Failed to save screenshot");
+                                    result = false;
+                                }
+
+                                if(result && !Instance.items.add(ItemType.URL, Instance.user(), url, false, true, true)) {
+                                    Log.e(TAG, "Failed to save URL + screenshot");
+                                }
+
+                                TimelineActivity.getInstance().hideLoadingDialog();
+
+                                if (!result && promptOnCancel) {
+                                    promptNewItem(view, true);
+                                }
+                            }
+                        });
                     }
                 })
-                .setNegativeButton(getString(R.string.dialog_url_negative), new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        if(promptOnCancel) {
+                .setOnCancelListener(new DialogNote.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        if (promptOnCancel) {
                             promptNewItem(view, true);
                         }
                     }
                 })
-                .create();
-
-        dialog.show();
-        editText.requestFocus();
-
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                .create()
+                .show();
     }
 
     private void addNewPhoto() {
@@ -392,7 +417,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Intent chooserIntent = Intent.createChooser(pickIntent, "Select Image");
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
 
-        startActivityForResult(pickIntent, TimelineActivity.PICK_IMAGE);
+        startActivityForResult(pickIntent, TimelineActivity.PICK_PHOTO);
     }
 
     public void redrawCentrelines() {
@@ -461,5 +486,5 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             });
         }
     };
-
 }
+

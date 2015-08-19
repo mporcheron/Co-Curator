@@ -8,13 +8,11 @@ import android.graphics.RectF;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.View;
-import android.widget.TextView;
 
 import uk.porcheron.co_curator.TimelineActivity;
+import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.EllipsizingTextView;
 import uk.porcheron.co_curator.val.Instance;
@@ -89,15 +87,15 @@ public class ItemNote extends Item {
 
     @Override
     protected boolean onLongPress() {
-        new NoteDialog()
+        new DialogNote()
                 .setText(mText)
-                .setOnSubmitListener(new NoteDialog.OnSubmitListener() {
+                .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override
                     public void onSubmit(DialogInterface dialog, String text) {
                         Instance.items.update(ItemNote.this, text, true, true);
                     }
                 })
-                .setOnDeleteListener(new NoteDialog.OnDeleteListener() {
+                .setOnDeleteListener(new DialogNote.OnDeleteListener() {
                     @Override
                     public void onDelete(DialogInterface dialog) {
                         if(getUser().globalUserId != Instance.globalUserId) {

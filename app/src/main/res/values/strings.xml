@@ -10,6 +10,7 @@
 
     <!-- Loading dialog -->
     <string name="dialogAddingImage">Adding image to timeline…</string>
+    <string name="dialogAddingUrl">Downloading screenshot of webpage…</string>
     <string name="dialogLoading">Loading timeline items…</string>
 
     <!-- Login Activity -->

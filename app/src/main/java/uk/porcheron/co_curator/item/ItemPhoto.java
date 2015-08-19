@@ -115,4 +115,13 @@ public class ItemPhoto extends Item {
         return false;
     }
 
+
+    public static int getThumbnailWidth() {
+        return (int) (Style.photoWidth - (2 * Style.photoPadding));
+    }
+
+    public static int getThumbnailHeight() {
+        return (int) (Style.photoHeight - (2 * Style.photoPadding));
+    }
+
 }
