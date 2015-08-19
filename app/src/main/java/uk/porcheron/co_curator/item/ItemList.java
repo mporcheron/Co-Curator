@@ -87,8 +87,8 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         return mItemIds.get(globalUserId + "-" + itemId);
     }
 
-    public boolean add(ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
-        return add(size(), type, user, data,  (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
+    public synchronized boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
+        return add(itemId, type, user, data,  (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
     }
 
 //    public boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
@@ -204,7 +204,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         mForthcomingItemIds.put(globalUserId + "-" + itemId, true);
     }
 
-    public void unremove(Item item) {
+    public synchronized void unremove(Item item) {
         int globalUserId = item.getUser().globalUserId;
         int itemId = item.getItemId();
 
@@ -236,7 +236,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         db.close();
     }
 
-    public void remove(Item item, boolean removeFromLocalDb, boolean removeFromCloud, boolean notifyClients) {
+    public synchronized void remove(Item item, boolean removeFromLocalDb, boolean removeFromCloud, boolean notifyClients) {
         int globalUserId = item.getUser().globalUserId;
         int itemId = item.getItemId();
 
@@ -282,12 +282,12 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         }
     }
 
-    public void update(Item item, String data, boolean updateCloud, boolean notifyClients) {
+    public synchronized void update(Item item, String data, boolean updateCloud, boolean notifyClients) {
         int globalUserId = item.getUser().globalUserId;
         int itemId = item.getItemId();
         item.setData(data);
 
-        Log.d(TAG, "Updating Item[" + globalUserId + "-" + itemId + "]");
+        Log.d(TAG, "Updating Item[" + globalUserId + "-" + itemId + "] to " + data);
 
         if(mDrawnItems.contains(item)) {
             item.invalidate();
@@ -304,7 +304,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         String[] whereArgs = {"" + globalUserId, "" + itemId };
 
         int rowsAffected = db.update(TableItem.TABLE_NAME, values, whereClause, whereArgs);
-        if (rowsAffected != 1) {
+        if (rowsAffected == 0) {
             Log.e(TAG, "Failed to update data for Item[" + globalUserId + ":" + itemId + "]");
         }
 

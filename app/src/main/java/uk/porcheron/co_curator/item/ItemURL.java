@@ -58,7 +58,7 @@ public class ItemUrl extends ItemPhoto {
             setBounds(Style.urlWidth, Style.urlHeight, Style.urlPadding);
         }
 
-        return super.setData(Web.b64encode(url));
+        return super.setData(getItemId() + "-" + Web.b64encode(url));
     }
 
     @Override
@@ -114,8 +114,9 @@ public class ItemUrl extends ItemPhoto {
                         Log.d(TAG, "Update Url to " + text);
 
                         final String url = text;
-                        final String filename = Web.b64encode(text);
-                        String requestUrl = Web.GET_URL_SCREENSHOT + filename;
+                        final String b64Url = Web.b64encode(text);
+                        final String filename = getItemId() + "-" + b64Url;
+                        String requestUrl = Web.GET_URL_SCREENSHOT + b64Url;
 
                         boolean isVideo = ItemUrl.isVideo(text);
                         int width = ItemUrl.getThumbnailWidth(isVideo);
@@ -136,7 +137,7 @@ public class ItemUrl extends ItemPhoto {
                 })
                 .setOnDeleteListener(new DialogNote.OnDeleteListener() {
                     @Override
-                    public void onDelete (DialogInterface dialog) {
+                    public void onDelete(DialogInterface dialog) {
                         Instance.items.remove(ItemUrl.this, true, true, true);
                     }
                 })

@@ -95,6 +95,8 @@ public class ItemPhoto extends Item {
     @Override
     public String setData(String imagePath) {
         mImagePath = imagePath;
+        mBitmap = null;
+        mBitmapThumbnail = null;
         return imagePath;
     }
 

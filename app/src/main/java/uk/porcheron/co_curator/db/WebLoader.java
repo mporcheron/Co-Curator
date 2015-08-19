@@ -136,8 +136,10 @@ public class WebLoader {
                 }
             } else if (type == ItemType.URL) {
                 final String url = nonFinalData;
-                final String filename = Web.b64encode(nonFinalData);
-                String requestUrl = Web.GET_URL_SCREENSHOT + filename;
+                final String b64Url = Web.b64encode(nonFinalData);
+                final String filename = itemId + "-" + b64Url;
+                String requestUrl = Web.GET_URL_SCREENSHOT + b64Url;
+
                 boolean isVideo = ItemUrl.isVideo(nonFinalData);
                 int width = ItemUrl.getThumbnailWidth(isVideo);
                 int height = ItemUrl.getThumbnailHeight(isVideo);
@@ -166,7 +168,7 @@ public class WebLoader {
                     if (deleted && !item.isDeleted()) {
                         Instance.items.remove(item, true, false, false);
                     }
-                    if (type != ItemType.PHOTO && !item.getData().equals(data)) {
+                    if (type != ItemType.NOTE && !item.getData().equals(data)) {
                         Instance.items.update(item, data, false, false);
                     }
                 }

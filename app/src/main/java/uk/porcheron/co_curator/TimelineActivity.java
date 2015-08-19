@@ -247,16 +247,19 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             int width = ItemPhoto.getThumbnailWidth();
             int height = ItemPhoto.getThumbnailHeight();
 
-            Image.fileToFile(filePath, width, height, new Image.OnCompleteRunner() {
-                @Override
-                public void run(String fileName) {
-                    if (fileName != null && !Instance.items.add(ItemType.PHOTO, Instance.user(), fileName, false, true, true)) {
-                        Log.e(TAG, "Failed to save image");
-                    }
+            synchronized (Instance.items) {
+                final int itemId = Instance.items.size();
+                Image.fileToFile(filePath, width, height, new Image.OnCompleteRunner() {
+                    @Override
+                    public void run(String fileName) {
+                        if (fileName != null && !Instance.items.add(itemId, ItemType.PHOTO, Instance.user(), fileName, false, true, true)) {
+                            Log.e(TAG, "Failed to save image");
+                        }
 
-                    TimelineActivity.getInstance().hideLoadingDialog();
-                }
-            });
+                        TimelineActivity.getInstance().hideLoadingDialog();
+                    }
+                });
+            }
         }
     }
 
@@ -332,9 +335,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         if (promptOnCancel && text.isEmpty()) {
                             promptNewItem(view, true);
                         }
-                        boolean create = Instance.items.add(ItemType.NOTE, Instance.user(), text, false, true, true);
-                        if (promptOnCancel && !create) {
-                            promptNewItem(view, true);
+                        synchronized (Instance.items) {
+                            final int itemId = Instance.items.size();
+                            boolean create = Instance.items.add(itemId, ItemType.NOTE, Instance.user(), text, false, true, true);
+                            if (promptOnCancel && !create) {
+                                promptNewItem(view, true);
+                            }
                         }
                     }
                 })
@@ -368,34 +374,38 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             text = "http://" + text;
                         }
 
-                        final String url = text;
-                        final String filename = Web.b64encode(text);
-                        String fetchFrom = Web.GET_URL_SCREENSHOT + filename;
+                        synchronized (Instance.items) {
+                            final int itemId = Instance.items.size();
+                            final String url = text;
+                            final String b64Url = Web.b64encode(text);
+                            final String filename = itemId + "-" + b64Url;
+                            String fetchFrom = Web.GET_URL_SCREENSHOT + b64Url;
 
-                        boolean isVideo = ItemUrl.isVideo(url);
-                        int width = ItemUrl.getThumbnailWidth(isVideo);
-                        int height = ItemUrl.getThumbnailHeight(isVideo);
+                            boolean isVideo = ItemUrl.isVideo(url);
+                            int width = ItemUrl.getThumbnailWidth(isVideo);
+                            int height = ItemUrl.getThumbnailHeight(isVideo);
 
-                        Image.urlToFile(fetchFrom, filename, Instance.globalUserId, width, height, new Image.OnCompleteRunner() {
-                            @Override
-                            public void run(String filename) {
-                                boolean result = true;
-                                if (filename == null) {
-                                    Log.e(TAG, "Failed to save screenshot");
-                                    result = false;
+                            Image.urlToFile(fetchFrom, filename, Instance.globalUserId, width, height, new Image.OnCompleteRunner() {
+                                @Override
+                                public void run(String filename) {
+                                    boolean result = true;
+                                    if (filename == null) {
+                                        Log.e(TAG, "Failed to save screenshot");
+                                        result = false;
+                                    }
+
+                                    if (result && !Instance.items.add(itemId, ItemType.URL, Instance.user(), url, false, true, true)) {
+                                        Log.e(TAG, "Failed to save URL + screenshot");
+                                    }
+
+                                    TimelineActivity.getInstance().hideLoadingDialog();
+
+                                    if (!result && promptOnCancel) {
+                                        promptNewItem(view, true);
+                                    }
                                 }
-
-                                if(result && !Instance.items.add(ItemType.URL, Instance.user(), url, false, true, true)) {
-                                    Log.e(TAG, "Failed to save URL + screenshot");
-                                }
-
-                                TimelineActivity.getInstance().hideLoadingDialog();
-
-                                if (!result && promptOnCancel) {
-                                    promptNewItem(view, true);
-                                }
-                            }
-                        });
+                            });
+                        }
                     }
                 })
                 .setOnCancelListener(new DialogNote.OnCancelListener() {
