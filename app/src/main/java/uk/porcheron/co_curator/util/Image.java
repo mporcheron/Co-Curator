@@ -1,6 +1,7 @@
 package uk.porcheron.co_curator.util;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -14,6 +15,7 @@ import java.net.URL;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.val.Instance;
+import uk.porcheron.co_curator.val.Phone;
 
 /**
  * Utilities for handling images within the application.
@@ -24,8 +26,66 @@ public class Image {
     public interface OnCompleteRunner {
         void run(String filename);
     }
-    
-    public static Bitmap getBitmapFromURL(String src) {
+
+    public static void url2File(final String url, final String destination, final int thumbWidth, final int thumbHeight, final Runnable onCompleteRunner) {
+        Log.d(TAG, "Download " + url + " and save as " + destination);
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                TimelineActivity activity = TimelineActivity.getInstance();
+
+                try {
+                    // Download and save the bitmap
+                    Bitmap bitmap = Image.getBitmapFromURL(url);
+                    Image.save(activity, bitmap, destination);
+
+                    // Thumbnail
+                    Image.save(activity, bitmap, destination + "-thumb", thumbWidth, thumbHeight, true);
+
+                    // On Complete…
+                    if(onCompleteRunner != null) {
+                        activity.runOnUiThread(onCompleteRunner);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }).start();
+    }
+
+    public static void file2file(final String source, final String destination, final int thumbWidth, final int thumbHeight, final Runnable onCompleteRunner) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TimelineActivity activity = TimelineActivity.getInstance();
+
+                try {
+                    // Import the photo for this phone
+                    Bitmap bitmap = decodeSampledBitmapFromResource(source, Phone.screenWidth, Phone.screenHeight);
+                    Image.save(activity, bitmap, destination);
+
+                    // Thumbnail
+                    Image.save(activity, bitmap, destination + "-thumb", thumbWidth, thumbHeight, true);
+
+                    // On Complete…
+                    if(onCompleteRunner != null) {
+                        activity.runOnUiThread(onCompleteRunner);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    /////////////////////////////////////////////////////////////////
+    // Below here are helper methods; they do NOT handle threading //
+    /////////////////////////////////////////////////////////////////
+
+    private static Bitmap getBitmapFromURL(String src) {
         try {
             Log.d(TAG, "Download image from " + src);
             HttpURLConnection connection =
@@ -42,7 +102,7 @@ public class Image {
         }
     }
 
-    public static Bitmap save(Context context, Bitmap bitmap, String filename) throws IOException, IllegalArgumentException {
+    private static Bitmap save(Context context, Bitmap bitmap, String filename) throws IOException, IllegalArgumentException {
         final FileOutputStream fos = context.openFileOutput(filename + ".png", Context.MODE_PRIVATE);
         if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
             Log.e(TAG, "Could not save bitmap locally");
@@ -52,7 +112,7 @@ public class Image {
         return bitmap;
     }
 
-    public static Bitmap save(Context context, Bitmap bitmap, String filename, int finalWidth, int finalHeight, boolean crop) throws IOException, IllegalArgumentException {
+    private static Bitmap save(Context context, Bitmap bitmap, String filename, int finalWidth, int finalHeight, boolean crop) throws IOException, IllegalArgumentException {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         Log.d(TAG, "Image is (" + width + "," + height + ")");
@@ -85,101 +145,40 @@ public class Image {
         return bitmap;
     }
 
-    public static synchronized String fileToFile(String file, int width, int height, OnCompleteRunner onCompleteRunner) {
-        String filename = Instance.globalUserId + "-" + System.currentTimeMillis();
-        Bitmap b =  BitmapFactory.decodeFile(file);
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
 
-        return bitmapToFile(b, filename, width, height, Instance.globalUserId, onCompleteRunner);
-    }
+        if (height > reqHeight || width > reqWidth) {
 
-    public static synchronized String urlToFile(String url, String filename, int globalUserId, int imageWidth, int imageHeight, OnCompleteRunner onCompleteRunner) {
-        Log.d(TAG, "Download " + url + " and save as " + filename);
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
 
-        new UrlToFile(url, filename, globalUserId, imageWidth, imageHeight, onCompleteRunner).execute();
-        return filename;
-    }
-
-    public final static synchronized String bitmapToFile(Bitmap bitmap, String filename, int imageWidth, int imageHeight, int globalUserId, final OnCompleteRunner onCompleteRunner) {
-
-        try {
-            Image.save(TimelineActivity.getInstance(), bitmap, filename);
-            new ScaleImage(bitmap, filename, globalUserId, imageWidth, imageHeight, true, onCompleteRunner).execute();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private static class UrlToFile extends AsyncTask<Void,Void,Bitmap> {
-
-        private String mUrl;
-        private String mFilename;
-        private int mGlobalUserId;
-        private int mImageWidth;
-        private int mImageHeight;
-        private OnCompleteRunner mOnCompleteRunner = null;
-
-        UrlToFile(String url, String filename, int globalUserId, int imageWidth, int imageHeight, OnCompleteRunner onCompleteRunner) {
-            mUrl = url;
-            mGlobalUserId = globalUserId;
-            mFilename = filename;
-            mImageWidth = imageWidth;
-            mImageHeight = imageHeight;
-            mOnCompleteRunner = onCompleteRunner;
-        }
-
-        @Override
-        protected Bitmap doInBackground(Void... params) {
-            return Image.getBitmapFromURL(mUrl);
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if(bitmap != null) {
-                bitmapToFile(bitmap, mFilename, mImageWidth, mImageHeight, mGlobalUserId, mOnCompleteRunner);
-            }
-        }
-    }
-
-    private static class ScaleImage extends AsyncTask<Void,Void,String> {
-
-        private TimelineActivity mActivity;
-        private Bitmap mBitmap;
-        private String mFilename;
-        private int mGlobalUserId;
-        private OnCompleteRunner mOnComplete;
-        private int mImageWidth;
-        private int mImageHeight;
-        private boolean mCrop;
-
-        ScaleImage(Bitmap bitmap, String filename, int globalUserId, int imageWidth, int imageHeight, boolean crop, OnCompleteRunner onComplete) {
-            mActivity = TimelineActivity.getInstance();
-            mBitmap = bitmap;
-            mFilename = filename;
-            mGlobalUserId = globalUserId;
-            mOnComplete = onComplete;
-            mImageWidth = imageWidth;
-            mImageHeight = imageHeight;
-            mCrop = crop;
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            try {
-                //Bitmap scaledBitmap = Image.save(mActivity, mBitmap, mFilename, Phone.screenWidth, Phone.screenHeight, false);
-                Image.save(mActivity, mBitmap, mFilename + "-thumb", mImageWidth, mImageHeight, mCrop);
-                return mFilename;
-            } catch (IOException e) {
-                return null;
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
             }
         }
 
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            if(mOnComplete != null) {
-                mOnComplete.run(result);
-            }
-        }
+        return inSampleSize;
     }
+
+    private static Bitmap decodeSampledBitmapFromResource(String file, int reqWidth, int reqHeight) {
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(file, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(file, options);
+    }
+
 }

@@ -122,15 +122,11 @@ public class ItemUrl extends ItemPhoto {
                         int width = ItemUrl.getThumbnailWidth(isVideo);
                         int height = ItemUrl.getThumbnailHeight(isVideo);
 
-                        String result = Image.urlToFile(requestUrl, filename, Instance.globalUserId, width, height, new Image.OnCompleteRunner() {
+                         Image.url2File(requestUrl, filename, width, height, new Runnable() {
                             @Override
-                            public void run(String filename1) {
-                                Log.d(TAG, "Screenshot saved as " + filename1);
-                                TimelineActivity.getInstance().runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        Instance.items.update(ItemUrl.this, url, true, true);
-                                    }
-                                });
+                            public void run() {
+                                Log.d(TAG, "Screenshot saved as " + filename);
+                                Instance.items.update(ItemUrl.this, url, true, true);
                             }
                         });
                     }

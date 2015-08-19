@@ -239,20 +239,21 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             cursor.moveToFirst();
 
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String filePath = cursor.getString(columnIndex);
+            String filename = cursor.getString(columnIndex);
             cursor.close();
 
-            Log.v(TAG, "File selected by user: " + filePath);
+            Log.v(TAG, "File selected by user: " + filename);
 
             int width = ItemPhoto.getThumbnailWidth();
             int height = ItemPhoto.getThumbnailHeight();
 
             synchronized (Instance.items) {
                 final int itemId = Instance.items.size();
-                Image.fileToFile(filePath, width, height, new Image.OnCompleteRunner() {
+                final String destination = Instance.globalUserId + "-" + System.currentTimeMillis();
+                Image.file2file(filename, destination, width, height, new Runnable() {
                     @Override
-                    public void run(String fileName) {
-                        if (fileName != null && !Instance.items.add(itemId, ItemType.PHOTO, Instance.user(), fileName, false, true, true)) {
+                    public void run() {
+                        if (!Instance.items.add(itemId, ItemType.PHOTO, Instance.user(), destination, false, true, true)) {
                             Log.e(TAG, "Failed to save image");
                         }
 
@@ -385,24 +386,18 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             int width = ItemUrl.getThumbnailWidth(isVideo);
                             int height = ItemUrl.getThumbnailHeight(isVideo);
 
-                            Image.urlToFile(fetchFrom, filename, Instance.globalUserId, width, height, new Image.OnCompleteRunner() {
+                            Image.url2File(fetchFrom, filename, width, height, new Runnable() {
                                 @Override
-                                public void run(String filename) {
-                                    boolean result = true;
-                                    if (filename == null) {
-                                        Log.e(TAG, "Failed to save screenshot");
-                                        result = false;
-                                    }
-
-                                    if (result && !Instance.items.add(itemId, ItemType.URL, Instance.user(), url, false, true, true)) {
+                                public void run() {
+                                    if (!Instance.items.add(itemId, ItemType.URL, Instance.user(), url, false, true, true)) {
                                         Log.e(TAG, "Failed to save URL + screenshot");
+                                        if(promptOnCancel) {
+                                            promptNewItem(view, true);
+                                            return;
+                                        }
                                     }
 
                                     TimelineActivity.getInstance().hideLoadingDialog();
-
-                                    if (!result && promptOnCancel) {
-                                        promptNewItem(view, true);
-                                    }
                                 }
                             });
                         }

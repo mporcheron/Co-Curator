@@ -185,23 +185,18 @@ public class WebLoader {
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
             public void run() {
                 Log.v(TAG, "Item[" + itemId + "]: Save (globalUserId=" + globalUserId + ",itemId=" + itemId + ",type=" + type.toString() + ",dateTime=" + dateTime + ",data='" + data + "',deleted=" + deleted + ")");
-
                 Instance.items.add(itemId, type, user, data, dateTime, deleted, true, false);
             }
         });
     }
 
     private static void newPhotoItem(final int globalUserId, final int itemId, final ItemType type, final User user, final String data, String url, String filename, final int width, final int height, final int dateTime, final boolean deleted) {
-        String result = Image.urlToFile(url, filename, width, height, new Image.OnCompleteRunner() {
+        Image.url2File(url, filename, width, height, new Runnable() {
             @Override
-            public void run(String filename1) {
+            public void run() {
                 newTextItem(globalUserId, itemId, type, user, data, dateTime, deleted);
             }
         });
-
-        if (result == null) {
-            Log.e(TAG, "Failed to download image");
-        }
     }
 
     private static void updateTextItem(Item item, final String data) {
@@ -209,15 +204,11 @@ public class WebLoader {
     }
 
     private static void updatePhotoItem(final int globalUserId, final Item item, final String data, String url, String filename, final int width, final int height) {
-        String result = Image.urlToFile(url, filename, width, height, new Image.OnCompleteRunner() {
+        Image.url2File(url, filename, width, height, new Runnable() {
             @Override
-            public void run(String filename1) {
+            public void run() {
                 updateTextItem(item, data);
             }
         });
-
-        if (result == null) {
-            Log.e(TAG, "Failed to download image");
-        }
     }
 }
