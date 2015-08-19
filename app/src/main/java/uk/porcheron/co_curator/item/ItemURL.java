@@ -1,12 +1,17 @@
 package uk.porcheron.co_curator.item;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 
+import uk.porcheron.co_curator.item.dialog.DialogNote;
+import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Web;
+import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -15,7 +20,7 @@ import uk.porcheron.co_curator.val.Style;
 public class ItemUrl extends ItemPhoto {
     private static final String TAG = "CC:ItemURL";
 
-    private String mURL;
+    private String mUrl;
 
     private boolean mIsVideo = false;
     private static String[] YOUTUBE_URLS = {
@@ -42,7 +47,7 @@ public class ItemUrl extends ItemPhoto {
     }
 
     public String setData(String url) {
-        mURL = url;
+        mUrl = url;
         mIsVideo = isVideo(url);
 
         if(mIsVideo) {
@@ -56,7 +61,7 @@ public class ItemUrl extends ItemPhoto {
 
     @Override
     public boolean onTap() {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mURL));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUrl));
         getContext().startActivity(browserIntent);
         return true;
     }
@@ -94,5 +99,33 @@ public class ItemUrl extends ItemPhoto {
     @Deprecated
     public static int getThumbnailHeight() {
         return getThumbnailHeight(false);
+    }
+
+
+    @Override
+    protected boolean onLongPress() {
+        new DialogUrl()
+                .setText(mUrl)
+                .setOnSubmitListener(new DialogNote.OnSubmitListener() {
+                    @Override
+                    public void onSubmit(DialogInterface dialog, String text) {
+                        Log.d(TAG, "Submit changes");
+                        //Instance.items.update(ItemUrl.this, text, true, true);
+                    }
+                })
+                .setOnDeleteListener(new DialogNote.OnDeleteListener() {
+                    @Override
+                    public void onDelete(DialogInterface dialog) {
+                        if(getUser().globalUserId != Instance.globalUserId) {
+                            return;
+                        }
+
+                        Instance.items.remove(ItemUrl.this, true, true, true);
+                    }
+                })
+                .create()
+                .show();
+
+        return true;
     }
 }
