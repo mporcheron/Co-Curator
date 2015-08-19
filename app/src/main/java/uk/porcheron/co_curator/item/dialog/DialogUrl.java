@@ -33,6 +33,7 @@ public class DialogUrl extends DialogNote {
     public DialogUrl() {
         super();
 
+        getEditText().setSingleLine(true);
         getEditText().setInputType(InputType.TYPE_TEXT_VARIATION_URI);
     }
 }
