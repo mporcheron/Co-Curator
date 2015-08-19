@@ -103,15 +103,7 @@ public class Image {
 
         try {
             Image.save(TimelineActivity.getInstance(), bitmap, filename);
-            new ScaleImage(bitmap, filename, globalUserId, imageWidth, imageHeight, true, new OnCompleteRunner() {
-
-                @Override
-                public void run(String result) {
-                    if(onCompleteRunner != null) {
-                        onCompleteRunner.run(result);
-                    }
-                }
-            }).execute();
+            new ScaleImage(bitmap, filename, globalUserId, imageWidth, imageHeight, true, onCompleteRunner).execute();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -185,7 +177,9 @@ public class Image {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            mOnComplete.run(result);
+            if(mOnComplete != null) {
+                mOnComplete.run(result);
+            }
         }
     }
 }

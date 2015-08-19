@@ -86,10 +86,12 @@ public class ItemUrl extends ItemPhoto {
         }
     }
 
+    @Deprecated
     public static int getThumbnailWidth() {
         return getThumbnailWidth(false);
     }
 
+    @Deprecated
     public static int getThumbnailHeight() {
         return getThumbnailHeight(false);
     }

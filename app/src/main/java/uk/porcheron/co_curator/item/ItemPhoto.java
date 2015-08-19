@@ -77,7 +77,7 @@ public class ItemPhoto extends Item {
                     Log.e(TAG, "Could not decode thumbnail file to bitmap " + mImagePath);
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Could not open " + mImagePath);
+                Log.e(TAG, "Could not open " + mImagePath + "-thumb");
             }
         }
 

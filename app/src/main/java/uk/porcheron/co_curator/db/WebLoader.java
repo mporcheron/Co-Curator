@@ -15,6 +15,7 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.Item;
 import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemType;
+import uk.porcheron.co_curator.item.ItemUrl;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.SoUtils;
@@ -66,8 +67,6 @@ public class WebLoader {
 
     protected static void loadItemsFromWeb(final int globalUserId) {
         Log.d(TAG, "Load items from cloud for User[" + globalUserId + "]");
-
-        TimelineActivity activity = TimelineActivity.getInstance();
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         nameValuePairs.add(new BasicNameValuePair("globalUserId", "" + globalUserId));
@@ -132,9 +131,27 @@ public class WebLoader {
                     }
                 });
 
-                if(nonFinalData == null) {
-                    Log.e(TAG, "Failed to download image " + nonFinalData);
-                    return;
+                if (nonFinalData == null) {
+                    Log.e(TAG, "Failed to download image");
+                }
+            } else if (type == ItemType.URL) {
+                final String url = nonFinalData;
+                final String filename = Web.b64encode(nonFinalData);
+                String requestUrl = Web.GET_URL_SCREENSHOT + filename;
+                boolean isVideo = ItemUrl.isVideo(nonFinalData);
+                int width = ItemUrl.getThumbnailWidth(isVideo);
+                int height = ItemUrl.getThumbnailHeight(isVideo);
+
+                nonFinalData = Image.urlToFile(requestUrl, filename, globalUserId, width, height, new Image.OnCompleteRunner() {
+                    @Override
+                    public void run(String filename1) {
+                        Log.d(TAG, "Screenshot saved as " + filename1);
+                        saveItem(globalUserId, itemId, type, user, url, dateTime, deleted);
+                    }
+                });
+
+                if (nonFinalData == null) {
+                    Log.e(TAG, "Failed to download screenshot");
                 }
             } else {
                 saveItem(globalUserId, itemId, type, user, nonFinalData, dateTime, deleted);
