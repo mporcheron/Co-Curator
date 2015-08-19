@@ -12,7 +12,7 @@ import uk.porcheron.co_curator.val.Style;
 /**
  * An item that contains a URL.
  */
-public class ItemURL extends ItemPhoto {
+public class ItemUrl extends ItemPhoto {
     private static final String TAG = "CC:ItemURL";
 
     private String mURL;
@@ -29,13 +29,13 @@ public class ItemURL extends ItemPhoto {
             "https://youtu.be"
     };
 
-    public ItemURL(Context context) { super(context); }
+    public ItemUrl(Context context) { super(context); }
 
-    public ItemURL(Context context, AttributeSet attrs) { super(context, attrs); }
+    public ItemUrl(Context context, AttributeSet attrs) { super(context, attrs); }
 
-    public ItemURL(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
+    public ItemUrl(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public ItemURL(int itemId, User user, int dateTime) {
+    public ItemUrl(int itemId, User user, int dateTime) {
         super(itemId, user, dateTime);
 
         setBounds(Style.photoWidth, Style.photoHeight, Style.photoPadding);

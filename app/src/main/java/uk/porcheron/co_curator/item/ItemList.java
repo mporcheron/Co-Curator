@@ -107,7 +107,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         if (type == ItemType.NOTE) {
             item = new ItemNote(itemId, user, dateTime);
         } else if (type == ItemType.URL) {
-            item = new ItemURL(itemId, user, dateTime);
+            item = new ItemUrl(itemId, user, dateTime);
         } else if (type == ItemType.PHOTO) {
             item = new ItemPhoto(itemId, user, dateTime);
         }

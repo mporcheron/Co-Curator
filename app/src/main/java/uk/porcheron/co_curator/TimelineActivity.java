@@ -32,7 +32,7 @@ import uk.porcheron.co_curator.db.DbLoader;
 import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemList;
-import uk.porcheron.co_curator.item.ItemURL;
+import uk.porcheron.co_curator.item.ItemUrl;
 import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
@@ -372,9 +372,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         final String filename = Web.b64encode(text);
                         String fetchFrom = Web.GET_URL_SCREENSHOT + filename;
 
-                        boolean isVideo = ItemURL.isVideo(url);
-                        int width = ItemURL.getThumbnailWidth(isVideo);
-                        int height = ItemURL.getThumbnailHeight(isVideo);
+                        boolean isVideo = ItemUrl.isVideo(url);
+                        int width = ItemUrl.getThumbnailWidth(isVideo);
+                        int height = ItemUrl.getThumbnailHeight(isVideo);
 
                         Image.urlToFile(fetchFrom, filename, Instance.globalUserId, width, height, new Image.OnCompleteRunner() {
                             @Override
