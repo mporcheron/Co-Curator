@@ -250,7 +250,16 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
             Log.v(TAG, "File selected by user: " + filePath);
 
-            ItemImage.fileToFile(filePath);
+            ItemImage.fileToFile(filePath, new ItemImage.OnCompleteRunner() {
+                @Override
+                public void run(String fileName) {
+                    if(fileName != null && !Instance.items.add(ItemType.PHOTO, Instance.user(), fileName, false, true, true)) {
+                        Log.e(TAG, "Failed to save image");
+                    }
+
+                    TimelineActivity.getInstance().hideLoadingDialog();
+                }
+            });
         }
     }
 

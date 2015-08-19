@@ -57,22 +57,23 @@ public class ItemURL extends ItemImage {
             }
         }
 
-        int imageWidth, imageHeight;
-        url = Web.GET_WWW_SCREENSHOT + url;
-
-        if (mIsVideo) {
-            imageWidth = (int) (Style.videoWidth - (2 * Style.videoPadding));
-            imageHeight = (int) (Style.videoHeight - (2 * Style.videoPadding));
-            setBounds(Style.videoWidth, Style.videoHeight, Style.videoPadding);
-        } else {
-            imageWidth = (int) (Style.urlWidth - (2 * Style.urlPadding));
-            imageHeight = (int) (Style.urlHeight - (2 * Style.urlPadding));
-            setBounds(Style.urlWidth, Style.urlHeight, Style.urlPadding);
-        }
-
-        String filename = getUser().globalUserId + "-" + System.currentTimeMillis();
-
-        return super.setData(ItemURL.urlToFile(url, imageWidth, imageHeight, getUser().globalUserId));
+        return super.setData(url);
+//        int imageWidth, imageHeight;
+//        url = Web.GET_WWW_SCREENSHOT + url;
+//
+//        if (mIsVideo) {
+//            imageWidth = (int) (Style.videoWidth - (2 * Style.videoPadding));
+//            imageHeight = (int) (Style.videoHeight - (2 * Style.videoPadding));
+//            setBounds(Style.videoWidth, Style.videoHeight, Style.videoPadding);
+//        } else {
+//            imageWidth = (int) (Style.urlWidth - (2 * Style.urlPadding));
+//            imageHeight = (int) (Style.urlHeight - (2 * Style.urlPadding));
+//            setBounds(Style.urlWidth, Style.urlHeight, Style.urlPadding);
+//        }
+//
+//        String filename = getUser().globalUserId + "-" + System.currentTimeMillis();
+//
+//        return super.setData(ItemURL.urlToFile(url, imageWidth, imageHeight, getUser().globalUserId));
     }
 
     @Override

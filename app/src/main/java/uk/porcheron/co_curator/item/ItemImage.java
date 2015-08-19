@@ -97,7 +97,8 @@ public class ItemImage extends Item {
 
     @Override
     public String setData(String imagePath) {
-        mImagePath = imagePath; return imagePath;
+        mImagePath = imagePath;
+        return imagePath;
     }
 
     @Override
@@ -117,7 +118,7 @@ public class ItemImage extends Item {
         return false;
     }
 
-    public static synchronized String fileToFile(String file) {
+    public static synchronized String fileToFile(String file, OnCompleteRunner onCompleteRunner) {
         String filename = Instance.globalUserId + "-" + System.currentTimeMillis();
 
         Bitmap b =  BitmapFactory.decodeFile(file);
@@ -125,26 +126,26 @@ public class ItemImage extends Item {
         int imageWidth = (int) (Style.imageWidth - (2 * Style.imagePadding));
         int imageHeight = (int) (Style.imageHeight - (2 * Style.imagePadding));
 
-        return bitmapToFile(b, filename, imageWidth, imageHeight, Instance.globalUserId);
+        return bitmapToFile(b, filename, imageWidth, imageHeight, Instance.globalUserId, onCompleteRunner);
     }
 
-    public static synchronized String urlToFile(String url, int globalUserId) {
+    public static synchronized String urlToFile(String url, int globalUserId, OnCompleteRunner onCompleteRunner) {
         int imageWidth = (int) (Style.imageWidth - (2 * Style.imagePadding));
         int imageHeight = (int) (Style.imageHeight - (2 * Style.imagePadding));
 
-        return urlToFile(url, globalUserId, imageWidth, imageHeight);
+        return urlToFile(url, globalUserId, imageWidth, imageHeight, onCompleteRunner);
     }
 
-    public static synchronized String urlToFile(String url, int globalUserId, int imageWidth, int imageHeight) {
+    public static synchronized String urlToFile(String url, int globalUserId, int imageWidth, int imageHeight, OnCompleteRunner onCompleteRunner) {
         String filename = globalUserId + "-" + System.currentTimeMillis();
 
         Log.d(TAG, "Download " + url + " and save as " + filename);
 
-        new UrlToFile(url, filename, imageWidth, imageHeight, globalUserId).execute();
+        new UrlToFile(url, filename, globalUserId, imageWidth, imageHeight, onCompleteRunner).execute();
         return filename;
     }
 
-    public final static synchronized String bitmapToFile(Bitmap bitmap, String filename, int imageWidth, int imageHeight, int globalUserId) {
+    public final static synchronized String bitmapToFile(Bitmap bitmap, String filename, int imageWidth, int imageHeight, int globalUserId, final OnCompleteRunner onCompleteRunner) {
 
         try {
             Image.save(TimelineActivity.getInstance(), bitmap, filename);
@@ -152,11 +153,9 @@ public class ItemImage extends Item {
 
                 @Override
                 public void run(String result) {
-                    if(result != null && !Instance.items.add(ItemType.PHOTO, Instance.user(), result, false, true, true)) {
-                        Log.e(TAG, "Failed to save image");
+                    if(onCompleteRunner != null) {
+                        onCompleteRunner.run(result);
                     }
-
-                    TimelineActivity.getInstance().hideLoadingDialog();
                 }
             }).execute();
         } catch (IOException e) {
@@ -165,8 +164,8 @@ public class ItemImage extends Item {
         return null;
     }
 
-    private interface OnCompleteRunner {
-        void run(String result);
+    public interface OnCompleteRunner {
+        void run(String fileName);
     }
 
     private static class UrlToFile extends AsyncTask<Void,Void,Bitmap> {
@@ -176,13 +175,15 @@ public class ItemImage extends Item {
         private int mGlobalUserId;
         private int mImageWidth;
         private int mImageHeight;
+        private OnCompleteRunner mOnCompleteRunner = null;
 
-        UrlToFile(String url, String filename, int globalUserId, int imageWidth, int imageHeight) {
+        UrlToFile(String url, String filename, int globalUserId, int imageWidth, int imageHeight, OnCompleteRunner onCompleteRunner) {
             mUrl = url;
             mGlobalUserId = globalUserId;
             mFilename = filename;
             mImageWidth = imageWidth;
             mImageHeight = imageHeight;
+            mOnCompleteRunner = onCompleteRunner;
         }
 
         @Override
@@ -192,7 +193,7 @@ public class ItemImage extends Item {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            ItemURL.bitmapToFile(bitmap, mFilename, mImageWidth, mImageHeight, mGlobalUserId);
+            ItemURL.bitmapToFile(bitmap, mFilename, mImageWidth, mImageHeight, mGlobalUserId, mOnCompleteRunner);
         }
     }
 

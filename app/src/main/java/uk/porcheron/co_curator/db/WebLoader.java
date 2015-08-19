@@ -121,6 +121,7 @@ public class WebLoader {
         final int itemId = response.getInt("id");
         final ItemType type = ItemType.get(response.getInt("type"));
         final boolean deleted = response.getInt("deleted") == TableItem.VAL_ITEM_DELETED;
+        final int dateTime = response.getInt("dateTime");
         String nonFinalData = response.getString("data");
 
         boolean contains = Instance.items.containsByItemId(globalUserId, itemId, true);
@@ -130,23 +131,20 @@ public class WebLoader {
             if (type == ItemType.PHOTO) {
                 String url = Web.IMAGE_DIR + nonFinalData;
 
-                nonFinalData = ItemImage.urlToFile(url, globalUserId);
+                nonFinalData = ItemImage.urlToFile(url, globalUserId, new ItemImage.OnCompleteRunner() {
+                    @Override
+                    public void run(String fileName) {
+                        saveItem(globalUserId, itemId, type, user, fileName, dateTime, deleted);
+                    }
+                });
 
                 if(nonFinalData == null) {
                     Log.e(TAG, "Failed to download image " + nonFinalData);
                     return;
                 }
+            } else {
+                saveItem(globalUserId, itemId, type, user, nonFinalData, dateTime, deleted);
             }
-
-            final String data = nonFinalData;
-            final int dateTime = response.getInt("dateTime");
-
-            Instance.items.registerForthcomingItem(globalUserId, itemId);
-            activity.runOnUiThread(new Runnable() {
-                public void run() {
-                    Instance.items.add(itemId, type, user, data, dateTime, deleted, true, false);
-                }
-            });
         } else {
             Log.e(TAG, "Item already exists, update it");
 
@@ -163,5 +161,16 @@ public class WebLoader {
                 }
             });
         }
+    }
+
+    private static void saveItem(final int globalUserId, final int itemId, final ItemType type, final User user, final String data, final int dateTime, final boolean deleted) {
+        Instance.items.registerForthcomingItem(globalUserId, itemId);
+        TimelineActivity.getInstance().runOnUiThread(new Runnable() {
+            public void run() {
+                Log.v(TAG, "Item[" + itemId + "]: Save (globalUserId=" + globalUserId + ",itemId=" + itemId + ",type=" + type.toString() + ",dateTime=" + dateTime + ",data='" + data + "',deleted=" + deleted + ")");
+
+                Instance.items.add(itemId, type, user, data, dateTime, deleted, true, false);
+            }
+        });
     }
 }

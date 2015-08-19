@@ -99,12 +99,12 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     }
 
     public boolean add(ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
-        return add(size(), type, user, data, deleted, addToLocalDb, addToCloud);
+        return add(size(), type, user, data,  (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
     }
 
-    public boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
-        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
-    }
+//    public boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
+//        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
+//    }
 
     public synchronized boolean add(int itemId, ItemType type, User user, String data, int dateTime, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
         String uniqueItemId = user.globalUserId + "-" + itemId;
@@ -297,6 +297,8 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         int globalUserId = item.getUser().globalUserId;
         int itemId = item.getItemId();
         item.setData(data);
+
+        Log.d(TAG, "Updating Item[" + globalUserId + "-" + itemId + "]");
 
         if(mDrawnItems.contains(item)) {
             item.invalidate();
