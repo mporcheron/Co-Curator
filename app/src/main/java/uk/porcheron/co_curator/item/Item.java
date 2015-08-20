@@ -32,7 +32,9 @@ public abstract class Item extends View {
 
     private User mUser;
     private int mItemId;
-    private int mDateTime;
+    private long mDateTime;
+
+    private float mX;
 
     private RectF mSlotBounds;
     private RectF mOuterBounds;
@@ -110,6 +112,18 @@ public abstract class Item extends View {
                 getUser().bgPaint);
     }
 
+    protected final void setDrawnX(float x) {
+        mX = x;
+    }
+
+    protected final float getDrawnX() {
+        return mX;
+    }
+
+    protected final RectF getSlotBounds() {
+        return mSlotBounds;
+    }
+
     protected final RectF getInnerBounds() {
         return mInnerBounds;
     }
@@ -161,7 +175,7 @@ public abstract class Item extends View {
 
     protected final String getUniqueItemId() { return mUser.globalUserId + "-" + mItemId; }
 
-    protected final int getDateTime() { return mDateTime; }
+    protected final long getDateTime() { return mDateTime; }
 
     protected abstract boolean onTap();
 

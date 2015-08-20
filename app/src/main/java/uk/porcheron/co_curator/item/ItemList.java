@@ -2,9 +2,11 @@ package uk.porcheron.co_curator.item;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.RectF;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
@@ -39,6 +41,9 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     private final Map<String, Boolean> mForthcomingItemIds = new HashMap<>();
     private final SparseArray<List<Item>> mItemGlobalUserIds = new SparseArray<>();
     private final List<Item> mDrawnItems = new ArrayList<>();
+    private final SparseArray<Item> mDrawnAboveX = new SparseArray<>();
+    private final SparseArray<Item> mDrawnBelowX = new SparseArray<>();
+    private final Map<Long,Float> mTimestampX = new HashMap<>();
 
     private final ItemScrollView mScrollView;
     private final LinearLayout mLayoutAbove;
@@ -322,6 +327,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         }
     }
 
+
     private void drawItem(User user, Item item, int pos) {
         if(mDrawnItems.contains(item)) {
             Log.e(TAG, "Item is already drawn");
@@ -330,10 +336,20 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         int minWidth = Phone.screenWidth;
         if (user.above) {
-            mLayoutAbove.addView(item, Math.min(mLayoutAbove.getChildCount(), pos));
+            pos =  Math.min(mLayoutAbove.getChildCount(), pos);
+
+            setLeftMargin(item, pos, mLayoutAbove);
+            mLayoutAbove.addView(item,pos);
+            mDrawnAboveX.put(pos, item);
+
             minWidth = Math.max(mLayoutAbove.getWidth() + item.getMeasuredWidth(), minWidth);
         } else {
-            mLayoutBelow.addView(item, Math.min(mLayoutBelow.getChildCount(), pos));
+            pos =  Math.min(mLayoutBelow.getChildCount(), pos);
+
+            setLeftMargin(item, pos, mLayoutBelow);
+            mLayoutBelow.addView(item, pos);
+            mDrawnBelowX.put(pos, item);
+
             minWidth = Math.max(mLayoutBelow.getWidth() + item.getMeasuredWidth(), minWidth);
         }
 
@@ -354,6 +370,53 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         item.setDrawn(true);
     }
 
+    private void setLeftMargin(Item item, int pos, LinearLayout layout) {
+        if(pos == 0) {
+            return;
+        }
+
+        Item prevViewThisLayout = (Item) layout.getChildAt(pos - 1);
+        RectF slot = prevViewThisLayout.getSlotBounds();
+        float xpos = prevViewThisLayout.getDrawnX() + slot.width();
+        float leftMargin = 0;
+
+        // Do we need to add to the left margin?
+        if( true && Instance.addedUsers > 1 && !mTimestampX.isEmpty()) {
+            long nearestTimestamp = -1, tsDiff = 0;
+            long targetTimestamp = item.getDateTime();
+            for (Long timestamp : mTimestampX.keySet()) {
+                if (nearestTimestamp < 0) {
+                    nearestTimestamp = timestamp;
+                    tsDiff = timestamp;
+                    continue;
+                }
+
+                long diff = timestamp - targetTimestamp;
+                if (diff < 0 || diff > tsDiff) {
+                    continue;
+                }
+
+                nearestTimestamp = timestamp;
+                tsDiff = diff;
+            }
+
+            float nearestX = mTimestampX.get(nearestTimestamp);
+            if(xpos < nearestX) {
+                leftMargin = nearestX - xpos + Style.itemXGapMin;
+            }
+        }
+
+        item.setDrawnX(xpos + leftMargin);
+        mTimestampX.put(item.getDateTime(), xpos + leftMargin);
+
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins((int) leftMargin, 0, 0, 0);
+        item.setLayoutParams(params);
+    }
+
     public void retestDrawing() {
         mDrawn = 0;
         int insertAtAbove = 0;
@@ -364,15 +427,30 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             if(user.draw() && !item.isDeleted()) {
                 if(!item.isDrawn()) {
                     Log.v(TAG, "User[" + user.globalUserId + "] is " + Instance.drawnUsers + "th user, offset=" + user.offset);
-                    drawItem(user, item, user.above ? insertAtAbove : insertAtBelow);
+                    if(user.above) {
+                        drawItem(user, item, insertAtAbove);
+                    } else {
+                        drawItem(user, item, insertAtBelow);
+                    }
                 }
             } else {
                 if(item.isDrawn()) {
                     if(user.above) {
+//                        mDrawnAboveX.remove(item);
                         mLayoutAbove.removeView(item);
+
+//                        for(int j = 0; j < mDrawnBelowX.size(); j++) {
+//                            Item otherItem = mDrawnBelowX.valueAt(j);
+//                            if(j < insertAtAbove) {
+//                                continue;
+//                            }
+//                            setLeftMargin(otherItem, mDrawnBelowX.keyAt(j), mLayoutBelow);
+//                        }
                     } else {
+//                        mDrawnBelowX.remove(item);
                         mLayoutBelow.removeView(item);
                     }
+
                     mDrawnItems.remove(item);
                     item.setDrawn(false);
                 }
