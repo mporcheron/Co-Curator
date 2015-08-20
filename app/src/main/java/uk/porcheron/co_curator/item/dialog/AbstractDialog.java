@@ -42,10 +42,40 @@ public abstract class AbstractDialog {
 
     private final AlertDialog.Builder mBuilder;
     private AlertDialog mDialog = null;
+    private final GestureDetector mGestureDetector;
 
     public AbstractDialog() {
         mActivity = TimelineActivity.getInstance();
         mBuilder = new AlertDialog.Builder(mActivity);
+        mGestureDetector = new GestureDetector(TimelineActivity.getInstance(), new DialogGestureListener());
+    }
+
+    protected GestureDetector getGestureDetector() {
+        return mGestureDetector;
+    }
+
+    protected final void setContentView(View view) {
+        setContentView(view, false);
+    }
+
+    protected final void setContentView(View view, boolean tHack) {
+        setView(view);
+        if(tHack) {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    mGestureDetector.onTouchEvent(event);
+                    return true;
+                }
+            });
+        } else {
+            view.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return mGestureDetector.onTouchEvent(event);
+                }
+            });
+        }
     }
 
     protected final AbstractDialog setView(View view) {
@@ -113,11 +143,13 @@ public abstract class AbstractDialog {
         mDialog.show();
         mDialog.getWindow().setLayout(width, height);
 
-        User u = Instance.user();
-        setStyle(u.bgColor, u.fgColor);
+        setStyle(mDialog);
     }
 
-    protected void setStyle(int bgColor, int fgColor) {
+    protected void setStyle(Dialog dialog) {
+        User u = Instance.user();
+        int bgColor = u.bgColor;
+
         int objeto = mActivity.getResources().getIdentifier("buttonPanel","id","android");
         View vistaObjeto = mDialog.findViewById(objeto);
         if (vistaObjeto != null){
@@ -199,24 +231,29 @@ public abstract class AbstractDialog {
 
     }
 
-    protected abstract boolean onTap();
+    protected boolean onTap() {
+        return false;
+    }
 
     class DialogGestureListener extends GestureDetector.SimpleOnGestureListener {
 
+
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
+            Log.e(TAG, "View touched");
             return onTap();
         }
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if(Math.abs(e1.getX() - e2.getX()) > X_LEEWAY) {
+            Log.e(TAG, "Flinging");
+            if(e1.getX() < e2.getX()) {
                 return false;
             }
 
-            if(e1.getY() < e2.getY()) {
-                return false;
-            }
+//            if(Math.abs(e1.getX() - e2.getX()) > X_LEEWAY) {
+//                return false;
+//            }
 
             mDialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
             mFlung = true;

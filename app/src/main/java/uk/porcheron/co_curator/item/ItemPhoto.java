@@ -1,6 +1,7 @@
 package uk.porcheron.co_curator.item;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,8 +17,12 @@ import java.io.IOException;
 import uk.porcheron.co_curator.ImageDialogActivity;
 import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.TimelineActivity;
+import uk.porcheron.co_curator.item.dialog.DialogNote;
+import uk.porcheron.co_curator.item.dialog.DialogPhoto;
+import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.Image;
+import uk.porcheron.co_curator.util.Web;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
@@ -87,19 +92,34 @@ public class ItemPhoto extends Item {
 
     @Override
     public boolean onTap() {
-        Log.v(TAG, "Image clicked!");
-
-        Intent intent = new Intent(TimelineActivity.getInstance(), ImageDialogActivity.class);
-        intent.putExtra(ImageDialogActivity.IMAGE, mImagePath);
-
-        mActivity.startActivity(intent);
-        mActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-        return true;
+        return onLongPress();
+//        Log.v(TAG, "Image clicked!");
+//
+//        Intent intent = new Intent(TimelineActivity.getInstance(), ImageDialogActivity.class);
+//        intent.putExtra(ImageDialogActivity.IMAGE, mImagePath);
+//
+//        mActivity.startActivity(intent);
+//        mActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+//        return true;
     }
 
     @Override
     protected boolean onLongPress() {
-        return false;
+        try {
+            new DialogPhoto()
+                    .setSource(mImagePath + ".png")
+                    .setOnDeleteListener(new DialogNote.OnDeleteListener() {
+                        @Override
+                        public void onDelete(DialogInterface dialog) {
+                            Instance.items.remove(ItemPhoto.this, true, true, true);
+                        }
+                    })
+                    .create()
+                    .show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
 

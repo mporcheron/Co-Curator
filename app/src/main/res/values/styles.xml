@@ -27,6 +27,7 @@
 
     <style name="noteDialogAnimated" parent="@android:style/Theme.Dialog">
         <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>

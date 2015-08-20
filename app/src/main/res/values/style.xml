@@ -26,6 +26,9 @@
     <dimen name="lineCentreGap">4dp</dimen>
     <dimen name="lineWidth">3.5dp</dimen>
 
+    <dimen name="dialogMinYSpace">10dp</dimen>
+    <dimen name="dialogMinXSpace">30dp</dimen>
+
     <dimen name="autoscrollSlack">100dp</dimen>
     <integer name="autoscrollExtra">25</integer>
 
@@ -35,8 +38,8 @@
     <dimen name="itemStemNarrowBy">4dp</dimen>
     <integer name="itemRoundedCorners">12</integer>
 
-    <dimen name="noteWidth">75dp</dimen>
-    <dimen name="noteHeight">75dp</dimen>
+    <dimen name="noteWidth">78dp</dimen>
+    <dimen name="noteHeight">78dp</dimen>
     <dimen name="notePadding">4dp</dimen>
     <integer name="noteLines">6</integer>
     <integer name="noteFontSize">4</integer>
@@ -48,7 +51,7 @@
 
     <dimen name="urlWidth">100dp</dimen>
     <dimen name="urlHeight">100dp</dimen>
-    <dimen name="urlPadding">3dp</dimen>
+    <dimen name="urlPadding">2.5dp</dimen>
 
     <dimen name="videoWidth">116dp</dimen>
     <dimen name="videoHeight">65dp</dimen>

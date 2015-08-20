@@ -82,7 +82,7 @@ public class ItemNote extends Item {
 
     @Override
     public boolean onTap() {
-        return false;
+        return onLongPress();
     }
 
     @Override

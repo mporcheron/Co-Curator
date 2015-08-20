@@ -33,7 +33,7 @@ public class DialogNote extends AbstractDialog {
 
     private static int LINES = 10;
     private static int ALERT_SCALE_SIZE = 3;
-    private static float TEXT_SCALE_SIZE = 1.5f;
+    private static float TEXT_SCALE_SIZE = 1.6f;
 
     private boolean mAutoEdit = false;
 
@@ -46,7 +46,7 @@ public class DialogNote extends AbstractDialog {
         mEditText = new EditText(getActivity());
         mEditText.setSingleLine(false);
         mEditText.setHorizontallyScrolling(false);
-        setView(mEditText);
+        setContentView(mEditText);
     }
 
     @Override
@@ -87,8 +87,12 @@ public class DialogNote extends AbstractDialog {
     }
 
     @Override
-    protected void setStyle(int bgColor, int fgColor) {
-        super.setStyle(bgColor, fgColor);
+    protected void setStyle(Dialog dialog) {
+        super.setStyle(dialog);
+
+        User u = Instance.user();
+        int bgColor = u.bgColor;
+        int fgColor = u.fgColor;
 
         mEditText.setBackgroundColor(bgColor);
         mEditText.setTextColor(fgColor);
@@ -101,15 +105,6 @@ public class DialogNote extends AbstractDialog {
         mEditText.setLineSpacing(0, Style.noteLineSpacing);
         mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PT, TEXT_SCALE_SIZE * Style.noteFontSize);
         mEditText.setSelection(mEditText.getText().toString().length());
-
-        final GestureDetector gD  = new GestureDetector(TimelineActivity.getInstance(), new DialogGestureListener());
-        mEditText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                gD.onTouchEvent(event);
-                return true;
-            }
-        });
 
         setCursorDrawableColor(mEditText, fgColor);
     }
@@ -148,13 +143,5 @@ public class DialogNote extends AbstractDialog {
         } else if(onSubmitListener != null) {
             onSubmitListener.onSubmit(dialog, text);
         }
-    }
-
-    @Override
-    protected boolean onTap() {
-        mEditText.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-        return true;
     }
 }

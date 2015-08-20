@@ -32,6 +32,9 @@ public class Style {
     public static int layoutHalfHeight;
     public static int layoutHalfPadding;
 
+    public static float dialogMinXSpace;
+    public static float dialogMinYSpace;
+
     public static float itemXGapMin;
     public static float itemXGapMax;
     public static float itemXGapOffset;
@@ -92,6 +95,9 @@ public class Style {
 
         userOffsets = res.getIntArray(R.array.userOffsets);
         userLayers = res.getIntArray(R.array.userLayers);
+
+        dialogMinXSpace = res.getDimension(R.dimen.dialogMinXSpace);
+        dialogMinYSpace = res.getDimension(R.dimen.dialogMinYSpace);
 
         lineCentreGap = res.getDimension(R.dimen.lineCentreGap);
         lineWidth = res.getDimension(R.dimen.lineWidth);
