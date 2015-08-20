@@ -61,6 +61,10 @@ public class ItemUrl extends ItemPhoto {
         return super.setData(getItemId() + "-" + Web.b64encode(url));
     }
 
+    public boolean dataChanged(String data) {
+        return !mUrl.equals(data);
+    }
+
     @Override
     public boolean onTap() {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUrl));

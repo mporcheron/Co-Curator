@@ -139,7 +139,7 @@ public class WebLoader {
                 newTextItem(globalUserId, itemId, type, user, data, dateTime, deleted);
             }
         } else {
-            Log.e(TAG, "Item already exists, update it");
+            Log.v(TAG, "Item[" + globalUserId + ":" + itemId + "] already exists, update it");
 
             activity.runOnUiThread(new Runnable() {
                 public void run() {
@@ -151,7 +151,7 @@ public class WebLoader {
                         Instance.items.unremove(item);
                     }
 
-                    if (!item.getData().equals(data)) {
+                    if (item.dataChanged(data)) {
                         if (type == ItemType.NOTE) {
                             updateTextItem(item, data);
                             Instance.items.update(item, data, false, false);
@@ -164,6 +164,8 @@ public class WebLoader {
 //
 //                            updatePhotoItem(globalUserId, item, data, url, filename, width, height);
                         } else if (type == ItemType.URL) {
+                            Log.d(TAG, "Item data currently = " + item.getData());
+
                             String b64Url = Web.b64encode(data);
                             String filename = itemId + "-" + b64Url;
                             String url = Web.GET_URL_SCREENSHOT + b64Url;

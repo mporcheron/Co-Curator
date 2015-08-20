@@ -76,6 +76,10 @@ public abstract class Item extends View {
         });
     }
 
+    public boolean dataChanged(String data) {
+        return !getData().equals(data);
+    }
+
     public abstract String getData();
 
     abstract String setData(String data);

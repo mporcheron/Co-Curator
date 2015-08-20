@@ -144,9 +144,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         mUnbindAll = true;
 
-        if(mCreated) {
-            return;
-        }
+//        if(mCreated) {
+//            return;
+//        }
 
         showLoadingDialog(R.string.dialogLoading);
 

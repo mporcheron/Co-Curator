@@ -29,10 +29,6 @@ public class User {
         this.userId = userId;
         this.globalUserId = globalUserId;
 
-        this.offset = Style.userOffsets[Instance.addedUsers];
-        this.centrelineOffset = Style.userPositions[Instance.addedUsers] * (Style.lineWidth + Style.lineCentreGap);
-        this.above = offset <= 0;
-
         this.bgColor = Instance.userId == userId ? Style.userMeBgColors[userId] : Style.userBgColors[userId];
         this.fgColor = Style.userFgColors[userId];
 
@@ -42,23 +38,34 @@ public class User {
         this.bgPaint = bgPaint;
 
         if(globalUserId == Instance.globalUserId) {
-            draw = true;
+            willDraw();
         }
 
         Instance.addedUsers++;
     }
 
     void willDraw() {
+        int count = 0;
+        for(User user : Instance.users) {
+            if(user.draw) {
+                count++;
+            }
+        }
+
         int drawn = Instance.drawnUsers;
 
-        this.offset = Style.userOffsets[drawn];
-        this.centrelineOffset = Style.userPositions[drawn] * (Style.lineWidth + Style.lineCentreGap);
+        this.offset = Style.userOffsets[count];
+        this.centrelineOffset = Style.userPositions[count] * (Style.lineWidth + Style.lineCentreGap);
         this.above = this.offset <= 0;
         this.draw = true;
+
+        Instance.drawnUsers++;
     }
 
     void willUnDraw() {
         this.draw = false;
+
+        Instance.drawnUsers--;
     }
 
     public boolean draw() {

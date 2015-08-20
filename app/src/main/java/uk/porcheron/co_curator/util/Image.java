@@ -28,7 +28,7 @@ public class Image {
     }
 
     public static void url2File(final String url, final String destination, final int thumbWidth, final int thumbHeight, final Runnable onCompleteRunner) {
-        Log.d(TAG, "Download " + url + " and save as " + destination);
+        Log.v(TAG, "Download " + url + " and save as " + destination);
 
         new Thread(new Runnable() {
 
@@ -87,7 +87,7 @@ public class Image {
 
     private static Bitmap getBitmapFromURL(String src) {
         try {
-            Log.d(TAG, "Download image from " + src);
+            Log.v(TAG, "Download image from " + src);
             HttpURLConnection connection =
                     (HttpURLConnection) (new URL(src)).openConnection();
             connection.setDoInput(true);
@@ -115,7 +115,7 @@ public class Image {
     private static Bitmap save(Context context, Bitmap bitmap, String filename, int finalWidth, int finalHeight, boolean crop) throws IOException, IllegalArgumentException {
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
-        Log.d(TAG, "Image is (" + width + "," + height + ")");
+        Log.v(TAG, "Image is (" + width + "," + height + ")");
 
         float thumbScale = finalWidth / (float) width;
         if(height * thumbScale < finalHeight) {
@@ -125,14 +125,14 @@ public class Image {
         int scaleWidth = (int) (width * thumbScale);
         int scaleHeight = (int) (height * thumbScale);
 
-        Log.d(TAG, "Scaled Image is is (" + scaleWidth + "," + scaleHeight + ")");
+        Log.v(TAG, "Scaled Image is is (" + scaleWidth + "," + scaleHeight + ")");
         bitmap = Bitmap.createScaledBitmap(bitmap, scaleWidth, scaleHeight, true);
 
         if(crop) {
             int x = (int) ((scaleWidth / 2f) - (finalWidth / 2f));
             int y = (int) ((scaleHeight / 2f) - (finalHeight / 2f));
 
-            Log.d(TAG, "Thumbnail Image is is (" + finalWidth + "," + finalHeight + ")");
+            Log.v(TAG, "Thumbnail Image is is (" + finalWidth + "," + finalHeight + ")");
             bitmap = Bitmap.createBitmap(bitmap, x, y, finalWidth, finalHeight);
         }
 

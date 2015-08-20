@@ -142,7 +142,6 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             }
         }
 
-        Log.e(TAG, "We've recorded that we've got Item[" + uniqueItemId + "]");
         mItemIds.put(uniqueItemId, item);
         add(insertAt, item);
 
