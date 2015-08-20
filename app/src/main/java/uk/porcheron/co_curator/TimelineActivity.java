@@ -121,7 +121,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         );
         params.setMargins(0, Style.layoutHalfPadding, 0, 0);
 
-        layoutAbove.setPadding(0, 0, 0, Style.layoutHalfPadding);
+        final int padRight = (int) (Phone.screenWidth * Style.autoscrollExtra);
+        layoutAbove.setPadding(0, 0, padRight, Style.layoutHalfPadding);
+        layoutBelow.setPadding(0, 0, padRight, 0);
         layoutBelow.setLayoutParams(params);
 
         mFrameLayout.setOnLongClickListener(this);
@@ -492,5 +494,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             });
         }
     };
+
 }
 

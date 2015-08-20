@@ -27,6 +27,7 @@
     <dimen name="lineWidth">3.5dp</dimen>
 
     <dimen name="autoscrollSlack">100dp</dimen>
+    <integer name="autoscrollExtra">25</integer>
 
     <dimen name="itemXGapMin">25dp</dimen>
     <dimen name="itemXGapMax">50dp</dimen>
