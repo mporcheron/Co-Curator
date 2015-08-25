@@ -102,6 +102,7 @@ public class ItemNote extends Item {
                     }
                 })
                 .setUser(getUser())
+                .isDeletable(getUser().equals(Instance.user()))
                 .create()
                 .show();
 

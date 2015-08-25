@@ -368,6 +368,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         }
                     }
                 })
+                .isDeletable(true)
                 .create()
                 .show();
     }
@@ -426,6 +427,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         }
                     }
                 })
+                .isDeletable(true)
                 .create()
                 .show();
     }

@@ -4,6 +4,7 @@ import android.graphics.Paint;
 import android.util.Log;
 
 import java.util.Arrays;
+import java.util.Comparator;
 
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
@@ -70,5 +71,15 @@ public class User {
 
     public boolean draw() {
         return this.draw;
+    }
+
+    @Override
+    public boolean equals(Object another) {
+        if(!(another instanceof User)) {
+            return false;
+        }
+
+        User u = (User) another;
+        return u.globalUserId == globalUserId && u.userId == userId;
     }
 }

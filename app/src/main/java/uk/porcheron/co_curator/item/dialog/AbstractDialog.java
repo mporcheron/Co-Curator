@@ -41,6 +41,7 @@ public abstract class AbstractDialog {
     private static float X_LEEWAY = 100;
 
     private User mUser = null;
+    private boolean mDeletable = false;
 
     private final AlertDialog.Builder mBuilder;
     private AlertDialog mDialog = null;
@@ -67,6 +68,15 @@ public abstract class AbstractDialog {
     public final AbstractDialog setUser(User user) {
         mUser = user;
         return this;
+    }
+
+    public final AbstractDialog isDeletable(boolean deletable) {
+        mDeletable = deletable;
+        return this;
+    }
+
+    protected final boolean isDeletable() {
+        return mDeletable;
     }
 
     protected final void setContentView(View view, boolean tHack) {
@@ -247,7 +257,6 @@ public abstract class AbstractDialog {
 
     class DialogGestureListener extends GestureDetector.SimpleOnGestureListener {
 
-
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             Log.e(TAG, "View touched");
@@ -256,6 +265,10 @@ public abstract class AbstractDialog {
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            if(!mDeletable) {
+                return false;
+            }
+
             Log.e(TAG, "Flinging");
             if(e1.getX() < e2.getX()) {
                 return false;

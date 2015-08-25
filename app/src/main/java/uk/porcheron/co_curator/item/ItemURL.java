@@ -126,7 +126,7 @@ public class ItemUrl extends ItemPhoto {
                         int width = ItemUrl.getThumbnailWidth(isVideo);
                         int height = ItemUrl.getThumbnailHeight(isVideo);
 
-                         Image.url2File(requestUrl, filename, width, height, new Runnable() {
+                        Image.url2File(requestUrl, filename, width, height, new Runnable() {
                             @Override
                             public void run() {
                                 Log.d(TAG, "Screenshot saved as " + filename);
@@ -142,6 +142,7 @@ public class ItemUrl extends ItemPhoto {
                     }
                 })
                 .setUser(getUser())
+                .isDeletable(getUser().equals(Instance.user()))
                 .create()
                 .show();
 

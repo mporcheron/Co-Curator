@@ -115,6 +115,7 @@ public class ItemPhoto extends Item {
                         }
                     })
                     .setUser(getUser())
+                    .isDeletable(getUser().equals(Instance.user()))
                     .create()
                     .show();
         } catch (IOException e) {
