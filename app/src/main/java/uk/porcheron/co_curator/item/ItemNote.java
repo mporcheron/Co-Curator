@@ -8,6 +8,7 @@ import android.graphics.RectF;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 
@@ -82,11 +83,20 @@ public class ItemNote extends Item {
 
     @Override
     public boolean onTap() {
-        return onLongPress();
+        onSelect(false, false);
+        return true;
     }
 
     @Override
     protected boolean onLongPress() {
+        boolean userMatches = getUser().equals(Instance.user());
+        onSelect(userMatches, userMatches);
+
+        return true;
+    }
+
+    @Override
+    protected void onSelect(boolean editable, boolean deletable) {
         new DialogNote()
                 .setText(mText)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
@@ -102,11 +112,10 @@ public class ItemNote extends Item {
                     }
                 })
                 .setUser(getUser())
-                .isDeletable(getUser().equals(Instance.user()))
+                .isDeletable(deletable)
+                .isEditable(editable)
                 .create()
                 .show();
-
-        return true;
     }
 
 }

@@ -110,6 +110,14 @@ public class ItemUrl extends ItemPhoto {
 
     @Override
     protected boolean onLongPress() {
+        boolean userMatches = getUser().equals(Instance.user());
+        onSelect(userMatches, userMatches);
+
+        return true;
+    }
+
+    @Override
+    protected void onSelect(boolean editable, boolean deletable) {
         new DialogUrl()
                 .setText(mUrl)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
@@ -142,10 +150,9 @@ public class ItemUrl extends ItemPhoto {
                     }
                 })
                 .setUser(getUser())
-                .isDeletable(getUser().equals(Instance.user()))
+                .isDeletable(deletable)
+                .isEditable(editable)
                 .create()
                 .show();
-
-                return true;
         }
     }

@@ -93,18 +93,20 @@ public class ItemPhoto extends Item {
     @Override
     public boolean onTap() {
         return onLongPress();
-//        Log.v(TAG, "Image clicked!");
-//
-//        Intent intent = new Intent(TimelineActivity.getInstance(), ImageDialogActivity.class);
-//        intent.putExtra(ImageDialogActivity.IMAGE, mImagePath);
-//
-//        mActivity.startActivity(intent);
-//        mActivity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-//        return true;
     }
 
     @Override
     protected boolean onLongPress() {
+        boolean userMatches = getUser().equals(Instance.user());
+        onSelect(false, userMatches);
+
+        return true;
+    }
+
+    @Override
+    protected void onSelect(boolean editable, boolean deletable) {
+        boolean userMatches = getUser().equals(Instance.user());
+
         try {
             new DialogPhoto()
                     .setSource(mImagePath + ".png")
@@ -115,13 +117,13 @@ public class ItemPhoto extends Item {
                         }
                     })
                     .setUser(getUser())
-                    .isDeletable(getUser().equals(Instance.user()))
+                    .isDeletable(deletable)
+                    .isEditable(editable)
                     .create()
                     .show();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return true;
     }
 
 

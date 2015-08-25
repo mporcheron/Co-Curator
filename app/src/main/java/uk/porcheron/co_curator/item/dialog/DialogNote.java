@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -78,7 +79,7 @@ public class DialogNote extends AbstractDialog {
     public void show() {
         super.show();
 
-        if(mAutoEdit) {
+        if(isEditable() && mAutoEdit) {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
@@ -96,8 +97,6 @@ public class DialogNote extends AbstractDialog {
         mEditText.setBackgroundColor(bgColor);
         mEditText.setTextColor(fgColor);
 
-        mEditText.setLines(LINES);
-
         int padding = ALERT_SCALE_SIZE * (int) Style.notePadding;
         mEditText.setPadding(padding, padding, padding, padding);
         mEditText.setGravity(View.TEXT_ALIGNMENT_TEXT_START);
@@ -105,7 +104,28 @@ public class DialogNote extends AbstractDialog {
         mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PT, TEXT_SCALE_SIZE * Style.noteFontSize);
         mEditText.setSelection(mEditText.getText().toString().length());
 
-        setCursorDrawableColor(mEditText, fgColor);
+        mEditText.setCursorVisible(false);
+        mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId,
+                                          KeyEvent event) {
+                mEditText.setCursorVisible(false);
+                if (event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    InputMethodManager in = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    in.hideSoftInputFromWindow(mEditText.getApplicationWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                }
+                return false;
+            }
+        });
+
+        if(!isEditable()) {
+            mEditText.setInputType(InputType.TYPE_NULL);
+        }
+
+        mEditText.setLines(LINES);
+
+        //setCursorDrawableColor(mEditText, fgColor);
     }
 
 
@@ -128,6 +148,21 @@ public class DialogNote extends AbstractDialog {
             fCursorDrawable.set(editor, drawables);
         } catch (final Throwable ignored) {
         }
+    }
+
+    @Override
+    protected boolean onTap() {
+        if(isEditable()) {
+            mEditText.setCursorVisible(true);
+//
+//            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+            mEditText.requestFocus();
+            return true;
+        }
+
+        return false;
     }
 
     @Override

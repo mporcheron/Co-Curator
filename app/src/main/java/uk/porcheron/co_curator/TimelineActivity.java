@@ -369,6 +369,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     }
                 })
                 .isDeletable(true)
+                .isEditable(true)
                 .create()
                 .show();
     }
@@ -387,7 +388,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
                         showLoadingDialog(R.string.dialogAddingUrl);
 
-                        if(!text.startsWith("http://") && !text.startsWith("https://")) {
+                        if (!text.startsWith("http://") && !text.startsWith("https://")) {
                             text = "http://" + text;
                         }
 
@@ -407,7 +408,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                                 public void run() {
                                     if (!Instance.items.add(itemId, ItemType.URL, Instance.user(), url, false, true, true)) {
                                         Log.e(TAG, "Failed to save URL + screenshot");
-                                        if(promptOnCancel) {
+                                        if (promptOnCancel) {
                                             promptNewItem(true);
                                             return;
                                         }
@@ -428,6 +429,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     }
                 })
                 .isDeletable(true)
+                .isEditable(true)
                 .create()
                 .show();
     }

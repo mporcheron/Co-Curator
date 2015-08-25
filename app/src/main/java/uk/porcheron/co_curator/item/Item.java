@@ -208,4 +208,5 @@ public abstract class Item extends View {
         }
     }
 
+    protected abstract void onSelect(boolean editable, boolean deletable);
 }

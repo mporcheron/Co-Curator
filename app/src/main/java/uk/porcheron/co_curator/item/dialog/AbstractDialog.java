@@ -41,6 +41,7 @@ public abstract class AbstractDialog {
     private static float X_LEEWAY = 100;
 
     private User mUser = null;
+    private boolean mEditable = false;
     private boolean mDeletable = false;
 
     private final AlertDialog.Builder mBuilder;
@@ -68,6 +69,15 @@ public abstract class AbstractDialog {
     public final AbstractDialog setUser(User user) {
         mUser = user;
         return this;
+    }
+
+    public final AbstractDialog isEditable(boolean editable) {
+        mEditable = editable;
+        return this;
+    }
+
+    protected final boolean isEditable() {
+        return mEditable;
     }
 
     public final AbstractDialog isDeletable(boolean deletable) {
@@ -259,7 +269,6 @@ public abstract class AbstractDialog {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            Log.e(TAG, "View touched");
             return onTap();
         }
 
@@ -269,7 +278,6 @@ public abstract class AbstractDialog {
                 return false;
             }
 
-            Log.e(TAG, "Flinging");
             if(e1.getX() < e2.getX()) {
                 return false;
             }
