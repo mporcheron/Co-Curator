@@ -5,12 +5,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.RectF;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -48,6 +47,8 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     private final ItemScrollView mScrollView;
     private final LinearLayout mLayoutAbove;
     private final LinearLayout mLayoutBelow;
+
+    private final static boolean DRAW_NOTES_AT_X = false;
 
     private int mDrawn = 0;
 
@@ -128,17 +129,50 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         int insertAt = 0, insertAtAbove = 0, insertAtBelow = 0;
         Iterator<Item> it = iterator();
-        while(it.hasNext()) {
-            Item j = it.next();
-            if(j.getDateTime() > dateTime) {
-                break;
+        float targetX = TimelineActivity.getInstance().getLayoutTouchX();
+        if(DRAW_NOTES_AT_X && type == ItemType.NOTE && targetX > 0) {
+            Item lastItem = null; float diff = Float.MAX_VALUE;
+            while (it.hasNext()) {
+                Item j = it.next();
+                Log.d(TAG, "Test Item[" + j.getUniqueItemId() + "]'s X[" + j.getDrawnX() + "]");
+
+                float newdiff = j.getDrawnX() - targetX;
+                if(newdiff < 0) {
+                    continue;
+                } else if (newdiff < diff) {
+                    lastItem = j;
+                    diff = newdiff;
+                }
+
+                insertAt++;
+                if (user.above && user.draw()) {
+                    insertAtAbove++;
+                } else if (user.draw()) {
+                    insertAtBelow++;
+                }
             }
 
-            insertAt++;
-            if(user.above && user.draw()) {
-                insertAtAbove++;
-            } else if(user.draw()) {
-                insertAtBelow++;
+            if(lastItem != null) {
+                float lastX = lastItem.getDrawnX();
+                if(((targetX - lastX) / 2) < lastItem.getSlotBounds().width()) {
+                    item.setDateTime(lastItem.getDateTime() - 1);
+                } else {
+                    item.setDateTime(lastItem.getDateTime() + 1);
+                }
+            }
+        } else {
+            while (it.hasNext()) {
+                Item j = it.next();
+                if (j.getDateTime() > dateTime) {
+                    break;
+                }
+
+                insertAt++;
+                if (user.above && user.draw()) {
+                    insertAtAbove++;
+                } else if (user.draw()) {
+                    insertAtBelow++;
+                }
             }
         }
 
@@ -172,7 +206,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             values.put(TableItem.COL_ITEM_ID, itemId);
             values.put(TableItem.COL_ITEM_TYPE, type.getTypeId());
             values.put(TableItem.COL_ITEM_DATA, data);
-            values.put(TableItem.COL_ITEM_DATETIME, dateTime);
+            values.put(TableItem.COL_ITEM_DATETIME, item.getDateTime());
             values.put(TableItem.COL_ITEM_UPLOADED, addToCloud ? TableItem.VAL_ITEM_WILL_UPLOAD : TableItem.VAL_ITEM_WONT_UPLOAD);
             values.put(TableItem.COL_ITEM_DELETED, deleted);
 
@@ -193,12 +227,13 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         }
 
         // Save to the Local Database or just draw?
+        long finalDateTime = item.getDateTime();
         if (addToCloud && user.globalUserId == Instance.globalUserId) {
             Log.v(TAG, "Upload item to cloud");
             if(type == ItemType.PHOTO) {
-                new ItemCloud.AddImage(user.globalUserId, itemId, type, dateTime).execute(data);
+                new ItemCloud.AddImage(user.globalUserId, itemId, type, finalDateTime).execute(data);
             } else {
-                new ItemCloud.AddText(user.globalUserId, itemId, type, dateTime).execute(data);
+                new ItemCloud.AddText(user.globalUserId, itemId, type, finalDateTime).execute(data);
             }
         }
 
@@ -328,16 +363,18 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
 
     private void drawItem(User user, Item item, int pos) {
+        Log.d(TAG, "Go forth and draw Item[" + item.getUniqueItemId() + "]");
         if(mDrawnItems.contains(item)) {
             Log.e(TAG, "Item is already drawn");
             return;
         }
 
+        Log.d(TAG, "Go forth and draw Item[" + item.getUniqueItemId() + "]");
         int minWidth = Phone.screenWidth;
         if (user.above) {
             pos =  Math.min(mLayoutAbove.getChildCount(), pos);
 
-            setLeftMargin(item, pos, mLayoutAbove);
+            calculateSpacing(item, pos, mLayoutAbove);
             mLayoutAbove.addView(item,pos);
             mDrawnAboveX.put(pos, item);
 
@@ -345,7 +382,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         } else {
             pos =  Math.min(mLayoutBelow.getChildCount(), pos);
 
-            setLeftMargin(item, pos, mLayoutBelow);
+            calculateSpacing(item, pos, mLayoutBelow);
             mLayoutBelow.addView(item, pos);
             mDrawnBelowX.put(pos, item);
 
@@ -369,7 +406,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         item.setDrawn(true);
     }
 
-    private void setLeftMargin(Item item, int pos, LinearLayout layout) {
+    private void calculateSpacing(Item item, int pos, LinearLayout layout) {
         if(pos == 0) {
             return;
         }
@@ -379,41 +416,42 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         float xpos = prevViewThisLayout.getDrawnX() + slot.width();
         float leftMargin = 0;
 
-        // Do we need to add to the left margin?
-        if( true && Instance.addedUsers > 1 && !mTimestampX.isEmpty()) {
-            long nearestTimestamp = -1, tsDiff = 0;
-            long targetTimestamp = item.getDateTime();
-            for (Long timestamp : mTimestampX.keySet()) {
-                if (nearestTimestamp < 0) {
-                    nearestTimestamp = timestamp;
-                    tsDiff = timestamp;
-                    continue;
-                }
+//        // Do we need to add to the left margin?
+//        if(Instance.addedUsers > 1 && !mTimestampX.isEmpty()) {
+//            long nearestTimestamp = -1, tsDiff = 0;
+//            long targetTimestamp = item.getDateTime();
+//            for (Long timestamp : mTimestampX.keySet()) {
+//                if (nearestTimestamp < 0) {
+//                    nearestTimestamp = timestamp;
+//                    tsDiff = timestamp;
+//                    continue;
+//                }
+//
+//                long diff = timestamp - targetTimestamp;
+//                if (diff < 0 || diff > tsDiff) {
+//                    continue;
+//                }
+//
+//                nearestTimestamp = timestamp;
+//                tsDiff = diff;
+//            }
+//
+//            float nearestX = mTimestampX.get(nearestTimestamp);
+//            if(xpos < nearestX) {
+//                leftMargin = nearestX - xpos + Style.itemXGapMin;
+//            }
+//        }
 
-                long diff = timestamp - targetTimestamp;
-                if (diff < 0 || diff > tsDiff) {
-                    continue;
-                }
-
-                nearestTimestamp = timestamp;
-                tsDiff = diff;
-            }
-
-            float nearestX = mTimestampX.get(nearestTimestamp);
-            if(xpos < nearestX) {
-                leftMargin = nearestX - xpos + Style.itemXGapMin;
-            }
-        }
-
+        Log.d(TAG, "Set Item[" + item.getUniqueItemId() + "] [" + item.getData() + "] as being drawn at " + xpos);
         item.setDrawnX(xpos + leftMargin);
-        mTimestampX.put(item.getDateTime(), xpos + leftMargin);
+//        mTimestampX.put(item.getDateTime(), xpos + leftMargin);
 
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-        );
-        params.setMargins((int) leftMargin, 0, 0, 0);
-        item.setLayoutParams(params);
+//        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+//                FrameLayout.LayoutParams.WRAP_CONTENT,
+//                FrameLayout.LayoutParams.WRAP_CONTENT
+//        );
+//        params.setMargins((int) leftMargin, 0, 0, 0);
+//        item.setLayoutParams(params);
     }
 
     public void retestDrawing() {
@@ -443,7 +481,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 //                            if(j < insertAtAbove) {
 //                                continue;
 //                            }
-//                            setLeftMargin(otherItem, mDrawnBelowX.keyAt(j), mLayoutBelow);
+//                            calculateSpacing(otherItem, mDrawnBelowX.keyAt(j), mLayoutBelow);
 //                        }
                     } else {
 //                        mDrawnBelowX.remove(item);

@@ -179,6 +179,8 @@ public abstract class Item extends View {
 
     protected final String getUniqueItemId() { return mUser.globalUserId + "-" + mItemId; }
 
+    protected final void setDateTime(long dateTime) { mDateTime = dateTime; }
+
     protected final long getDateTime() { return mDateTime; }
 
     protected abstract boolean onTap();
@@ -189,17 +191,19 @@ public abstract class Item extends View {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            return onTap();
+            if(mOuterBounds.contains(e.getX(), e.getY())) {
+                return onTap();
+            }
+            return false;
         }
 
         @Override
-        public void onLongPress(MotionEvent event) {
+        public void onLongPress(MotionEvent e) {
             if(getUser().globalUserId == Instance.globalUserId &&
-                    mOuterBounds.contains(event.getX(), event.getY())) {
+                    mOuterBounds.contains(e.getX(), e.getY())) {
                 Item.this.onLongPress();
             } else {
-                TimelineActivity.getInstance().onLongClick(Item.this);
-                super.onLongPress(event);
+                TimelineActivity.getInstance().promptAdd(getDrawnX() + e.getX());
             }
         }
     }

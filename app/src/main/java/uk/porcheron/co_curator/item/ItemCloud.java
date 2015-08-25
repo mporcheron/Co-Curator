@@ -35,9 +35,9 @@ class ItemCloud {
         protected int mGlobalUserId;
         protected int mItemId;
         protected ItemType mItemType;
-        protected int mDateTime;
+        protected long mDateTime;
 
-        AddText(int globalUserId, int itemId, ItemType itemType, int dateTime) {
+        AddText(int globalUserId, int itemId, ItemType itemType, long dateTime) {
             mGlobalUserId = globalUserId;
             mItemId = itemId;
             mItemType = itemType;
@@ -92,7 +92,7 @@ class ItemCloud {
 
     static class AddImage extends AddText {
 
-        AddImage(int globalUserId, int itemId, ItemType itemType, int dateTime) {
+        AddImage(int globalUserId, int itemId, ItemType itemType, long dateTime) {
             super(globalUserId, itemId, itemType, dateTime);
         }
 

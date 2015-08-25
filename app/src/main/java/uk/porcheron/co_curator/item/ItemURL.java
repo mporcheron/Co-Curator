@@ -141,6 +141,7 @@ public class ItemUrl extends ItemPhoto {
                         Instance.items.remove(ItemUrl.this, true, true, true);
                     }
                 })
+                .setUser(getUser())
                 .create()
                 .show();
 

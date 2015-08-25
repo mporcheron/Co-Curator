@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -53,6 +55,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private Timer mUpdateTimer;
     final Handler mUpdateHandler = new Handler();
 
+    private View.OnTouchListener mGestureDetector;
+
     private SurfaceHolder mSurfaceHolder;
     private ProgressDialog mProgressDialog;
     private FrameLayout mFrameLayout;
@@ -60,6 +64,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     public static final int PICK_PHOTO = 101;
 
     private boolean mUnbindAll = true;
+
+    private float mLayoutTouchX = -1;
 
 
     @Override
@@ -129,6 +135,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mFrameLayout.setOnLongClickListener(this);
         layoutAbove.setOnLongClickListener(this);
         layoutBelow.setOnLongClickListener(this);
+
+        mGestureDetector = new TimelineGestureDetector();
+        mFrameLayout.setOnTouchListener(mGestureDetector);
+        layoutAbove.setOnTouchListener(mGestureDetector);
+        layoutBelow.setOnTouchListener(mGestureDetector);
 
 //        final GestureDetector gD  = new GestureDetector(this, ColloGesture.getInstance());
 //        layoutAbove.setOnTouchListener(new View.OnTouchListener() {
@@ -201,7 +212,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     @Override
     public boolean onLongClick(View v) {
-        promptNewItem(v, Instance.items.isEmpty());
+        promptAdd(mLayoutTouchX);
         return true;
     }
 
@@ -213,8 +224,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mProgressDialog.hide();
     }
 
-    public void promptAdd() {
-        onLongClick(mFrameLayout);
+    public void promptAdd(float x) {
+        Log.v(TAG, "User long press at (" + x + ")");
+        promptNewItem(Instance.items.isEmpty());
     }
 
     @Override
@@ -286,7 +298,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
 
-    public void promptNewItem(final View view, final boolean forceAdd) {
+    public void promptNewItem(final boolean forceAdd) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TimelineActivity.this);
         builder.setTitle(R.string.dialog_add_message);
 
@@ -294,7 +306,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    promptNewItem(view, true);
+                    promptNewItem(true);
                 }
             });
             builder.setCancelable(false);
@@ -315,11 +327,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         break;
 
                     case NOTE:
-                        addNewNote(view, forceAdd);
+                        addNewNote(forceAdd);
                         break;
 
                     case URL:
-                        addNewUrl(view, forceAdd);
+                        addNewUrl(forceAdd);
                         break;
                 }
             }
@@ -329,7 +341,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         dialog.show();
     }
 
-    private void addNewNote(final View view, final boolean promptOnCancel) {
+    private void addNewNote(final boolean promptOnCancel) {
         new DialogNote()
                 .setAutoEdit(true)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
@@ -337,13 +349,13 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     public void onSubmit(DialogInterface dialog, String text) {
                         Log.e(TAG, "Note Submitted");
                         if (promptOnCancel && text.isEmpty()) {
-                            promptNewItem(view, true);
+                            promptNewItem(true);
                         }
                         synchronized (Instance.items) {
                             final int itemId = Instance.items.size();
                             boolean create = Instance.items.add(itemId, ItemType.NOTE, Instance.user(), text, false, true, true);
                             if (promptOnCancel && !create) {
-                                promptNewItem(view, true);
+                                promptNewItem(true);
                             }
                         }
                     }
@@ -352,7 +364,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         if (promptOnCancel) {
-                            promptNewItem(view, true);
+                            promptNewItem(true);
                         }
                     }
                 })
@@ -360,7 +372,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .show();
     }
 
-    private void addNewUrl(final View view, final boolean promptOnCancel) {
+    private void addNewUrl(final boolean promptOnCancel) {
         new DialogUrl()
                 .setAutoEdit(true)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
@@ -369,7 +381,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         Log.e(TAG, "URL Submitted");
 
                         if (promptOnCancel && text.isEmpty()) {
-                            promptNewItem(view, true);
+                            promptNewItem(true);
                         }
 
                         showLoadingDialog(R.string.dialogAddingUrl);
@@ -395,7 +407,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                                     if (!Instance.items.add(itemId, ItemType.URL, Instance.user(), url, false, true, true)) {
                                         Log.e(TAG, "Failed to save URL + screenshot");
                                         if(promptOnCancel) {
-                                            promptNewItem(view, true);
+                                            promptNewItem(true);
                                             return;
                                         }
                                     }
@@ -410,7 +422,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         if (promptOnCancel) {
-                            promptNewItem(view, true);
+                            promptNewItem(true);
                         }
                     }
                 })
@@ -453,12 +465,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 }
             }
         } catch(NullPointerException e) {
-                return;
+            Log.e(TAG, "NullPointer in canvas update: " + e.getMessage());
         } finally {
             try {
                 holder.unlockCanvasAndPost(canvas);
             } catch(IllegalStateException e) {
-
+                Log.e(TAG, "Error unlocking and posting canvas: " + e.getMessage());
             }
         }
     }
@@ -494,6 +506,32 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             });
         }
     };
+//
+//    @Override
+//    public boolean onTouch(View v, MotionEvent event) {
+//        mGestureDetector.
+//        return false;
+//    }
+
+
+    private class TimelineGestureDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
+
+        @Override
+        public void onLongPress(MotionEvent event) {
+            promptAdd(event.getX());
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            mLayoutTouchX = event.getX();
+            return false;
+        }
+    }
+
+    public float getLayoutTouchX() {
+        return mLayoutTouchX;
+    }
+
 
 }
 

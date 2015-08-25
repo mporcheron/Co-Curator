@@ -114,6 +114,7 @@ public class ItemPhoto extends Item {
                             Instance.items.remove(ItemPhoto.this, true, true, true);
                         }
                     })
+                    .setUser(getUser())
                     .create()
                     .show();
         } catch (IOException e) {

@@ -10,6 +10,7 @@ import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Instance;
+import uk.porcheron.co_curator.val.Phone;
 
 /**
  * Class for loading items from the local and cloud databases.
@@ -179,7 +180,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 mActivity.redrawCentrelines();
 
                 if (Instance.items.sizeVisible() == 0) {
-                    mActivity.promptAdd();
+                    mActivity.promptAdd(Phone.screenWidth);
                 }
             }
         });

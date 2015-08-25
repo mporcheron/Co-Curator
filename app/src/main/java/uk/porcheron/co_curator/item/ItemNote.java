@@ -101,6 +101,7 @@ public class ItemNote extends Item {
                         Instance.items.remove(ItemNote.this, true, true, true);
                     }
                 })
+                .setUser(getUser())
                 .create()
                 .show();
 

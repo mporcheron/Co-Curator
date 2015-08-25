@@ -90,9 +90,8 @@ public class DialogNote extends AbstractDialog {
     protected void setStyle(Dialog dialog) {
         super.setStyle(dialog);
 
-        User u = Instance.user();
-        int bgColor = u.bgColor;
-        int fgColor = u.fgColor;
+        int bgColor = getUser().bgColor;
+        int fgColor = getUser().fgColor;
 
         mEditText.setBackgroundColor(bgColor);
         mEditText.setTextColor(fgColor);

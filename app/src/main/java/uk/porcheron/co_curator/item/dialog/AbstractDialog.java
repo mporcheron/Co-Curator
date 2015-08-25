@@ -40,6 +40,8 @@ public abstract class AbstractDialog {
 
     private static float X_LEEWAY = 100;
 
+    private User mUser = null;
+
     private final AlertDialog.Builder mBuilder;
     private AlertDialog mDialog = null;
     private final GestureDetector mGestureDetector;
@@ -56,6 +58,15 @@ public abstract class AbstractDialog {
 
     protected final void setContentView(View view) {
         setContentView(view, false);
+    }
+
+    protected final User getUser() {
+        return mUser == null ? Instance.user() : mUser;
+    }
+
+    public final AbstractDialog setUser(User user) {
+        mUser = user;
+        return this;
     }
 
     protected final void setContentView(View view, boolean tHack) {
@@ -147,8 +158,7 @@ public abstract class AbstractDialog {
     }
 
     protected void setStyle(Dialog dialog) {
-        User u = Instance.user();
-        int bgColor = u.bgColor;
+        int bgColor = getUser().bgColor;
 
         int objeto = mActivity.getResources().getIdentifier("buttonPanel","id","android");
         View vistaObjeto = mDialog.findViewById(objeto);
