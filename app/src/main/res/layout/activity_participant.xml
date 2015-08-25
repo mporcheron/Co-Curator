@@ -22,8 +22,8 @@
                 android:layout_height="wrap_content" android:hint="@string/promptServerAddress"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:inputType="number"
-                android:text="http://10.94.12.43/~map/cocurator" />
+                android:text="http://10.94.12.43/~map/cocurator"
+                android:inputType="textUri" />
 
             <EditText android:id="@+id/globalUserId" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/promptGlobalUserId"
