@@ -31,6 +31,8 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     private float[] mGravity;
     private float[] mGeomagnetic;
 
+    private static final boolean mLandscapeRotate = true;
+
     private double mPitch;
     private Queue<Double> mPreviousRotateValues = new CircularFifoQueue<>(10);
     private Queue<Double> mOrientations = new CircularFifoQueue<>(5);
@@ -41,7 +43,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     private int mReceivedBindFromGlobalUserId = -1;
 
     private static double DIFFERENCE_TO_TRIGGER = 165;
-    private static long TIME_TILL_NEXT_FIRE = 4000L;
+    private static long TIME_TILL_NEXT_FIRE = 3000L;
     private static long TIME_GAP_FOR_BIND = 2000L;
 
     private static long VIBRATE_REQUEST_BIND = 150;
@@ -94,7 +96,11 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
 
-                mOrientations.add(Math.toDegrees(orientation[2])); // azimut, pitch and roll
+                if(mLandscapeRotate) {
+                    mOrientations.add(Math.toDegrees(orientation[0])); // azimut, pitch and roll
+                } else {
+                    mOrientations.add(Math.toDegrees(orientation[2])); // azimut, pitch and roll
+                }
                 float sum = 0;
                 for(double f : mOrientations) {
                     sum += f;
@@ -102,10 +108,11 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                 mPitch = sum / mOrientations.size();
 
                 if(mNextFirePossibleAfter > now) {
-                    mPreviousRotateValues.add(mPitch);
+                    //mPreviousRotateValues.add(mPitch);
                     return;
                 }
 
+                boolean add = false;
                 for(double v : mPreviousRotateValues) {
                     if(Math.abs(v - mPitch) > DIFFERENCE_TO_TRIGGER) {
 
@@ -117,10 +124,12 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                         } else {
                             requestBind();
                         }
-                        break;
+
+                        return;
                     }
                 }
 
+                // if we request or do bind, we don't save this value
                 mPreviousRotateValues.add(mPitch);
             }
         }
