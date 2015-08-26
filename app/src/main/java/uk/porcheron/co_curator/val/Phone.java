@@ -4,6 +4,8 @@ import android.graphics.Point;
 import android.view.Display;
 
 import uk.porcheron.co_curator.TimelineActivity;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 
 /**
  * Data about the current phone.
@@ -18,5 +20,7 @@ public class Phone {
         display.getSize(size);
         screenWidth = size.x;
         screenHeight = size.y;
+
+        CCLog.write(Event.APP_PHONE_ATTRS, "{screenWidth=" + screenWidth + ",screenHeight=" + screenHeight + "}");
     }
 }

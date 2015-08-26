@@ -15,7 +15,9 @@ import android.view.Gravity;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.EllipsizingTextView;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
@@ -102,12 +104,14 @@ public class ItemNote extends Item {
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override
                     public void onSubmit(DialogInterface dialog, String text) {
+                        CCLog.write(Event.ITEM_UPDATE, "{uniqueItemId=" + getUniqueItemId() + ",text=" + text + "}");
                         Instance.items.update(ItemNote.this, text, true, true);
                     }
                 })
                 .setOnDeleteListener(new DialogNote.OnDeleteListener() {
                     @Override
                     public void onDelete(DialogInterface dialog) {
+                        CCLog.write(Event.ITEM_DELETE, "{uniqueItemId=" + getUniqueItemId() + "}");
                         Instance.items.remove(ItemNote.this, true, true, true);
                     }
                 })

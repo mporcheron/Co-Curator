@@ -1,0 +1,45 @@
+package uk.porcheron.co_curator.util;
+
+/**
+ * Created by map on 25/08/15.
+ */
+public enum Event {
+    APP_CREATE,
+    APP_RESUME,
+    APP_PHONE_ATTRS,
+    APP_LONG_CLICK,
+    APP_PROMPT_ADD,
+    APP_PHOTO_ADD,
+    APP_BEAT,
+
+    TL_NEW_ITEM,
+    TL_NEW_NOTE,
+    TL_NEW_PHOTO,
+    TL_NEW_URL,
+
+    TL_NEW_SAVE,
+    TL_NEW_CANCEL,
+
+    DB_LOADED,
+
+    COLLO_SEND,
+    COLLO_SEND_FAIL,
+    COLLO_RECEIVE,
+    COLLO_DO_BIND,
+    COLLO_DO_UNBIND,
+
+    COLLO_BIND_REQUEST,
+    COLLO_ROTATE,
+
+    ITEM_LONG_PRESS,
+    ITEM_SINGLE_TAP,
+    ITEM_UPDATE,
+    ITEM_DELETE,
+
+    WEB_LOADED_USERS,
+    WEB_LOADED_USERS_FAIL,
+    WEB_LOADED_ITEMS,
+    WEB_LOADED_ITEMS_FAIL,
+    WEB_LOADED_ITEM,
+    WEB_LOADED_ITEM_FAIL,
+}

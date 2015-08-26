@@ -13,6 +13,8 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
 import java.util.Queue;
 
 import uk.porcheron.co_curator.TimelineActivity;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.val.Instance;
 
 /**
@@ -114,9 +116,11 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
 
                 boolean add = false;
                 for(double v : mPreviousRotateValues) {
-                    if(Math.abs(v - mPitch) > DIFFERENCE_TO_TRIGGER) {
+                    double diff = Math.abs(v - mPitch);
+                    if(diff > DIFFERENCE_TO_TRIGGER) {
 
                         Log.d(TAG, "Rotated " + DIFFERENCE_TO_TRIGGER + "degrees => BIND");
+                        CCLog.write(Event.COLLO_ROTATE, "{diff=" + diff + "}");
 
                         if(mReceivedBindAt > 0 && mReceivedBindAt + TIME_GAP_FOR_BIND > now) {
                             Log.v(TAG, "Binding close enough to previous bind request");
@@ -181,6 +185,8 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     private void requestBind() {
         Log.v(TAG, "Request bind");
 
+        CCLog.write(Event.COLLO_BIND_REQUEST);
+
         long now = System.currentTimeMillis();
 
         mNextFirePossibleAfter = now + TIME_TILL_NEXT_FIRE;
@@ -197,6 +203,8 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
             Log.e(TAG, "Can't bind to " + globalUserId + ", already bound to them!");
             return;
         }
+
+        CCLog.write(Event.COLLO_DO_BIND, "{globalUserId=" + globalUserId + ",broadcast=" + broadcast + "}");
 
         if(broadcast) {
             ColloManager.broadcast(ColloDict.ACTION_DO_BIND, globalUserId);

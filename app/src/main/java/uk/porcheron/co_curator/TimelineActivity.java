@@ -21,7 +21,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
 import java.util.Timer;
@@ -40,6 +39,8 @@ import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
 import uk.porcheron.co_curator.val.Phone;
@@ -103,6 +104,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         setContentView(R.layout.activity_timelime);
 
         mInstance = this;
+
+        CCLog.write(Event.APP_CREATE, Instance.asString());
 
         // Load various static values
         Phone.collectAttrs();
@@ -178,6 +181,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     @Override
     public void onResume() {
+        CCLog.write(Event.APP_RESUME);
+
         Phone.collectAttrs();
 
         // Begin pitch tracking
@@ -212,6 +217,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     @Override
     public boolean onLongClick(View v) {
+        CCLog.write(Event.APP_LONG_CLICK);
+
         promptAdd(mLayoutTouchX);
         return true;
     }
@@ -225,6 +232,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     public void promptAdd(float x) {
+        CCLog.write(Event.APP_PROMPT_ADD, "{x=" + mLayoutTouchX + "}");
         Log.v(TAG, "User long press at (" + x + ")");
         promptNewItem(Instance.items.isEmpty());
     }
@@ -245,6 +253,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 return;
             }
 
+
             showLoadingDialog(R.string.dialogAddingImage);
 
             Uri selectedImage = data.getData();
@@ -256,6 +265,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String filename = cursor.getString(columnIndex);
             cursor.close();
+
+            CCLog.write(Event.APP_PHOTO_ADD, "{filename=" + filename + "}");
 
             Log.v(TAG, "File selected by user: " + filename);
 
@@ -299,6 +310,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
 
     public void promptNewItem(final boolean forceAdd) {
+        CCLog.write(Event.TL_NEW_ITEM, "{forceAdd=" + forceAdd + "}");
+
         AlertDialog.Builder builder = new AlertDialog.Builder(TimelineActivity.this);
         builder.setTitle(R.string.dialog_add_message);
 
@@ -342,15 +355,21 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void addNewNote(final boolean promptOnCancel) {
+        CCLog.write(Event.TL_NEW_NOTE, "{promptOnCancel=" + promptOnCancel + "}");
+
         new DialogNote()
                 .setAutoEdit(true)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override
                     public void onSubmit(DialogInterface dialog, String text) {
                         Log.e(TAG, "Note Submitted");
+
                         if (promptOnCancel && text.isEmpty()) {
                             promptNewItem(true);
                         }
+
+                        CCLog.write(Event.TL_NEW_SAVE, "{" + text + "}");
+
                         synchronized (Instance.items) {
                             final int itemId = Instance.items.size();
                             boolean create = Instance.items.add(itemId, ItemType.NOTE, Instance.user(), text, false, true, true);
@@ -363,6 +382,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .setOnCancelListener(new DialogNote.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
+                        CCLog.write(Event.TL_NEW_CANCEL);
                         if (promptOnCancel) {
                             promptNewItem(true);
                         }
@@ -375,6 +395,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void addNewUrl(final boolean promptOnCancel) {
+        CCLog.write(Event.TL_NEW_URL, "{promptOnCancel=" + promptOnCancel + "}");
+
         new DialogUrl()
                 .setAutoEdit(true)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
@@ -385,6 +407,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         if (promptOnCancel && text.isEmpty()) {
                             promptNewItem(true);
                         }
+
+                        CCLog.write(Event.TL_NEW_SAVE, "{" + text + "}");
 
                         showLoadingDialog(R.string.dialogAddingUrl);
 
@@ -423,6 +447,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .setOnCancelListener(new DialogNote.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
+                        CCLog.write(Event.TL_NEW_CANCEL);
                         if (promptOnCancel) {
                             promptNewItem(true);
                         }
@@ -435,6 +460,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void addNewPhoto() {
+        CCLog.write(Event.TL_NEW_PHOTO);
+
         Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         pickIntent.setType("image/*");
 

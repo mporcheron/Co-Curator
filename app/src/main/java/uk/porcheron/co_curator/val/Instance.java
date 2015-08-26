@@ -21,4 +21,24 @@ public class Instance {
     public static User user() {
         return users.getByGlobalUserId(globalUserId);
     }
+
+    public static String asString() {
+        StringBuilder sb = new StringBuilder("{");
+
+        sb.append("globalUserId=");
+        sb.append(globalUserId);
+
+        sb.append(", userId=");
+        sb.append(userId);
+
+        sb.append(", groupId=");
+        sb.append(groupId);
+
+        sb.append(", serverAddress=");
+        sb.append(serverAddress);
+
+        sb.append("}");
+
+        return sb.toString();
+    }
 }

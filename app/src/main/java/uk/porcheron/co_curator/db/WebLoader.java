@@ -17,6 +17,8 @@ import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemUrl;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.SoUtils;
 import uk.porcheron.co_curator.val.Instance;
@@ -59,10 +61,12 @@ public class WebLoader {
                     e.printStackTrace();
                 }
             }
+
+            CCLog.write(Event.WEB_LOADED_USERS, response.toString());
         } else {
             Log.e(TAG, "Null response loading users");
+            CCLog.write(Event.WEB_LOADED_USERS_FAIL);
         }
-
     }
 
     protected static void loadItemsFromWeb(final int globalUserId) {
@@ -81,6 +85,10 @@ public class WebLoader {
                     e.printStackTrace();
                 }
             }
+
+            CCLog.write(Event.WEB_LOADED_ITEMS, response.toString());
+        } else {
+            CCLog.write(Event.WEB_LOADED_ITEMS_FAIL);
         }
     }
 
@@ -99,8 +107,11 @@ public class WebLoader {
                 Log.e(TAG, "Could not process Item[" + itemId + "] from the cloud");
                 e.printStackTrace();
             }
+
+            CCLog.write(Event.WEB_LOADED_ITEM, response.toString());
         } else {
             Log.e(TAG, "Could not get Item[" + itemId + "] from the cloud");
+            CCLog.write(Event.WEB_LOADED_ITEM_FAIL);
         }
     }
 

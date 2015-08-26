@@ -14,6 +14,8 @@ import java.util.Map;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.val.Collo;
 import uk.porcheron.co_curator.val.Instance;
 
@@ -162,6 +164,7 @@ public class ColloManager {
 
         @Override
         protected Void doInBackground(String... message) {
+
 //            BlockedIp blockedIp = mClientBlacklist.get(mGlobalUserId);
 //            if(blockedIp != null && blockedIp.attempts > 0 && mDestinationIp.equals(blockedIp.ip)) {
 //                Log.v(TAG, "User[" + Instance.globalUserId + "] Temporarily paused messages to User[" + mGlobalUserId + "] at " + mDestinationIp + ":" + mDestinationPort);
@@ -172,6 +175,9 @@ public class ColloManager {
             int attempts = 3;
             while(attempts-- > 0) {
                 Log.v(TAG, "User[" + Instance.globalUserId + "] Send message[" + message[0] + "] to User[" + mGlobalUserId + "] at " + mDestinationIp + ":" + mDestinationPort);
+
+                CCLog.write(Event.COLLO_SEND, "{globalUserId=" + mGlobalUserId + ",message=" + message + "}");
+
                 try (Socket socket = new Socket()) {
                     socket.connect(new InetSocketAddress(mDestinationIp, mDestinationPort), TIMEOUT);
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -179,6 +185,8 @@ public class ColloManager {
                     break;
                 } catch (IOException e) {
                     Log.e(TAG, e.toString());
+                    CCLog.write(Event.COLLO_SEND_FAIL, "{globalUserId=" + mGlobalUserId + ",message=" + message + "}");
+
 
 //                Boolean boundTo = mUsersBoundTo.get(mGlobalUserId);
 //                if(boundTo != null && boundTo) {
@@ -209,6 +217,8 @@ public class ColloManager {
 
         @Override
         protected Void doInBackground(Boolean... params) {
+            CCLog.write(Event.APP_BEAT, "{unbindAll=" + params[0] + "}");
+
             if(mBeatsTillNextUpdate == 0) {
                 WebLoader.loadUsersFromWeb();
                 ServerManager.update();
@@ -259,6 +269,8 @@ public class ColloManager {
     }
 
     public static void unBindFromUser(int globalUserId) {
+        CCLog.write(Event.COLLO_DO_UNBIND, "{globalUserId=" + globalUserId + "}");
+
         if(globalUserId == Instance.globalUserId) {
             return;
         }

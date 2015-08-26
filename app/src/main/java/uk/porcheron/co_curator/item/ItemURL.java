@@ -11,6 +11,8 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
 import uk.porcheron.co_curator.val.Instance;
@@ -125,6 +127,8 @@ public class ItemUrl extends ItemPhoto {
                     public void onSubmit(DialogInterface dialog, String text) {
                         Log.d(TAG, "Update Url to " + text);
 
+                        CCLog.write(Event.ITEM_UPDATE, "{uniqueItemId=" + getUniqueItemId() + ",text=" + text + "}");
+
                         final String url = text;
                         final String b64Url = Web.b64encode(text);
                         final String filename = getItemId() + "-" + b64Url;
@@ -146,6 +150,7 @@ public class ItemUrl extends ItemPhoto {
                 .setOnDeleteListener(new DialogNote.OnDeleteListener() {
                     @Override
                     public void onDelete(DialogInterface dialog) {
+                        CCLog.write(Event.ITEM_DELETE, "{uniqueItemId=" + getUniqueItemId() + "}");
                         Instance.items.remove(ItemUrl.this, true, true, true);
                     }
                 })

@@ -11,6 +11,8 @@ import java.net.Socket;
 import java.util.Arrays;
 
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.util.SoUtils;
 import uk.porcheron.co_curator.val.Instance;
 
@@ -132,6 +134,8 @@ public class ServerManager {
         }
 
         private static boolean process(String mesg) {
+            CCLog.write(Event.COLLO_RECEIVE, "{mesg=" + mesg + "}");
+
             String[] array = mesg.split(ColloDict.SEP_SPLIT);
             if(array.length < 2) {
                 Log.e(TAG, "Message can't be processed: " + mesg);

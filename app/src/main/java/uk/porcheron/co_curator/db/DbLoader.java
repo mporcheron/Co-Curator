@@ -9,6 +9,8 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Phone;
 
@@ -35,6 +37,9 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
             Log.e(TAG, "Error loading data: " + e.getMessage());
             return Boolean.FALSE;
         }
+
+        CCLog.write(Event.DB_LOADED);
+
         return Boolean.TRUE;
     }
 

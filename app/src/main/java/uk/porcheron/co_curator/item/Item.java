@@ -15,6 +15,8 @@ import java.util.Random;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
@@ -192,6 +194,8 @@ public abstract class Item extends View {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             if(mOuterBounds.contains(e.getX(), e.getY())) {
+                CCLog.write(Event.ITEM_SINGLE_TAP, "{uniqueItemId=" + getUniqueItemId() + "}");
+
                 return onTap();
             }
             return false;
@@ -201,6 +205,8 @@ public abstract class Item extends View {
         public void onLongPress(MotionEvent e) {
             if(getUser().globalUserId == Instance.globalUserId &&
                     mOuterBounds.contains(e.getX(), e.getY())) {
+
+                CCLog.write(Event.ITEM_LONG_PRESS, "{uniqueItemId=" + getUniqueItemId() + "}");
                 Item.this.onLongPress();
             } else {
                 TimelineActivity.getInstance().promptAdd(getDrawnX() + e.getX());

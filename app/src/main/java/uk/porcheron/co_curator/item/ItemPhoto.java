@@ -21,6 +21,8 @@ import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogPhoto;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.CCLog;
+import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
 import uk.porcheron.co_curator.val.Instance;
@@ -113,6 +115,7 @@ public class ItemPhoto extends Item {
                     .setOnDeleteListener(new DialogNote.OnDeleteListener() {
                         @Override
                         public void onDelete(DialogInterface dialog) {
+                            CCLog.write(Event.ITEM_DELETE, "{uniqueItemId=" + getUniqueItemId() + "}");
                             Instance.items.remove(ItemPhoto.this, true, true, true);
                         }
                     })
