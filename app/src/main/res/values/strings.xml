@@ -27,7 +27,7 @@
     <string name="resourcePhotoLibrary">Photo</string>
     <string name="resourcePhotoCamera">Photo from Camera</string>
     <string name="resourceNote">Note</string>
-    <string name="resourceUrl">Website Address</string>
+    <string name="resourceUrl">Webpage or YouTube</string>
 
     <string name="dialog_note_title">Create Note</string>
     <string name="dialog_note_positive">Add Note</string>
