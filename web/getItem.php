@@ -2,12 +2,14 @@
 
 require_once 'db.php';
 
+\header('Content-type: application/json');
+
 \requireInput('Must provide global user ID and item ID', ['globalUserId', 'itemId']);
 
 $globalUserId = \intval($data['globalUserId']);
 $localItemId = \intval($data['itemId']);
 
-if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDateTime` FROM `item` WHERE `globalUserId`=:globalUserId AND `localItemId`=:localItemId')) {
+if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDateTime`, `itemDeleted` FROM `item` WHERE `globalUserId`=:globalUserId AND `localItemId`=:localItemId')) {
 	$stmt->bindParam(':globalUserId', $globalUserId, SQLITE3_INTEGER);
 	$stmt->bindParam(':localItemId', $localItemId, SQLITE3_INTEGER);
 
@@ -19,7 +21,8 @@ if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDat
 			$data = ['id' => $row['localItemId'],
 				'type' => $row['itemType'],
 				'data' => $row['itemData'],
-				'dateTime' => $row['itemDateTime']];
+				'dateTime' => $row['itemDateTime'],
+				'deleted' => $row['itemDeleted']];
 		}
 
 		if(empty($data)) {

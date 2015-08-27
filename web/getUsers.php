@@ -3,13 +3,17 @@
 require_once 'db.php';
 require_once 'updateUser.php';
 
-if ($stmt = $db->prepare('SELECT `globalUserId`, `userId`, `ip` FROM `user` WHERE `groupId`=:groupId')) {
+\header('Content-type: application/json');
+
+if ($stmt = $db->prepare('SELECT `globalUserId`, `userId`, `ip`, `userLastCheckin` FROM `user` WHERE `groupId`=:groupId')) {
 	$stmt->bindParam(':groupId', $groupId, SQLITE3_INTEGER);
 	
 	if($res = $stmt->execute()) {
 		$data = [];
 		while($row = $res->fetchArray()) {
-			$data[] = ['globalUserId' => $row['globalUserId'], 'userId' => $row['userId'], 'ip' => $row['ip']];
+			if($row['userLastCheckin'] != '' && $row['userLastCheckin'] >= \time() - USER_LOGGED_IN_FOR) {
+				$data[] = ['globalUserId' => $row['globalUserId'], 'userId' => $row['userId'], 'ip' => $row['ip']];
+			}
 		}
 
 		$stmt->close();

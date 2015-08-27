@@ -2,6 +2,8 @@
 
 require_once 'db.php';
 
+\header('Content-type: application/json');
+
 \requireInput('Must provide user credentials', ['globalUserId', 'groupId']);
 \requireInput('Must provide IP address', ['ip']);
 

@@ -36,12 +36,12 @@ public class CCLog {
 
         if(mFile == null) {
             File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            mFile = new File(dir, FILENAME);
-        }
+            if (!dir.exists() && !dir.mkdirs()) {
+                Log.e(TAG, "Directory not created");
+                return;
+            }
 
-        if (!mFile.mkdirs()) {
-            Log.e(TAG, "Directory not created");
-            return;
+            mFile = new File(dir, FILENAME);
         }
 
         new Thread(new Runnable() {

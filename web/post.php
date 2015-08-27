@@ -2,6 +2,8 @@
 
 require_once 'db.php';
 
+\header('Content-type: application/json');
+
 \requireInput('Must provide user credentials', ['globalUserId']);
 \requireInput('Must provide item details', ['itemId', 'itemType', 'itemDateTime']);
 
@@ -33,12 +35,14 @@ if ($itemType == 0 && isset($_FILES['itemData'])) {
 
 // Save to database
 if ($stmt = $db->prepare('INSERT INTO `item` (`globalItemId`, `localItemId`, `globalUserId`, `itemType`, `itemData`, `itemDateTime`) VALUES (:globalItemId, :localItemId, :globalUserId, :itemType, :itemData, :itemDateTime);')) {
-	$stmt->bindValue(':globalItemId', $globalUserId . ':' . $itemId, SQLITE3_TEXT);
-	$stmt->bindValue(':localItemId', $itemId, SQLITE3_INTEGER);
-	$stmt->bindValue(':globalUserId', $globalUserId, SQLITE3_INTEGER);
-	$stmt->bindValue(':itemType', $itemType, SQLITE3_INTEGER);
-	$stmt->bindValue(':itemData', $itemData, SQLITE3_TEXT);
-	$stmt->bindValue(':itemDateTime', $itemDateTime, SQLITE3_INTEGER);
+	$globalItemId = $globalUserId . ':' . $itemId . ':' . date('U');
+
+	$stmt->bindParam(':globalItemId', $globalItemId, SQLITE3_TEXT);
+	$stmt->bindParam(':localItemId', $itemId, SQLITE3_INTEGER);
+	$stmt->bindParam(':globalUserId', $globalUserId, SQLITE3_INTEGER);
+	$stmt->bindParam(':itemType', $itemType, SQLITE3_INTEGER);
+	$stmt->bindParam(':itemData', $itemData, SQLITE3_TEXT);
+	$stmt->bindParam(':itemDateTime', $itemDateTime, SQLITE3_INTEGER);
 
 	if(!$stmt->execute()) {
 		\dieError($db->lastErrorMsg(), 'Could not insert into DB');
@@ -46,7 +50,7 @@ if ($stmt = $db->prepare('INSERT INTO `item` (`globalItemId`, `localItemId`, `gl
 
 	$stmt->close();
 
-	\dieResult(['success' => 'A-OK', 'itemId' => $globalUserId . ':' . $itemId]);
+	\dieResult(['success' => 'A-OK', 'itemId' => $globalItemId]);
 } else {
 	\dieError($db->lastErrorMsg(), 'Internal Server Error');
 }

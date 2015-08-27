@@ -2,11 +2,13 @@
 
 require_once 'db.php';
 
+\header('Content-type: application/json');
+
 \requireInput('Must provide global user ID', ['globalUserId']);
 
 $globalUserId = \intval($data['globalUserId']);
 
-if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDateTime` FROM `item` WHERE `globalUserId`=:globalUserId')) {
+if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDateTime`, `itemDeleted` FROM `item` WHERE `globalUserId`=:globalUserId')) {
 	$stmt->bindParam(':globalUserId', $globalUserId, SQLITE3_INTEGER);
 
 	if($res = $stmt->execute()) {
@@ -17,7 +19,8 @@ if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDat
 			$data[] = ['id' => $row['localItemId'],
 				'type' => $row['itemType'],
 				'data' => $row['itemData'],
-				'dateTime' => $row['itemDateTime']];
+				'dateTime' => $row['itemDateTime'],
+				'deleted' => $row['itemDeleted']];
 		}
 
 		$stmt->close();

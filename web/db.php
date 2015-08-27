@@ -5,7 +5,11 @@
 \define('IMG_DIR', \dirname(__FILE__) . '/uploads/');
 \define('IMG_WWW', 'http://'. $_SERVER['SERVER_ADDR'] . \dirname($_SERVER['REQUEST_URI']) . '/uploads/');
 
+\define('URL_DIR', \dirname(__FILE__) . '/url/');
+
 \define('ERROR_LOG', \dirname(__FILE__) .'/error.log');
+
+\define('USER_LOGGED_IN_FOR', 120);
 
 $data = $_REQUEST;
 
@@ -46,4 +50,12 @@ function dieResult($data) {
 //
 
 
-\header('Content-type: application/json');
+$youtubeUrls = [
+            "http://m.youtube.com/watch?",
+            "https://m.youtube.com/watch?",
+            "http://www.youtube.com/watch?",
+            "https://www.youtube.com/watch?",
+            "http://youtube.com/watch?",
+            "https://youtube.com/watch?",
+            "http://youtu.be/",
+            "https://youtu.be/"];
