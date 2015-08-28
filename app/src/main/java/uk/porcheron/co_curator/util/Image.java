@@ -39,6 +39,12 @@ public class Image {
                 try {
                     // Download and save the bitmap
                     Bitmap bitmap = Image.getBitmapFromURL(url);
+
+                    if(bitmap == null) {
+                        Log.e(TAG, "Could not get bitmap from " + url);
+                        return;
+                    }
+
                     Image.save(activity, bitmap, destination);
 
                     // Thumbnail
@@ -104,7 +110,7 @@ public class Image {
 
     private static Bitmap save(Context context, Bitmap bitmap, String filename) throws IOException, IllegalArgumentException {
         final FileOutputStream fos = context.openFileOutput(filename + ".png", Context.MODE_PRIVATE);
-        if (!bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
+        if (bitmap == null || fos == null || !bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)) {
             Log.e(TAG, "Could not save bitmap locally");
         }
         fos.close();
@@ -113,6 +119,10 @@ public class Image {
     }
 
     private static Bitmap save(Context context, Bitmap bitmap, String filename, int finalWidth, int finalHeight, boolean crop) throws IOException, IllegalArgumentException {
+        if(bitmap == null) {
+            return null;
+        }
+
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
         Log.v(TAG, "Image is (" + width + "," + height + ")");
