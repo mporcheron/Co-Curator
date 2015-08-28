@@ -3,10 +3,10 @@
     <color name="background">#FF434343</color>
     <color name="imageBackground">#57010101</color>
 
-    <color name="userBg0">#AA7BBD31</color>
-    <color name="userBg1">#AA1B8DC8</color>
-    <color name="userBg2">#AAFC5C93</color>
-    <color name="userBg3">#AAF6AC61</color>
+    <color name="userBg0">#807BBD31</color>
+    <color name="userBg1">#801B8DC8</color>
+    <color name="userBg2">#80FC5C93</color>
+    <color name="userBg3">#80F6AC61</color>
 
     <color name="userMeBg0">#FF7BBD31</color>
     <color name="userMeBg1">#FF1B8DC8</color>
