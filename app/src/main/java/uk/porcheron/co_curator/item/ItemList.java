@@ -95,12 +95,8 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     }
 
     public synchronized boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
-        return add(itemId, type, user, data,  (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
+        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
     }
-
-//    public boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
-//        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
-//    }
 
     public synchronized boolean add(int itemId, ItemType type, User user, String data, int dateTime, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
         String uniqueItemId = user.globalUserId + "-" + itemId;
@@ -178,6 +174,10 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         mItemIds.put(uniqueItemId, item);
         add(insertAt, item);
+
+        for(int i = insertAt; i < size() - insertAt; i++) {
+            item.setItemIndex(i);
+        }
 
         // List of user's items
         List<Item> items = mItemGlobalUserIds.get(user.globalUserId);
@@ -371,22 +371,11 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         Log.d(TAG, "Go forth and draw Item[" + item.getUniqueItemId() + "]");
         int minWidth = Phone.screenWidth;
+
         if (user.above) {
-            pos =  Math.min(mLayoutAbove.getChildCount(), pos);
-
-            calculateSpacing(item, pos, mLayoutAbove);
-            mLayoutAbove.addView(item,pos);
-            mDrawnAboveX.put(pos, item);
-
-            minWidth = Math.max(mLayoutAbove.getWidth() + item.getMeasuredWidth(), minWidth);
+            minWidth = drawInFold(pos, mLayoutAbove, mDrawnAboveX, item, minWidth);
         } else {
-            pos =  Math.min(mLayoutBelow.getChildCount(), pos);
-
-            calculateSpacing(item, pos, mLayoutBelow);
-            mLayoutBelow.addView(item, pos);
-            mDrawnBelowX.put(pos, item);
-
-            minWidth = Math.max(mLayoutBelow.getWidth() + item.getMeasuredWidth(), minWidth);
+            minWidth = drawInFold(pos, mLayoutBelow, mDrawnBelowX, item, minWidth);
         }
 
         mDrawnItems.add(item);
@@ -406,53 +395,74 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         item.setDrawn(true);
     }
 
-    private void calculateSpacing(Item item, int pos, LinearLayout layout) {
-        if(pos == 0) {
-            return;
-        }
+    private int drawInFold(int pos, LinearLayout layout, SparseArray<Item> drawnItems, Item item, int minWidth) {
+        pos =  Math.min(layout.getChildCount(), pos);
 
-        Item prevViewThisLayout = (Item) layout.getChildAt(pos - 1);
-        RectF slot = prevViewThisLayout.getSlotBounds();
-        float xpos = prevViewThisLayout.getDrawnX() + slot.width();
-        float leftMargin = 0;
+        layout.addView(item, pos);
+        drawnItems.put(pos, item);
 
-//        // Do we need to add to the left margin?
-//        if(Instance.addedUsers > 1 && !mTimestampX.isEmpty()) {
-//            long nearestTimestamp = -1, tsDiff = 0;
-//            long targetTimestamp = item.getDateTime();
-//            for (Long timestamp : mTimestampX.keySet()) {
-//                if (nearestTimestamp < 0) {
-//                    nearestTimestamp = timestamp;
-//                    tsDiff = timestamp;
-//                    continue;
-//                }
+//        int xStart = 0;
+//        if(pos > 0) {
+//            Item prev = drawnItems.get(pos - 1);
+//            xStart += (int) prev.getDrawnX() + prev.getSlotBounds().width();
+//        }
 //
-//                long diff = timestamp - targetTimestamp;
-//                if (diff < 0 || diff > tsDiff) {
-//                    continue;
-//                }
-//
-//                nearestTimestamp = timestamp;
-//                tsDiff = diff;
-//            }
-//
-//            float nearestX = mTimestampX.get(nearestTimestamp);
-//            if(xpos < nearestX) {
-//                leftMargin = nearestX - xpos + Style.itemXGapMin;
-//            }
+//        for (int i = pos; i < drawnItems.size() - pos; i++) {
+//            Item thisItem = drawnItems.get(i);
+//            item.setDrawnX(xStart);
+//            xStart += thisItem.getSlotBounds().width();
 //        }
 
-        Log.d(TAG, "Set Item[" + item.getUniqueItemId() + "] [" + item.getData() + "] as being drawn at " + xpos);
-        item.setDrawnX(xpos + leftMargin);
-//        mTimestampX.put(item.getDateTime(), xpos + leftMargin);
-
-//        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-//                FrameLayout.LayoutParams.WRAP_CONTENT,
-//                FrameLayout.LayoutParams.WRAP_CONTENT
-//        );
-//        params.setMargins((int) leftMargin, 0, 0, 0);
-//        item.setLayoutParams(params);
+        return Math.max(layout.getWidth() + item.getMeasuredWidth(), minWidth);
     }
+
+//    private void calculateSpacing(Item item, int pos, LinearLayout layout) {
+//        if(pos == 0) {
+//            return;
+//        }
+//
+//        Item prevViewThisLayout = (Item) layout.getChildAt(pos - 1);
+//        RectF slot = prevViewThisLayout.getSlotBounds();
+//        float xpos = prevViewThisLayout.getDrawnX() + slot.width();
+//        float leftMargin = 0;
+//
+////        // Do we need to add to the left margin?
+////        if(Instance.addedUsers > 1 && !mTimestampX.isEmpty()) {
+////            long nearestTimestamp = -1, tsDiff = 0;
+////            long targetTimestamp = item.getDateTime();
+////            for (Long timestamp : mTimestampX.keySet()) {
+////                if (nearestTimestamp < 0) {
+////                    nearestTimestamp = timestamp;
+////                    tsDiff = timestamp;
+////                    continue;
+////                }
+////
+////                long diff = timestamp - targetTimestamp;
+////                if (diff < 0 || diff > tsDiff) {
+////                    continue;
+////                }
+////
+////                nearestTimestamp = timestamp;
+////                tsDiff = diff;
+////            }
+////
+////            float nearestX = mTimestampX.get(nearestTimestamp);
+////            if(xpos < nearestX) {
+////                leftMargin = nearestX - xpos + Style.itemXGapMin;
+////            }
+////        }
+//
+//        Log.d(TAG, "Set Item[" + item.getUniqueItemId() + "] [" + item.getData() + "] as being drawn at " + xpos);
+//        item.setDrawnX(xpos + leftMargin);
+////        mTimestampX.put(item.getDateTime(), xpos + leftMargin);
+//
+////        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+////                FrameLayout.LayoutParams.WRAP_CONTENT,
+////                FrameLayout.LayoutParams.WRAP_CONTENT
+////        );
+////        params.setMargins((int) leftMargin, 0, 0, 0);
+////        item.setLayoutParams(params);
+//    }
 
     public void retestDrawing() {
         mDrawn = 0;

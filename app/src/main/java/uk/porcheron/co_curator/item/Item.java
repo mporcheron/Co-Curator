@@ -34,6 +34,7 @@ public abstract class Item extends View {
 
     private User mUser;
     private int mItemId;
+    private int mItemIndex;
     private long mDateTime;
 
     private float mX;
@@ -177,6 +178,14 @@ public abstract class Item extends View {
 
     protected final int getItemId() {
         return mItemId;
+    }
+
+    protected final int getItemIndex() {
+        return mItemIndex;
+    }
+
+    protected final void setItemIndex(int itemIndex) {
+        mItemIndex = itemIndex;
     }
 
     protected final String getUniqueItemId() { return mUser.globalUserId + "-" + mItemId; }
