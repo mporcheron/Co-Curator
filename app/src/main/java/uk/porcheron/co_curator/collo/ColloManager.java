@@ -131,6 +131,9 @@ public class ColloManager {
         public static boolean respond(String action, int globalUserId, String... data) {
             if(action.equals(ColloDict.ACTION_HEARTBEAT)) {
                 mHeardFromAt.put(globalUserId, System.currentTimeMillis());
+                if(!isBoundTo(globalUserId)) {
+                    bindToUser(globalUserId);
+                }
                 return true;
             }
 

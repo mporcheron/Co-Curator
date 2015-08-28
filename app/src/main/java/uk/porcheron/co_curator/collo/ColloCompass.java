@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.Surface;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
@@ -27,24 +28,25 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     private static ColloCompass mInstance;
 
     private SensorManager mSensorManager;
-    private Sensor accelerometer;
-    private Sensor magnetometer;
+    private Sensor mAccelerometer;
+    private Sensor mMagnetometer;
 
     private float[] mGravity;
     private float[] mGeomagnetic;
 
-    private static final boolean mLandscapeRotate = false;
+    private static final boolean mLandscapeRotate = true;
 
     private double mPitch;
     private Queue<Double> mPreviousRotateValues = new CircularFifoQueue<>(10);
     private Queue<Double> mOrientations = new CircularFifoQueue<>(5);
+    private float[] mRotationMatrixB = new float[9];
 
     private long mNextFirePossibleAfter = 0L;
     private long mDoBindBefore = 0L;
     private long mReceivedBindAt = -1;
     private int mReceivedBindFromGlobalUserId = -1;
 
-    private static double DIFFERENCE_TO_TRIGGER = 165;
+    private static double DIFFERENCE_TO_TRIGGER = 150;
     private static long TIME_TILL_NEXT_FIRE = 3000L;
     private static long TIME_GAP_FOR_BIND = 2000L;
 
@@ -61,13 +63,13 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     ColloCompass() {
         mActivity = TimelineActivity.getInstance();
         mSensorManager = (SensorManager) mActivity.getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mMagnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     }
 
     public void resumeListening() {
-        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
-        mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(this, mMagnetometer, SensorManager.SENSOR_DELAY_UI);
 
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_BIND, mInstance);
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DO_BIND, mInstance);
@@ -81,7 +83,9 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     public void onAccuracyChanged(Sensor sensor, int accuracy) {  }
 
     public void onSensorChanged(SensorEvent event) {
-        long now = System.currentTimeMillis();
+        if (event.accuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
+            return;
+        }
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             mGravity = event.values.clone();
@@ -90,19 +94,32 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
             mGeomagnetic = event.values.clone();
 
         if (mGravity != null && mGeomagnetic != null) {
-            float R[] = new float[9];
-            float I[] = new float[9];
-            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+            long now = System.currentTimeMillis();
+
+            float rotationMatrix[] = new float[9];
+            float inclinationMatrix[] = new float[9];
+            boolean success = SensorManager.getRotationMatrix(rotationMatrix, inclinationMatrix,
+                    mGravity, mGeomagnetic);
 
             if (success) {
                 float orientation[] = new float[3];
-                SensorManager.getOrientation(R, orientation);
 
-                if(mLandscapeRotate) {
-                    mOrientations.add(Math.toDegrees(orientation[0])); // azimut, pitch and roll
-                } else {
-                    mOrientations.add(Math.toDegrees(orientation[2])); // azimut, pitch and roll
-                }
+                float[] rotationMatrixB = mRotationMatrixB;
+                SensorManager.remapCoordinateSystem(rotationMatrix,
+                        SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X, rotationMatrixB);
+
+
+                SensorManager.getOrientation(rotationMatrixB, orientation);
+
+//                    Log.e("READING", Math.toDegrees(orientation[0]) + "," +
+//                            Math.toDegrees(orientation[1]) + "," +
+//                            Math.toDegrees(orientation[2]));
+//                } else {
+//                    SensorManager.getOrientation(rotationMatrix, orientation);
+//                }
+
+                mOrientations.add(Math.toDegrees(orientation[2])); // azimut, pitch and roll
+
                 float sum = 0;
                 for(double f : mOrientations) {
                     sum += f;
@@ -110,7 +127,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                 mPitch = sum / mOrientations.size();
 
                 if(mNextFirePossibleAfter > now) {
-                    //mPreviousRotateValues.add(mPitch);
+                    mPreviousRotateValues.add(mPitch);
                     return;
                 }
 
@@ -128,8 +145,6 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
                         } else {
                             requestBind();
                         }
-
-                        return;
                     }
                 }
 
