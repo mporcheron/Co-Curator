@@ -33,7 +33,7 @@ public class ColloCompass implements SensorEventListener, ColloManager.ResponseH
     private float[] mGravity;
     private float[] mGeomagnetic;
 
-    private static final boolean mLandscapeRotate = true;
+    private static final boolean mLandscapeRotate = false;
 
     private double mPitch;
     private Queue<Double> mPreviousRotateValues = new CircularFifoQueue<>(10);
