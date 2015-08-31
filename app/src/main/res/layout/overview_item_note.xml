@@ -28,7 +28,5 @@
         android:layout_height="match_parent"
         android:text="Not Set"
         android:textStyle="bold"
-        android:foreground="@color/overviewText"
-        android:foregroundGravity="center_vertical|left"
-        android:gravity="center_vertical|left" />
+        android:foreground="@color/overviewText" />
 </uk.porcheron.co_curator.overview.OverviewItem>
