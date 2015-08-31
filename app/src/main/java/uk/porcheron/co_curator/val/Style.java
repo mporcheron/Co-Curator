@@ -61,6 +61,7 @@ public class Style {
     public static int noteLines;
     public static int noteFontSize;
     public static float noteLineSpacing;
+    public static int noteLenth;
 
     public static int overviewNumItems;
     public static int overviewItemSize;
@@ -131,6 +132,7 @@ public class Style {
         noteLines = res.getInteger(R.integer.noteLines);
         noteFontSize = res.getInteger(R.integer.noteFontSize);
         noteLineSpacing  = res.getInteger(R.integer.noteLineSpacing) / 10f;
+        noteLenth = res.getInteger(R.integer.noteLength);
 
         float rvWidth = Phone.screenWidth;
         overviewNumItems = res.getInteger(R.integer.overviewNumItems);

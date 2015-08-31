@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -33,8 +34,8 @@ public class DialogNote extends AbstractDialog {
     private static final String TAG = "CC:DialogNote";
 
     private static int LINES = 10;
-    private static int ALERT_SCALE_SIZE = 3;
-    private static float TEXT_SCALE_SIZE = 1.6f;
+    private static float ALERT_SCALE_SIZE = 2.5f;
+    private static float TEXT_SCALE_SIZE = 2f;
 
     private boolean mAutoEdit = false;
 
@@ -52,12 +53,12 @@ public class DialogNote extends AbstractDialog {
 
     @Override
     protected int width() {
-        return ALERT_SCALE_SIZE * (int) Style.noteWidth;
+        return (int) (ALERT_SCALE_SIZE * Style.noteWidth);
     }
 
     @Override
     protected int height() {
-        return ALERT_SCALE_SIZE * (int) Style.noteHeight;
+        return (int) (ALERT_SCALE_SIZE * Style.noteHeight);
     }
 
     protected EditText getEditText() {
@@ -97,12 +98,15 @@ public class DialogNote extends AbstractDialog {
         mEditText.setBackgroundColor(bgColor);
         mEditText.setTextColor(fgColor);
 
-        int padding = ALERT_SCALE_SIZE * (int) Style.notePadding;
+        int padding = (int) (ALERT_SCALE_SIZE * Style.notePadding);
         mEditText.setPadding(padding, padding, padding, padding);
-        mEditText.setGravity(View.TEXT_ALIGNMENT_TEXT_START);
+        mEditText.setGravity(View.TEXT_ALIGNMENT_CENTER);
         mEditText.setLineSpacing(0, Style.noteLineSpacing);
         mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PT, TEXT_SCALE_SIZE * Style.noteFontSize);
         mEditText.setSelection(mEditText.getText().toString().length());
+
+        int maxLength = Style.noteLenth;
+        mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
 
         mEditText.setCursorVisible(false);
         mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {

@@ -68,6 +68,7 @@ public class ItemNote extends Item {
         mTextView.setLineSpacing(0, Style.noteLineSpacing);
         mTextView.setTextSize(TypedValue.COMPLEX_UNIT_PT, Style.noteFontSize);
         mTextView.setTextColor(getUser().fgColor);
+
         mTextView.setText(text);
 
         return text;

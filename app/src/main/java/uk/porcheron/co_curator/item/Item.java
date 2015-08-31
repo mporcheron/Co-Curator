@@ -259,13 +259,13 @@ public abstract class Item extends View {
     final Handler handler = new Handler();
     Runnable mLongPressed = new Runnable() {
         public void run() {
-            if(getUser().globalUserId == Instance.globalUserId) {
+            //if(getUser().globalUserId == Instance.globalUserId) {
                 Log.d(TAG, "Long press on Item[" + getUniqueItemId() + "]");
                 CCLog.write(Event.ITEM_LONG_PRESS, "{uniqueItemId=" + getUniqueItemId() + "}");
                 Item.this.onLongPress();
-            } else {
-                TimelineActivity.getInstance().promptAdd(getDrawnX() + mLongPressX);
-            }
+//            } else {
+//                TimelineActivity.getInstance().promptAdd(getDrawnX() + mLongPressX);
+//            }
         }
     };
 

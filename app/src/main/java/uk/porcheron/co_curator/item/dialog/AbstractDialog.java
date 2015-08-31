@@ -265,6 +265,8 @@ public abstract class AbstractDialog {
         return false;
     }
 
+    private static final int MIN_X = 200;
+
     class DialogGestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
@@ -278,7 +280,7 @@ public abstract class AbstractDialog {
                 return false;
             }
 
-            if(e1.getX() < e2.getX()) {
+            if(e1.getX() < e2.getX() + MIN_X) {
                 return false;
             }
 
