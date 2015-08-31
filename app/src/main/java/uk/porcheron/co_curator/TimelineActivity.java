@@ -144,21 +144,28 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         layoutBelow.setOnLongClickListener(this);
 
         mGestureDetector = new TimelineGestureDetector();
-        mFrameLayout.setOnTouchListener(mGestureDetector);
-        layoutAbove.setOnTouchListener(mGestureDetector);
-        layoutBelow.setOnTouchListener(mGestureDetector);
+//        mFrameLayout.setOnTouchListener(mGestureDetector);
 
         // Pinch to overview
         mScaleDetector = new ScaleGestureDetector(this, new OverviewDetector());
+//        mFrameLayout.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(final View view, final MotionEvent event) {
+//                return mFrameLayout.onTouch(event) || mScaleDetector.onTouchEvent(event);
+//            }
+//        });
+
         layoutAbove.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
+                mGestureDetector.onTouch(view, event);
                 return mScaleDetector.onTouchEvent(event);
             }
         });
         layoutBelow.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
+                mGestureDetector.onTouch(view, event);
                 return mScaleDetector.onTouchEvent(event);
             }
         });
@@ -542,27 +549,31 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             });
         }
     };
-//
-//    @Override
-//    public boolean onTouch(View v, MotionEvent event) {
-//        mGestureDetector.
-//        return false;
-//    }
 
+    private static long LONG_PRESS_DELAY = 750;
 
     private class TimelineGestureDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
 
         @Override
-        public void onLongPress(MotionEvent event) {
-            promptAdd(event.getX());
-        }
-
-        @Override
         public boolean onTouch(View v, MotionEvent event) {
+            if(event.getAction() == MotionEvent.ACTION_DOWN)
+                handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
+            if((event.getAction() == MotionEvent.ACTION_MOVE)||(event.getAction() == MotionEvent.ACTION_UP))
+                handler.removeCallbacks(mLongPressed);
+
             mLayoutTouchX = event.getX();
+
             return false;
         }
     }
+
+    final Handler handler = new Handler();
+    Runnable mLongPressed = new Runnable() {
+        public void run() {
+            promptAdd(mLayoutTouchX);
+        }
+    };
+
 
     public float getLayoutTouchX() {
         return mLayoutTouchX;
@@ -572,7 +583,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
-            Log.d(TAG, "show overview");
             Intent i = new Intent(TimelineActivity.this, OverviewActivity.class);
             startActivity(i);
         }
