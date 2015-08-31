@@ -77,7 +77,7 @@ public abstract class Item extends View {
             public boolean onTouch(final View view, final MotionEvent e) {
                 if(mOuterBounds.contains(e.getX(), e.getY())) {
                     gD.onTouchEvent(e);
-                    
+
                     if(e.getAction() == MotionEvent.ACTION_DOWN) {
                         handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
                         mLongPressX = e.getX();
