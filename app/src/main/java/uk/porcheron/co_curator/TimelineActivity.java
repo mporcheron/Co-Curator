@@ -556,10 +556,15 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if(event.getAction() == MotionEvent.ACTION_DOWN)
+            if(event.getAction() == MotionEvent.ACTION_DOWN) {
                 handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
-            if((event.getAction() == MotionEvent.ACTION_MOVE)||(event.getAction() == MotionEvent.ACTION_UP))
+            }
+
+            if(event.getAction() == MotionEvent.ACTION_MOVE
+                    || event.getAction() == MotionEvent.ACTION_UP
+                    || event.getAction() == MotionEvent.ACTION_SCROLL) {
                 handler.removeCallbacks(mLongPressed);
+            }
 
             mLayoutTouchX = event.getX();
 
