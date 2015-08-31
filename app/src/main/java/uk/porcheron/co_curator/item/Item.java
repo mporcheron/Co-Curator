@@ -76,6 +76,8 @@ public abstract class Item extends View {
             @Override
             public boolean onTouch(final View view, final MotionEvent e) {
                 if(mOuterBounds.contains(e.getX(), e.getY())) {
+                    gD.onTouchEvent(e);
+                    
                     if(e.getAction() == MotionEvent.ACTION_DOWN) {
                         handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
                         mLongPressX = e.getX();
@@ -89,8 +91,7 @@ public abstract class Item extends View {
                         handler.removeCallbacks(mLongPressed);
                     }
 
-                    gD.onTouchEvent(e);
-                    return true;
+                    return false;
                 }
                 return false;
             }
@@ -227,7 +228,7 @@ public abstract class Item extends View {
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
+        public boolean onSingleTapUp(MotionEvent e) {
             Log.d(TAG, "Single tap on Item[" + getUniqueItemId() + "]");
             CCLog.write(Event.ITEM_SINGLE_TAP, "{uniqueItemId=" + getUniqueItemId() + "}");
 
