@@ -61,10 +61,11 @@ public class Style {
     public static int noteLines;
     public static int noteFontSize;
     public static float noteLineSpacing;
-    public static int noteLenth;
+    public static int noteLength;
 
     public static int overviewNumItems;
     public static int overviewItemSize;
+    public static float overviewItemBorder;
 
     public static Paint normalPaint;
 
@@ -110,7 +111,7 @@ public class Style {
         itemXGapMax = res.getDimension(R.dimen.itemXGapMax);
         itemXGapOffset = itemXGapMax - itemXGapMin;
         itemOutlineSize = res.getDimension(R.dimen.itemOutlineSize);
-        itemRoundedCorners = res.getInteger(R.integer.itemRoundedCorners);
+        itemRoundedCorners = (int) res.getDimension(R.dimen.itemRoundedCorners);
         itemStemNarrowBy = res.getDimension(R.dimen.itemStemNarrowBy);
         itemFullHeight = ((Phone.screenHeight / 2) - (res.getDimension(R.dimen.layoutCentreHeight) / 2));
 
@@ -132,11 +133,12 @@ public class Style {
         noteLines = res.getInteger(R.integer.noteLines);
         noteFontSize = res.getInteger(R.integer.noteFontSize);
         noteLineSpacing  = res.getInteger(R.integer.noteLineSpacing) / 10f;
-        noteLenth = res.getInteger(R.integer.noteLength);
+        noteLength = res.getInteger(R.integer.noteLength);
 
         float rvWidth = Phone.screenWidth;
         overviewNumItems = res.getInteger(R.integer.overviewNumItems);
-        overviewItemSize = (int) ((rvWidth / overviewNumItems) - res.getDimension(R.dimen.overviewItemPadding));
+        overviewItemSize = (int) ((rvWidth / overviewNumItems) - res.getDimension(R.dimen.overviewItemMargin));
+        overviewItemBorder = res.getDimension(R.dimen.overviewItemBorder);
 
         normalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }

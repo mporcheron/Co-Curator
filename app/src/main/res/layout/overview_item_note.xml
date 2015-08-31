@@ -18,8 +18,8 @@
 <uk.porcheron.co_curator.overview.OverviewItem xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="100dp"
-    android:layout_marginRight="@dimen/overviewItemPadding"
-    android:layout_marginTop="@dimen/overviewItemPadding"
+    android:layout_marginRight="@dimen/overviewItemMargin"
+    android:layout_marginTop="@dimen/overviewItemMargin"
     android:gravity="center_vertical">
 
     <TextView
@@ -27,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="Not Set"
-        android:textStyle="bold"
+        android:layout_margin="@dimen/overviewNoteBorder"
         android:foreground="@color/overviewText" />
+
 </uk.porcheron.co_curator.overview.OverviewItem>

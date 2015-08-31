@@ -550,7 +550,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     };
 
-    private static long LONG_PRESS_DELAY = 750;
+    private static long LONG_PRESS_DELAY = 500;
 
     private class TimelineGestureDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
 

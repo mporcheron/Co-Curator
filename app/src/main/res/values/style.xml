@@ -36,7 +36,7 @@
     <dimen name="itemXGapMax">50dp</dimen>
     <dimen name="itemOutlineSize">2dp</dimen>
     <dimen name="itemStemNarrowBy">4dp</dimen>
-    <integer name="itemRoundedCorners">12</integer>
+    <dimen name="itemRoundedCorners">4dp</dimen>
 
     <dimen name="noteWidth">78dp</dimen>
     <dimen name="noteHeight">78dp</dimen>
@@ -59,6 +59,8 @@
     <dimen name="videoPadding">2.5dp</dimen>
 
     <integer name="overviewNumItems">4</integer>
-    <dimen name="overviewItemPadding">4dp</dimen>
+    <dimen name="overviewItemMargin">8dp</dimen>
+    <dimen name="overviewItemBorder">4dp</dimen>
+    <dimen name="overviewNoteBorder">8dp</dimen>
 
 </resources>

@@ -1,19 +1,14 @@
 package uk.porcheron.co_curator.item.dialog;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -21,10 +16,6 @@ import android.widget.TextView;
 
 import java.lang.reflect.Field;
 
-import uk.porcheron.co_curator.R;
-import uk.porcheron.co_curator.TimelineActivity;
-import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -105,7 +96,7 @@ public class DialogNote extends AbstractDialog {
         mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PT, TEXT_SCALE_SIZE * Style.noteFontSize);
         mEditText.setSelection(mEditText.getText().toString().length());
 
-        int maxLength = Style.noteLenth;
+        int maxLength = Style.noteLength;
         mEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
 
         mEditText.setCursorVisible(false);

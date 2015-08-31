@@ -19,6 +19,7 @@ import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.item.Item;
 import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemUrl;
+import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Instance;
 
 /**
@@ -51,11 +52,28 @@ public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHo
     }
 
     public abstract static class ViewHolder extends RecyclerView.ViewHolder {
+        private View mView;
+
         public ViewHolder(View v) {
             super(v);
+            mView = v;
         }
 
         abstract void setData(String data);
+
+        void setUser(int userId, int globalUserId) {
+            int drawable;
+            if (userId == 3) {
+                drawable = R.drawable.overview_bg_3;
+            } else if (userId == 2) {
+                drawable = R.drawable.overview_bg_2;
+            } else if (userId == 1) {
+                drawable = R.drawable.overview_bg_1;
+            } else {
+                drawable = R.drawable.overview_bg_0;
+            }
+            mView.setBackground(OverviewActivity.getInstance().getDrawable(drawable));
+        }
     }
 
     public static class NoteHolder extends ViewHolder {
@@ -69,7 +87,12 @@ public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHo
         }
 
         public void setData(String data) {
-            mTextView.setText(data.toUpperCase());
+            mTextView.setText(data);
+        }
+
+        void setUser(int userId, int globalUserId) {
+            super.setUser(userId, globalUserId);
+            mTextView.setTextColor(Instance.users.getByGlobalUserId(globalUserId).fgColor);
         }
     }
 
@@ -122,6 +145,9 @@ public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         Item i = mItems.get(position);
+        User u = i.getUser();
+
+        viewHolder.setUser(u.userId, u.globalUserId);
         viewHolder.setData(i.getData());
     }
 

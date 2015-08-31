@@ -190,7 +190,7 @@ public abstract class Item extends View {
         setBounds(mSetWidth, mSetHeight, mSetPadding);
     }
 
-    protected final User getUser() {
+    public final User getUser() {
         return mUser;
     }
 
@@ -222,7 +222,7 @@ public abstract class Item extends View {
         mCancelLongPress = true;
     }
 
-    private static long LONG_PRESS_DELAY = 750;
+    private static long LONG_PRESS_DELAY = 500;
 
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 

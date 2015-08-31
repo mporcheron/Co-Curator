@@ -1,9 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/overviewItemPadding"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/overviewItemMargin"
     android:paddingRight="0dp"
     android:paddingTop="0dp"
-    android:paddingBottom="@dimen/overviewItemPadding"
+    android:paddingBottom="@dimen/overviewItemMargin"
     tools:context="uk.porcheron.co_curator.OverviewActivityFragment"
     android:background="@color/overviewBg">
 
