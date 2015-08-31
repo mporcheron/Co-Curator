@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -26,14 +27,15 @@ import android.widget.LinearLayout;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import uk.porcheron.co_curator.collo.ColloDict;
-import uk.porcheron.co_curator.collo.ColloManager;
 import uk.porcheron.co_curator.collo.ColloCompass;
+import uk.porcheron.co_curator.collo.ColloDict;
+import uk.porcheron.co_curator.collo.ColloGesture;
+import uk.porcheron.co_curator.collo.ColloManager;
 import uk.porcheron.co_curator.db.DbLoader;
+import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemScrollView;
 import uk.porcheron.co_curator.item.ItemType;
-import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemUrl;
 import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
@@ -43,11 +45,12 @@ import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.util.Image;
 import uk.porcheron.co_curator.util.Web;
+import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
-import uk.porcheron.co_curator.val.Instance;
 
-public class TimelineActivity extends Activity implements View.OnLongClickListener, SurfaceHolder.Callback, ColloManager.ResponseHandler {
+public class TimelineActivity extends Activity implements View.OnLongClickListener,
+        SurfaceHolder.Callback, ColloManager.ResponseHandler {
     private static final String TAG = "CC:TimelineActivity";
 
     private static boolean mCreated = false;
@@ -57,6 +60,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     final Handler mUpdateHandler = new Handler();
 
     private View.OnTouchListener mGestureDetector;
+    public ScaleGestureDetector mScaleDetector;
 
     private SurfaceHolder mSurfaceHolder;
     private ProgressDialog mProgressDialog;
@@ -144,19 +148,20 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         layoutAbove.setOnTouchListener(mGestureDetector);
         layoutBelow.setOnTouchListener(mGestureDetector);
 
-//        final GestureDetector gD  = new GestureDetector(this, ColloGesture.getInstance());
-//        layoutAbove.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(final View view, final MotionEvent event) {
-//                return gD.onTouchEvent(event);
-//            }
-//        });
-//        layoutBelow.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(final View view, final MotionEvent event) {
-//                return gD.onTouchEvent(event);
-//            }
-//        });
+        // Pinch to overview
+        mScaleDetector = new ScaleGestureDetector(this, new OverviewDetector());
+        layoutAbove.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                return mScaleDetector.onTouchEvent(event);
+            }
+        });
+        layoutBelow.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View view, final MotionEvent event) {
+                return mScaleDetector.onTouchEvent(event);
+            }
+        });
 
         mUnbindAll = true;
 
@@ -563,6 +568,15 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         return mLayoutTouchX;
     }
 
+    class OverviewDetector extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            Log.d(TAG, "show overview");
+            Intent i = new Intent(TimelineActivity.this, OverviewActivity.class);
+            startActivity(i);
+        }
+
+    }
 }
 

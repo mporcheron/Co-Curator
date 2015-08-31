@@ -73,8 +73,11 @@ public abstract class Item extends View {
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
-                gD.onTouchEvent(event);
-                return true;
+                if(mOuterBounds.contains(event.getX(), event.getY())) {
+                    gD.onTouchEvent(event);
+                    return true;
+                }
+                return false;
             }
         });
     }
