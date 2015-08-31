@@ -5,7 +5,7 @@
     <style name="TimelineTheme" parent="android:Theme.Material.Light.NoActionBar.Fullscreen">
     </style>
 
-    <style name="imageDialogTheme" parent="@android:style/Theme.Dialog">
+    <style name="Theme.Dialog.Image" parent="@android:style/Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFrame">@null</item>
         <item name="android:background">@android:color/transparent</item>

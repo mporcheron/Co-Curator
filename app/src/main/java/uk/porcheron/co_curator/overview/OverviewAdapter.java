@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.item.Item;
 import uk.porcheron.co_curator.item.ItemList;
@@ -17,6 +19,12 @@ import uk.porcheron.co_curator.val.Instance;
  */
 public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHolder> {
     private static final String TAG = "CC:OverviewAdapter";
+
+    private List<Item> mItems;
+
+    public OverviewAdapter() {
+        mItems = Instance.items.getAllVisible();
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
@@ -53,12 +61,12 @@ public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHo
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
-        Item i = Instance.items.get(position);
+        Item i = mItems.get(position);
         viewHolder.getTextView().setText(i.getData());
     }
 
     @Override
     public int getItemCount() {
-        return Instance.items.size();
+        return mItems.size();
     }
 }

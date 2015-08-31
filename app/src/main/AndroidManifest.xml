@@ -12,12 +12,12 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/appName"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/Theme.App" >
         <activity
             android:name=".TimelineActivity"
             android:label="@string/appName"
             android:screenOrientation="landscape"
-            android:theme="@style/TimelineTheme" >
+            android:theme="@style/Theme.Timeline" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,10 +33,12 @@
         <activity
             android:name=".ImageDialogActivity"
             android:screenOrientation="sensorLandscape"
-            android:theme="@style/imageDialogTheme" />
+            android:theme="@style/Theme.Dialog.Image" />
         <activity
             android:name=".OverviewActivity"
-            android:label="@string/title_activity_overview" >
+            android:label="@string/title_activity_overview"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.Overview" >
         </activity>
     </application>
 

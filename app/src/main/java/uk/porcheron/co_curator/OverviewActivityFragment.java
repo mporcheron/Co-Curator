@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ public class OverviewActivityFragment extends Fragment {
     private static final int SPAN_COUNT = 2;
 
     public OverviewActivityFragment() {
+        Log.d(TAG, "Created fragment");
     }
 
     @Override
@@ -33,13 +35,13 @@ public class OverviewActivityFragment extends Fragment {
         rootView.setTag(TAG);
 
         // Create recycler view
-        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
         mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
+        mAdapter = new OverviewAdapter();
+
+        mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
-        mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
-
-        return inflater.inflate(R.layout.fragment_overview, container, false);
+        return rootView;
     }
 }

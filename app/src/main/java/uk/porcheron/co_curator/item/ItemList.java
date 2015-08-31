@@ -72,8 +72,20 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_DELETE, this);
     }
 
+    public List<Item> getAllVisible() {
+        Collections.sort(mDrawnItems, new Comparator<Item>() {
+
+            @Override
+            public int compare(Item lhs, Item rhs) {
+                return (int) (lhs.getDateTime() - rhs.getDateTime());
+            }
+        });
+
+        return mDrawnItems;
+    }
+
     public int sizeVisible() {
-        return mDrawn;
+        return mDrawnItems.size();
     }
 
     public List<Item> getByGlobalUserId(int globalUserId) {

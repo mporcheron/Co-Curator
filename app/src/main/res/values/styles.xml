@@ -1,16 +1,16 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="android:Theme.Holo.Light">
-        <!-- Customize your theme here. -->
+    <style name="Theme.Base" parent="android:Theme.Material.Light.DarkActionBar" />
+
+    <style name="Theme.App" parent="Theme.Base">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:colorPrimaryDark">@color/colorPrimaryDark</item>
     </style>
 
-    <!-- Base application theme. -->
-    <style name="TimelineTheme" parent="android:Theme.Holo.Light.NoActionBar.Fullscreen">
-        <!-- Customize your theme here. -->
-    </style>
+    <style name="Theme.Timeline" parent="android:Theme.Material.NoActionBar.Fullscreen" />
+    <style name="Theme.Overview" parent="Theme.App" />
 
-    <style name="imageDialogTheme" parent="@android:style/Theme.Dialog">
+    <style name="Theme.Dialog.Image" parent="android:Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFrame">@null</item>
         <item name="android:background">@color/imageBackground</item>
@@ -25,7 +25,7 @@
         <item name="android:windowExitAnimation">@anim/dialog_slide_out</item>
     </style>
 
-    <style name="noteDialogAnimated" parent="@android:style/Theme.Dialog">
+    <style name="Theme.Dialog.Note" parent="android:Theme.Dialog">
         <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
         <item name="android:windowNoTitle">true</item>
     </style>

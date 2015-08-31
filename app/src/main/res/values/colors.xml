@@ -1,7 +1,7 @@
 
 <resources>
-    <color name="colorPrimary">#00BCD4</color>
-    <color name="colorPrimaryDark">#00838F</color>
+    <color name="colorPrimary">#434343</color>
+    <color name="colorPrimaryDark">#434343</color>
 
     <color name="background">#FF434343</color>
     <color name="imageBackground">#57010101</color>

@@ -44,7 +44,7 @@
     <!-- Generic Messages -->
     <string name="dialog_error_title">An Internal Error Occured</string>
     <string name="dialog_error_db">A local database error occured! Contact researcher.</string>
-    <string name="title_activity_overview">OverviewActivity</string>
+    <string name="title_activity_overview">Overview</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 </resources>
