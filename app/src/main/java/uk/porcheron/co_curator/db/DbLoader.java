@@ -75,9 +75,11 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
                 int cGlobalUserId = c.getInt(0);
                 int cUserId = c.getInt(1);
 
-                Instance.users.add(cGlobalUserId, cUserId, false);
-                if(DRAW_ALL) {
-                    Instance.users.drawUser(cGlobalUserId);
+                if(Instance.users.getByGlobalUserId(cGlobalUserId) == null) {
+                    Instance.users.add(cGlobalUserId, cUserId, false);
+                    if (DRAW_ALL) {
+                        Instance.users.drawUser(cGlobalUserId);
+                    }
                 }
 
                 c.moveToNext();

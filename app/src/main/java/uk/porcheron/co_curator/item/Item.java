@@ -3,6 +3,7 @@ package uk.porcheron.co_curator.item;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.RectF;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -38,6 +39,7 @@ public abstract class Item extends View {
     private long mDateTime;
 
     private float mX;
+    private float mLongPressX;
 
     private RectF mSlotBounds;
     private RectF mOuterBounds;
@@ -72,9 +74,22 @@ public abstract class Item extends View {
         final GestureDetector gD  = new GestureDetector(TimelineActivity.getInstance(), new GestureListener());
         setOnTouchListener(new OnTouchListener() {
             @Override
-            public boolean onTouch(final View view, final MotionEvent event) {
-                if(mOuterBounds.contains(event.getX(), event.getY())) {
-                    gD.onTouchEvent(event);
+            public boolean onTouch(final View view, final MotionEvent e) {
+                if(mOuterBounds.contains(e.getX(), e.getY())) {
+                    if(e.getAction() == MotionEvent.ACTION_DOWN) {
+                        handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
+                        mLongPressX = e.getX();
+                        mCancelLongPress = false;
+                        return true;
+                    }
+
+                    if(mCancelLongPress || e.getAction() == MotionEvent.ACTION_MOVE
+                            || e.getAction() == MotionEvent.ACTION_UP
+                            || e.getAction() == MotionEvent.ACTION_SCROLL) {
+                        handler.removeCallbacks(mLongPressed);
+                    }
+
+                    gD.onTouchEvent(e);
                     return true;
                 }
                 return false;
@@ -201,30 +216,58 @@ public abstract class Item extends View {
 
     protected abstract boolean onLongPress();
 
+    private boolean mCancelLongPress = false;
+
+    public final void cancelLongPress() {
+        mCancelLongPress = true;
+    }
+
+    private static long LONG_PRESS_DELAY = 750;
+
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            if(mOuterBounds.contains(e.getX(), e.getY())) {
-                CCLog.write(Event.ITEM_SINGLE_TAP, "{uniqueItemId=" + getUniqueItemId() + "}");
+            Log.d(TAG, "Single tap on Item[" + getUniqueItemId() + "]");
+            CCLog.write(Event.ITEM_SINGLE_TAP, "{uniqueItemId=" + getUniqueItemId() + "}");
 
-                return onTap();
-            }
-            return false;
+            return onTap();
         }
+//
+//        @Override
+//        public boolean onTouchEvent(MotionEvent e) {
+//            if(mCancelLongPress) {
+//                mCancelLongPress = false;
+//                return false;
+//            }
+//
+//            if(e.getAction() == MotionEvent.ACTION_DOWN) {
+//                handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
+//                return true;
+//            }
+//
+//            if(e.getAction() == MotionEvent.ACTION_MOVE
+//                    || e.getAction() == MotionEvent.ACTION_UP
+//                    || e.getAction() == MotionEvent.ACTION_SCROLL) {
+//                handler.removeCallbacks(mLongPressed);
+//            }
+//            return false;
+//        }
+    }
 
-        @Override
-        public void onLongPress(MotionEvent e) {
-            if(getUser().globalUserId == Instance.globalUserId &&
-                    mOuterBounds.contains(e.getX(), e.getY())) {
 
+    final Handler handler = new Handler();
+    Runnable mLongPressed = new Runnable() {
+        public void run() {
+            if(getUser().globalUserId == Instance.globalUserId) {
+                Log.d(TAG, "Long press on Item[" + getUniqueItemId() + "]");
                 CCLog.write(Event.ITEM_LONG_PRESS, "{uniqueItemId=" + getUniqueItemId() + "}");
                 Item.this.onLongPress();
             } else {
-                TimelineActivity.getInstance().promptAdd(getDrawnX() + e.getX());
+                TimelineActivity.getInstance().promptAdd(getDrawnX() + mLongPressX);
             }
         }
-    }
+    };
 
     protected abstract void onSelect(boolean editable, boolean deletable);
 }

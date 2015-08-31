@@ -84,6 +84,12 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         return mDrawnItems;
     }
 
+    public final void cancelLongPress() {
+        for(Item i : this) {
+            i.cancelLongPress();
+        }
+    }
+
     public int sizeVisible() {
         return mDrawnItems.size();
     }
