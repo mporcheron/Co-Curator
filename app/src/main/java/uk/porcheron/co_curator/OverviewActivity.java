@@ -10,6 +10,8 @@ import android.view.View;
 
 public class OverviewActivity extends FragmentActivity {
 
+    private static OverviewActivity mInstance;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -17,6 +19,8 @@ public class OverviewActivity extends FragmentActivity {
 // Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
+
+        mInstance = this;
 
         setContentView(R.layout.activity_overview);
 //
@@ -26,6 +30,10 @@ public class OverviewActivity extends FragmentActivity {
 //            transaction.replace(R.id.sample_content_fragment, fragment);
 //            transaction.commit();
 //        }
+    }
+
+    public static OverviewActivity getInstance() {
+        return mInstance;
     }
 
 //

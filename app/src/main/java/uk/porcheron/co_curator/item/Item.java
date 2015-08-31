@@ -191,11 +191,11 @@ public abstract class Item extends View {
         mItemIndex = itemIndex;
     }
 
-    protected final String getUniqueItemId() { return mUser.globalUserId + "-" + mItemId; }
+    public final String getUniqueItemId() { return mUser.globalUserId + "-" + mItemId; }
 
     protected final void setDateTime(long dateTime) { mDateTime = dateTime; }
 
-    protected final long getDateTime() { return mDateTime; }
+    public final long getDateTime() { return mDateTime; }
 
     protected abstract boolean onTap();
 

@@ -57,4 +57,7 @@
     <dimen name="videoHeight">65dp</dimen>
     <dimen name="videoPadding">2.5dp</dimen>
 
+    <integer name="overviewNumItems">4</integer>
+    <dimen name="overviewItemPadding">4dp</dimen>
+
 </resources>

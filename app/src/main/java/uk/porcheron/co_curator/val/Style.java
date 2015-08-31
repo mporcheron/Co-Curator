@@ -62,6 +62,9 @@ public class Style {
     public static int noteFontSize;
     public static float noteLineSpacing;
 
+    public static int overviewNumItems;
+    public static int overviewItemSize;
+
     public static Paint normalPaint;
 
     public static void collectAttrs() {
@@ -128,6 +131,10 @@ public class Style {
         noteLines = res.getInteger(R.integer.noteLines);
         noteFontSize = res.getInteger(R.integer.noteFontSize);
         noteLineSpacing  = res.getInteger(R.integer.noteLineSpacing) / 10f;
+
+        float rvWidth = Phone.screenWidth;
+        overviewNumItems = res.getInteger(R.integer.overviewNumItems);
+        overviewItemSize = (int) ((rvWidth / overviewNumItems) - res.getDimension(R.dimen.overviewItemPadding));
 
         normalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }

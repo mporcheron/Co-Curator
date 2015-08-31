@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import uk.porcheron.co_curator.overview.OverviewAdapter;
+import uk.porcheron.co_curator.val.Style;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -21,8 +22,6 @@ public class OverviewActivityFragment extends Fragment {
     protected RecyclerView mRecyclerView;
     protected OverviewAdapter mAdapter;
     protected RecyclerView.LayoutManager mLayoutManager;
-
-    private static final int SPAN_COUNT = 2;
 
     public OverviewActivityFragment() {
         Log.d(TAG, "Created fragment");
@@ -35,7 +34,7 @@ public class OverviewActivityFragment extends Fragment {
         rootView.setTag(TAG);
 
         // Create recycler view
-        mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
+        mLayoutManager = new GridLayoutManager(getActivity(), Style.overviewNumItems);
         mAdapter = new OverviewAdapter();
 
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerView);
