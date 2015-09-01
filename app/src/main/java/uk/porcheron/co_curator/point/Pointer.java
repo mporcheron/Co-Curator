@@ -2,14 +2,12 @@ package uk.porcheron.co_curator.point;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
-import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -52,39 +50,37 @@ public class Pointer extends View {
 
     @Override
     protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        setMeasuredDimension((int) Style.pointerSize, (int) Style.pointerSize);
+        setMeasuredDimension((int) Style.pointerMaxSize, (int) Style.pointerMaxSize);
     }
 
     public boolean mDecreasing = true;
-    public int mReduceBorderStep = 0;
+    public int mPulseStep = 0;
     public final int STEP_PULSATE = 20;
 
     @Override
     public void onDraw(Canvas canvas) {
-        float outerR = Style.pointerSize/2f;
-        //canvas.drawCircle(outerR, outerR, outerR, mOuterPaint);
-
-        float innerR = Style.pointerCentre/2f;
+        float maxR = Style.pointerMaxSize /2f;
+        float minR = Style.pointerMinSize /2f;
 
         if(mDecreasing) {
-            if(mReduceBorderStep < Style.pointerCentreReduceSteps) {
-                innerR += (mReduceBorderStep++ * Style.pointerCentreReduceStepBy);
+            if(mPulseStep < Style.pointerPulseSteps) {
+                minR += (mPulseStep++ * Style.pointerPulseStepIncrement);
             } else {
-                innerR += (mReduceBorderStep-- * Style.pointerCentreReduceStepBy);
+                minR += (mPulseStep-- * Style.pointerPulseStepIncrement);
                 mDecreasing = false;
             }
         } else {
-            if(mReduceBorderStep > 0) {
-                innerR += (mReduceBorderStep-- * Style.pointerCentreReduceStepBy);
+            if(mPulseStep > 0) {
+                minR += (mPulseStep-- * Style.pointerPulseStepIncrement);
             } else {
-                innerR += (mReduceBorderStep++ * Style.pointerCentreReduceStepBy);
+                minR += (mPulseStep++ * Style.pointerPulseStepIncrement);
                 mDecreasing = true;
             }
         }
 
-        canvas.drawCircle(outerR, outerR, innerR, mInnerPaint);
+        canvas.drawCircle(maxR, maxR, minR, mInnerPaint);
 
-        this.postInvalidateDelayed(40 + (mReduceBorderStep * STEP_PULSATE));
+        this.postInvalidateDelayed(40 + (mPulseStep * STEP_PULSATE));
     }
 
 }

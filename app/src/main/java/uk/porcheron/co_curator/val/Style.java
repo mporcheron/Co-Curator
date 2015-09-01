@@ -69,12 +69,12 @@ public class Style {
 
     public static Paint normalPaint;
 
-    public static float pointerSize;
-    public static float pointerCentre;
+    public static float pointerMaxSize;
+    public static float pointerMinSize;
     public static int pointerBorderColor;
-    public static int pointerCentreReduceSteps;
-    public static float pointerCentreReduceStepBy;
-    public static int pointerLength;
+    public static int pointerPulseSteps;
+    public static float pointerPulseStepIncrement;
+    public static int pointerVisibleFor;
 
 
     public static void collectAttrs() {
@@ -150,12 +150,11 @@ public class Style {
 
         normalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-        pointerSize = res.getDimension(R.dimen.pointerSize);
-        pointerCentre = res.getDimension(R.dimen.pointerCentre);
-        pointerBorderColor = res.getColor(R.color.pointerBorderColor);
-        pointerCentreReduceSteps = res.getInteger(R.integer.pointerCentreReduceSteps);
-        pointerCentreReduceStepBy = res.getDimension(R.dimen.pointerCentreReduceStepBy);
-        pointerLength = res.getInteger(R.integer.pointerLength);
+        pointerMaxSize = res.getDimension(R.dimen.pointerMaxSize);
+        pointerMinSize = res.getDimension(R.dimen.pointerMinSize);
+        pointerPulseSteps = res.getInteger(R.integer.pointerPulseSteps);
+        pointerPulseStepIncrement = res.getDimension(R.dimen.pointerPulseStepIncrement);
+        pointerVisibleFor = res.getInteger(R.integer.pointerVisibleFor);
 
     }
 }
