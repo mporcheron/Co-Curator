@@ -611,14 +611,26 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
 
-    TimerTask mUpdateUserTask = new TimerTask() {
+    private static final long DISMISS_LOADING_IN = 3000L;
+    private Handler mLoadedHandler = new Handler();
+    private Runnable mLoadedRunner = new Runnable() {
+        @Override
+        public void run() {
+            TimelineActivity.this.hideLoadingDialog();
+        }
+    };
+
+    private TimerTask mUpdateUserTask = new TimerTask() {
         @Override
         public void run() {
             mUpdateHandler.post(new Runnable() {
                 public void run() {
                     try {
                         ColloManager.beat(mUnbindAll);
-                        mUnbindAll = false;
+                        if(mUnbindAll) {
+                            mLoadedHandler.postDelayed(mLoadedRunner, DISMISS_LOADING_IN);
+                            mUnbindAll = false;
+                        }
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
                     }

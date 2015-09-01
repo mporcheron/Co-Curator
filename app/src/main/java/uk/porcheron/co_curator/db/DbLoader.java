@@ -45,7 +45,7 @@ public class DbLoader extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
-        mActivity.hideLoadingDialog();
+
     }
 
     protected void loadUsersFromDb() throws Exception {

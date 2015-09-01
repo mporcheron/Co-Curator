@@ -10,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 
+import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.Event;
@@ -48,6 +49,7 @@ public class ServerManager {
             s = new Server(uk.porcheron.co_curator.val.Collo.sPort(user.globalUserId));
             mServers.put(user.globalUserId, s);
             s.start();
+
         }
     }
 
