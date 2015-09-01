@@ -63,4 +63,10 @@
     <dimen name="overviewItemBorder">4dp</dimen>
     <dimen name="overviewNoteBorder">8dp</dimen>
 
+    <dimen name="pointerSize">16dp</dimen>
+    <dimen name="pointerCentre">10dp</dimen>
+    <integer name="pointerCentreReduceSteps">6</integer>
+    <dimen name="pointerCentreReduceStepBy">.5dp</dimen>
+    <integer name="pointerLength">5000</integer>
+
 </resources>

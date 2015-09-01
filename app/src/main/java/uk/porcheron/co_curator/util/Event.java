@@ -34,6 +34,7 @@ public enum Event {
 
     ITEM_LONG_PRESS,
     ITEM_SINGLE_TAP,
+    ITEM_DOUBLE_TAP,
     ITEM_UPDATE,
     ITEM_DELETE,
 

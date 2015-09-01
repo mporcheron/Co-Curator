@@ -29,6 +29,8 @@
     <color name="overviewBg">#E1E1E1</color>
     <color name="overviewText">#434343</color>
 
+    <color name="pointerBorderColor">#FFFF1100</color>
+
     <color name="chartreuse">#ffb6e9b5</color>
     <color name="seafoam">#ffc6f9e5</color>
     <color name="emerald">#ffa6d9b5</color>

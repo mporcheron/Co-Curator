@@ -16,27 +16,28 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
-import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import uk.porcheron.co_curator.collo.ColloCompass;
 import uk.porcheron.co_curator.collo.ColloDict;
-import uk.porcheron.co_curator.collo.ColloGesture;
 import uk.porcheron.co_curator.collo.ColloManager;
 import uk.porcheron.co_curator.db.DbLoader;
-import uk.porcheron.co_curator.item.Item;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemScrollView;
@@ -44,6 +45,7 @@ import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemUrl;
 import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
+import uk.porcheron.co_curator.point.Pointer;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.AnimationReactor;
@@ -65,7 +67,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private Timer mUpdateTimer;
     final Handler mUpdateHandler = new Handler();
 
-    private View.OnTouchListener mGestureDetector;
+    private View.OnTouchListener mGestureDetectorAbove;
+    private View.OnTouchListener mGestureDetectorBelow;
     public ScaleGestureDetector mScaleDetector;
 
     private RelativeLayout mTimeline;
@@ -150,15 +153,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         layoutBelow.setPadding(0, 0, padRight, 0);
         layoutBelow.setLayoutParams(params);
 
-        mGestureDetector = new TimelineGestureDetector();
-
-//        mFrameLayout.setOnLongClickListener(this);
-//        layoutAbove.setOnLongClickListener(this);
-//        layoutBelow.setOnLongClickListener(this);
-
-//        mFrameLayout.setOnTouchListener(mGestureDetector);
-
-        // Pinch to overview
+        // Gesture recognition
+        float bottomOffset = Style.layoutHalfHeight - (2 * Style.layoutCentreHeight);
+        mGestureDetectorAbove = new TimelineGestureDetector(0);
+        mGestureDetectorBelow = new TimelineGestureDetector(bottomOffset);
         mScaleDetector = new ScaleGestureDetector(this, new OverviewDetector());
 //        mFrameLayout.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
@@ -170,14 +168,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         layoutAbove.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
-                mGestureDetector.onTouch(view, event);
+                mGestureDetectorAbove.onTouch(view, event);
                 return mScaleDetector.onTouchEvent(event);
             }
         });
         layoutBelow.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
-                mGestureDetector.onTouch(view, event);
+                mGestureDetectorBelow.onTouch(view, event);
                 return mScaleDetector.onTouchEvent(event);
             }
         });
@@ -195,6 +193,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Instance.items = new ItemList(scrollView, layoutAbove, layoutBelow);
 
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
+        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_POINT, this);
 
         new DbLoader().execute();
     }
@@ -362,6 +361,34 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             case ColloDict.ACTION_UNBIND:
                 ColloManager.unBindFromUser(globalUserId);
                 return true;
+
+            case ColloDict.ACTION_POINT:
+                if(!ColloManager.isBoundTo(globalUserId)) {
+                    Log.v(TAG, "Ignore pointer, not bound to user");
+                    return false;
+                }
+
+                final User u = Instance.users.getByGlobalUserId(globalUserId);
+                if(u == null) {
+                    Log.e(TAG, "Badly formed globalUserId");
+                    return true;
+                }
+
+                try {
+                    final float x = Float.parseFloat(data[0]);
+                    final float y = Float.parseFloat(data[1]);
+                    TimelineActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showPointer(u, x, y);
+                        }
+                    });
+                    return true;
+                } catch(NumberFormatException e) {
+                    Log.e(TAG, "Badly formed ACTION_POINT");
+                }
+
+                return false;
         }
 
         return false;
@@ -582,7 +609,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
     }
 
     TimerTask mUpdateUserTask = new TimerTask() {
@@ -606,13 +632,26 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private static long DOUBLE_TAP_TIME_LEEWAY = 450L;
     private static long mLastTap = -1;
 
+    final SparseArray<Runnable> mPointerHandlerRunners = new SparseArray<>();
+    final SparseArray<Handler> mPointerHandlers = new SparseArray<>();
+    private SparseArray<Pointer> mPointers = new SparseArray<>();
+
     private class TimelineGestureDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
+
+        private final float mYOffset;
+
+        public TimelineGestureDetector(float yOffset) {
+            mYOffset = yOffset;
+        }
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            CCLog.write(Event.COLLO_POINT, "{x=" + e.getX() + "}");
+            CCLog.write(Event.COLLO_POINT, "{x=" + e.getX() + ",y=" + mYOffset + e.getY() + "}");
             Log.v(TAG, "broadcast point");
-            ColloManager.broadcast(ColloDict.ACTION_POINT, e.getX());
+            ColloManager.broadcast(ColloDict.ACTION_POINT, e.getX(), mYOffset + e.getY());
+
+            showPointer(Instance.user(), e.getX(), mYOffset + e.getY());
+
             return true;
         }
 
@@ -628,7 +667,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             if(e.getAction() == MotionEvent.ACTION_CANCEL
                     || e.getAction() == MotionEvent.ACTION_UP
                     || e.getAction() == MotionEvent.ACTION_SCROLL) {
-                handler.removeCallbacks(mLongPressed);
+                mLongPressHandler.removeCallbacks(mLongPressed);
             }
 
             if(e.getAction() == MotionEvent.ACTION_UP) {
@@ -642,7 +681,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             }
 
             if(e.getAction() == MotionEvent.ACTION_DOWN) {
-                handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
+                mLongPressHandler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
             }
 
             mLayoutTouchX = e.getX();
@@ -651,13 +690,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     }
 
-    final Handler handler = new Handler();
+    final Handler mLongPressHandler = new Handler();
     Runnable mLongPressed = new Runnable() {
         public void run() {
             promptAdd(mLayoutTouchX);
         }
     };
-
 
     public float getLayoutTouchX() {
         return mLayoutTouchX;
@@ -676,6 +714,41 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             });
         }
 
+    }
+
+    public void showPointer(View b, ViewGroup bg) {
+
+    }
+
+    private void showPointer(User user, float x, float y) {
+        int userId = user.userId;
+        Pointer existing = mPointers.get(userId);
+        if(existing != null) {
+            mFrameLayout.removeView(existing);
+
+            Handler h = mPointerHandlers.get(userId);
+            if(h != null) {
+                h.removeCallbacks(mPointerHandlerRunners.get(userId));
+            }
+        }
+
+        final Pointer p = new Pointer(user);
+        p.setTranslationX(x);
+        p.setTranslationY(y);
+        mFrameLayout.addView(p);
+        p.bringToFront();
+        mPointers.put(userId, p);
+
+        if(Style.pointerLength > 0) {
+            mPointerHandlerRunners.put(userId, new Runnable() {
+                @Override
+                public void run() {
+                    mFrameLayout.removeView(p);
+                }
+            });
+
+            mPointerHandlers.get(userId, new Handler()).postDelayed(mPointerHandlerRunners.get(userId), Style.pointerLength);
+        }
     }
 }
 

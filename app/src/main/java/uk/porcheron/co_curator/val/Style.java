@@ -69,6 +69,14 @@ public class Style {
 
     public static Paint normalPaint;
 
+    public static float pointerSize;
+    public static float pointerCentre;
+    public static int pointerBorderColor;
+    public static int pointerCentreReduceSteps;
+    public static float pointerCentreReduceStepBy;
+    public static int pointerLength;
+
+
     public static void collectAttrs() {
         Resources res = TimelineActivity.getInstance().getResources();
 
@@ -141,5 +149,13 @@ public class Style {
         overviewItemBorder = res.getDimension(R.dimen.overviewItemBorder);
 
         normalPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+        pointerSize = res.getDimension(R.dimen.pointerSize);
+        pointerCentre = res.getDimension(R.dimen.pointerCentre);
+        pointerBorderColor = res.getColor(R.color.pointerBorderColor);
+        pointerCentreReduceSteps = res.getInteger(R.integer.pointerCentreReduceSteps);
+        pointerCentreReduceStepBy = res.getDimension(R.dimen.pointerCentreReduceStepBy);
+        pointerLength = res.getInteger(R.integer.pointerLength);
+
     }
 }

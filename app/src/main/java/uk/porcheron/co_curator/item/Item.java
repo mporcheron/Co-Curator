@@ -241,6 +241,13 @@ public abstract class Item extends View {
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Log.d(TAG, "Double tap on Item[" + getUniqueItemId() + "]");
+            CCLog.write(Event.ITEM_DOUBLE_TAP, "{uniqueItemId=" + getUniqueItemId() + "}");
+            return true;
+        }
+
+        @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             Log.d(TAG, "Single tap on Item[" + getUniqueItemId() + "]");
             CCLog.write(Event.ITEM_SINGLE_TAP, "{uniqueItemId=" + getUniqueItemId() + "}");
