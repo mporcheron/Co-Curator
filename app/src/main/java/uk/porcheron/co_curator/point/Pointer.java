@@ -62,7 +62,7 @@ public class Pointer extends View {
     @Override
     public void onDraw(Canvas canvas) {
         float outerR = Style.pointerSize/2f;
-        canvas.drawCircle(outerR, outerR, outerR, mOuterPaint);
+        //canvas.drawCircle(outerR, outerR, outerR, mOuterPaint);
 
         float innerR = Style.pointerCentre/2f;
 
