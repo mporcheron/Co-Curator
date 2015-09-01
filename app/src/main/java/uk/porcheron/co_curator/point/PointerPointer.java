@@ -52,6 +52,10 @@ public class PointerPointer extends View {
         mPointRight = pointRight;
     }
 
+    public boolean getPointRight() {
+        return mPointRight;
+    }
+
     @Override
     protected final void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = (int) (Style.pointerPointerArrowLength + Style.pointerPointerCircleSize);

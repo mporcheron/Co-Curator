@@ -15,7 +15,10 @@ import uk.porcheron.co_curator.val.Style;
  */
 public class Pointer extends View {
 
-    private Paint mOuterPaint;
+    private float mTriggeredX;
+    private float mTriggeredY;
+
+    private User mUser;
     private Paint mPaint;
 
     public Pointer(Context context) {
@@ -34,13 +37,29 @@ public class Pointer extends View {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public Pointer(User user) {
+    public Pointer(User user, float x, float y) {
         super(TimelineActivity.getInstance());
+
+        mUser = user;
+        mTriggeredX = x;
+        mTriggeredY = y;
 
         int colorInt = Style.userMeBgColors[user.userId];
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setColor(colorInt);
+    }
+
+    public User getUser() {
+        return mUser;
+    }
+
+    public float getTriggeredX() {
+        return mTriggeredX;
+    }
+
+    public float getTriggeredY() {
+        return mTriggeredY;
     }
 
     @Override

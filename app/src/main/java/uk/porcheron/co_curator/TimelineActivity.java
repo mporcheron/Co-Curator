@@ -741,7 +741,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void showPointer(final User user, float x, float y) {
-        int userId = user.userId;
+        final int userId = user.userId;
         Pointer existing = mPointers.get(userId);
         if(existing != null) {
             mFrameLayout.removeView(existing);
@@ -752,7 +752,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             }
         }
 
-        final Pointer p = new Pointer(user);
+        final Pointer p = new Pointer(user, x, y);
         p.setTranslationX(x);
         p.setTranslationY(y);
         mFrameLayout.addView(p);
@@ -764,15 +764,16 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         } else if(x > mScrollView.getScrollX() + mScrollView.getWidth()) {
             showPointerPointer(user, true);
         } else {
-            hidePointerPointer(user);
+            hidePointerPointer(user, null);
         }
 
         if(Style.pointerVisibleFor > 0) {
             mPointerHandlerRunners.put(userId, new Runnable() {
                 @Override
                 public void run() {
+                    mPointers.remove(userId);
                     mFrameLayout.removeView(p);
-                    hidePointerPointer(user);
+                    hidePointerPointer(user, null);
                 }
             });
 
@@ -780,24 +781,30 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     }
 
-    public void showPointerPointer(User user, boolean pointRight) {
-        hidePointerPointer(user);
+    public void showPointerPointer(final User user, final boolean pointRight) {
+        final PointerPointer pp = mPointerPointers.get(user.userId);
+        if(pp == null || pp.getPointRight() != pointRight) {
+            hidePointerPointer(user, new AnimationReactor() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    final PointerPointer pp = new PointerPointer(user, pointRight);
+                    if (pointRight) {
+                        pp.setTranslationX(mOuterFrameLayout.getWidth() - Style.pointerPointerXOffset - Style.pointerPointerArrowLength - Style.pointerPointerCircleSize);
+                    } else {
+                        pp.setTranslationX(Style.pointerPointerXOffset);
+                    }
 
-        final PointerPointer pp = new PointerPointer(user, pointRight);
-        if(pointRight) {
-            pp.setTranslationX(mOuterFrameLayout.getWidth() - Style.pointerPointerXOffset - Style.pointerPointerArrowLength - Style.pointerPointerCircleSize);
-        } else {
-            pp.setTranslationX(Style.pointerPointerXOffset);
+                    pp.setTranslationY(Style.pointerPointerYOffset + (mPointerPointers.size() * (Style.pointerPointerYOffset + Style.pointerPointerCircleSize)));
+
+                    mOuterFrameLayout.addView(pp);
+                    pp.bringToFront();
+                    mPointerPointers.put(user.userId, pp);
+                }
+            });
         }
-
-        pp.setTranslationY(Style.pointerPointerYOffset + (mPointerPointers.size() * (Style.pointerPointerYOffset + Style.pointerPointerCircleSize)));
-
-        mOuterFrameLayout.addView(pp);
-        pp.bringToFront();
-        mPointerPointers.put(user.userId, pp);
     }
 
-    public void hidePointerPointer(final User user) {
+    public void hidePointerPointer(final User user, final AnimationReactor animationReactor) {
         final PointerPointer pp = mPointerPointers.get(user.userId);
         if(pp != null) {
             pp.animate().alpha(0f).setDuration(FADE_POINTER_POINTER).setListener(new AnimatorListenerAdapter() {
@@ -807,8 +814,30 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
                     mOuterFrameLayout.removeView(pp);
                     mPointerPointers.remove(user.userId);
+
+                    if(animationReactor != null) {
+                        animationReactor.onAnimationEnd(animation);
+                    }
                 }
             });
+        } else if(animationReactor != null) {
+            animationReactor.onAnimationEnd(null);
+        }
+    }
+
+    public void testPointers(int x1, int x2) {
+        for(int index = 0; index < mPointers.size(); index++) {
+            Pointer p = mPointers.get(mPointers.keyAt(index));
+            boolean left = x1 > p.getTriggeredX();
+            boolean right = p.getTriggeredX() > x2;
+
+            if (!left && !right) {
+                hidePointerPointer(p.getUser(), null);
+            } else if(left) {
+                showPointerPointer(p.getUser(), true);
+            } else {
+                showPointerPointer(p.getUser(), false);
+            }
         }
     }
 }

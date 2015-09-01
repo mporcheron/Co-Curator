@@ -74,6 +74,10 @@ public class DialogPhoto extends AbstractDialog {
         mImageView.setImageBitmap(b);
         fis.close();
 
+        if(b == null) {
+            return this;
+        }
+
         float maxWidth = Phone.screenWidth - (Style.dialogMinXSpace * 2);
         float maxHeight = Phone.screenHeight - (Style.dialogMinYSpace * 2);
 
