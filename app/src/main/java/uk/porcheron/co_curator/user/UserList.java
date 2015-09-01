@@ -86,7 +86,7 @@ public class UserList extends ArrayList<User> {
 
     public synchronized void unDrawUser(int globalUserId) {
         User u = getByGlobalUserId(globalUserId);
-        if(u != null && u.draw()) {
+        if(u != null) {
             u.willUnDraw();
         }
     }

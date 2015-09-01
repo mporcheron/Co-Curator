@@ -25,6 +25,7 @@ public class User {
     public boolean above;
     public final Paint bgPaint;
     private boolean draw = false;
+    private int position = 0;
 
     public User(int globalUserId, int userId) {
         this.userId = userId;
@@ -46,27 +47,29 @@ public class User {
     }
 
     void willDraw() {
-        int count = 0;
+        boolean[] positions = new boolean[4];
         for(User user : Instance.users) {
             if(user.draw) {
-                count++;
+                positions[user.position] = true;
             }
         }
 
-        int drawn = Instance.drawnUsers;
+        int pos;
+        for(pos = 0; pos < positions.length; pos++) {
+            if(!positions[pos]) {
+                break;
+            }
+        }
 
-        this.offset = Style.userOffsets[count];
-        this.centrelineOffset = Style.userPositions[count] * (Style.lineWidth + Style.lineCentreGap);
+        this.position = pos;
+        this.offset = Style.userOffsets[pos];
+        this.centrelineOffset = Style.userPositions[pos] * (Style.lineWidth + Style.lineCentreGap);
         this.above = this.offset <= 0;
         this.draw = true;
-
-        Instance.drawnUsers++;
     }
 
     void willUnDraw() {
         this.draw = false;
-
-        Instance.drawnUsers--;
     }
 
     public boolean draw() {
