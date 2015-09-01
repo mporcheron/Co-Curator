@@ -30,10 +30,10 @@ public class Image {
     public static void url2File(final String url, final String destination, final int thumbWidth, final int thumbHeight, final Runnable onCompleteRunner) {
         Log.v(TAG, "Download " + url + " and save as " + destination);
 
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
+//        new Thread(new Runnable() {
+//
+//            @Override
+//            public void run() {
                 TimelineActivity activity = TimelineActivity.getInstance();
 
                 try {
@@ -58,8 +58,8 @@ public class Image {
                     e.printStackTrace();
                 }
 
-            }
-        }).start();
+        //    }
+        //}).start();
     }
 
     public static void file2file(final String source, final String destination, final int thumbWidth, final int thumbHeight, final Runnable onCompleteRunner) {
