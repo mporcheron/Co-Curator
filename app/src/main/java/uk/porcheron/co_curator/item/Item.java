@@ -9,8 +9,6 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.Toast;
 
 import java.util.Random;
 
@@ -18,7 +16,6 @@ import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.Event;
-import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -41,13 +38,11 @@ public abstract class Item extends View {
     private float mX;
     private float mLongPressX;
 
+    private float mOuterMargin;
     private RectF mSlotBounds;
     private RectF mOuterBounds;
     private RectF mInnerBounds;
     private RectF mStemBounds;
-
-    private float mRandomPadRight;
-    private float mRandomPadRightHalf;
 
     private boolean mDrawn = false;
     private boolean mDeleted = false;
@@ -68,24 +63,21 @@ public abstract class Item extends View {
         mItemId = itemId;
         mDateTime = dateTime;
 
-        mRandomPadRight = Style.itemXGapMin + mRandom.nextInt((int) Style.itemXGapOffset);
-        mRandomPadRightHalf = mRandomPadRight / 2;
-
         final GestureDetector gD  = new GestureDetector(TimelineActivity.getInstance(), new GestureListener());
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent e) {
-                if(mOuterBounds.contains(e.getX(), e.getY())) {
+                if (mOuterBounds.contains(e.getX(), e.getY())) {
                     gD.onTouchEvent(e);
 
-                    if(e.getAction() == MotionEvent.ACTION_DOWN) {
+                    if (e.getAction() == MotionEvent.ACTION_DOWN) {
                         handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
                         mLongPressX = e.getX();
                         mCancelLongPress = false;
                         return true;
                     }
 
-                    if(mCancelLongPress || e.getAction() == MotionEvent.ACTION_MOVE
+                    if (mCancelLongPress || e.getAction() == MotionEvent.ACTION_MOVE
                             || e.getAction() == MotionEvent.ACTION_UP
                             || e.getAction() == MotionEvent.ACTION_SCROLL) {
                         handler.removeCallbacks(mLongPressed);
@@ -154,6 +146,8 @@ public abstract class Item extends View {
         return mInnerBounds;
     }
 
+    protected final float getOuterMargin() { return mOuterMargin; }
+
     protected final RectF setBounds(float width, float height, float padding) {
         mSetWidth = width;
         mSetHeight = height;
@@ -161,25 +155,29 @@ public abstract class Item extends View {
 
         float top;
         if (mUser.above) {
-            top = Style.itemFullHeight + mUser.offset - height;
+            mOuterMargin = Style.itemFullHeight + mUser.offset - height;
+            top = 0;
         } else {
+            mOuterMargin = 0;
             top = Style.layoutCentreHeight + mUser.offset;
         }
 
-        mOuterBounds = new RectF(mRandomPadRightHalf, top, mRandomPadRightHalf + width, top + height);
+        // mRandomPadRightHalf
+        mOuterBounds = new RectF(0, top, width, top + height);
 
         mInnerBounds = new RectF(mOuterBounds.left + padding,
                 mOuterBounds.top + padding,
                 mOuterBounds.right - padding,
                 mOuterBounds.bottom - padding);
 
-        mSlotBounds = new RectF(0, 0, mOuterBounds.width() + mRandomPadRight, Style.itemFullHeight + Style.layoutCentreHeight);
+        //+ mRandomPadRight
+        mSlotBounds = new RectF(0, 0, mOuterBounds.width(), Style.itemFullHeight - top + Style.layoutCentreHeight);
 
-        float offset = mRandomPadRightHalf + Style.itemStemNarrowBy +
+        float offset = Style.itemStemNarrowBy +
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
 
         if (mUser.above) {
-            mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, Style.layoutHalfPadding + mUser.centrelineOffset);
+            mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, Style.layoutHalfPadding + mUser.centrelineOffset - mOuterMargin + 1);
         } else {
             mStemBounds = new RectF(offset, mUser.centrelineOffset + Style.lineWidth - 1, offset + Style.lineWidth, mOuterBounds.top);
         }

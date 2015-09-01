@@ -2,9 +2,9 @@ package uk.porcheron.co_curator.item;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.RectF;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.collo.ColloDict;
@@ -34,6 +35,7 @@ import uk.porcheron.co_curator.val.Style;
 public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHandler {
     private static final String TAG = "CC:ItemList";
 
+    private static Random mRandom = new Random();
     private final DbHelper mDbHelper;
 
     private final Map<String, Item> mItemIds = new HashMap<>();
@@ -411,6 +413,18 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         }
 
         item.setDrawn(true);
+
+
+        int randomPadRight = (int) Style.itemXGapMin + mRandom.nextInt((int) Style.itemXGapOffset);
+        int randomPadRightHalf = randomPadRight / 2;
+
+        ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) item.getLayoutParams();
+        if(user.above) {
+            p.setMargins(randomPadRightHalf, (int) item.getOuterMargin(), randomPadRightHalf, 0);
+        } else {
+            p.setMargins(randomPadRightHalf, 0, randomPadRightHalf, (int) item.getOuterMargin());
+        }
+        item.requestLayout();
     }
 
     private int drawInFold(int pos, LinearLayout layout, SparseArray<Item> drawnItems, Item item, int minWidth) {
