@@ -1,5 +1,7 @@
 package uk.porcheron.co_curator.collo;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
@@ -14,6 +16,7 @@ import java.util.Map;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.user.User;
+import uk.porcheron.co_curator.util.AnimationReactor;
 import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.val.Collo;
@@ -157,7 +160,7 @@ public class ColloManager {
         private String mDestinationIp;
         private int mDestinationPort;
 
-        private static final int TIMEOUT = 1000;
+        private static final int TIMEOUT = 500;
 
         Client(int globalUserId, String ip, int port) {
             mGlobalUserId = globalUserId;
@@ -175,7 +178,7 @@ public class ColloManager {
 //                return null;
 //            }
 
-            int attempts = 3;
+            int attempts = 2;
             while(attempts-- > 0) {
                 Log.v(TAG, "User[" + Instance.globalUserId + "] Send message[" + message[0] + "] to User[" + mGlobalUserId + "] at " + mDestinationIp + ":" + mDestinationPort);
 
@@ -253,39 +256,60 @@ public class ColloManager {
         }
     }
 
-    public static void bindToUser(int globalUserId) {
+    public static void bindToUser(final int globalUserId) {
         if(globalUserId == Instance.globalUserId) {
             Log.e(TAG, "Can't bind to yourself");
             return;
         }
 
-        mUsersBoundTo.put(globalUserId, true);
-        mHeardFromAt.put(globalUserId, -1L);
-        Instance.users.drawUser(globalUserId);
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Instance.items.retestDrawing();
-                TimelineActivity.getInstance().redrawCentrelines();
+                TimelineActivity.getInstance().fadeOut(new AnimationReactor() {
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+
+                        mUsersBoundTo.put(globalUserId, true);
+                        mHeardFromAt.put(globalUserId, -1L);
+
+                        Instance.users.drawUser(globalUserId);
+                        Instance.items.retestDrawing();
+
+                        TimelineActivity.getInstance().redrawCentrelines();
+                        TimelineActivity.getInstance().fadeIn(null);
+                    }
+                });
             }
         });
     }
 
-    public static void unBindFromUser(int globalUserId) {
+    public static void unBindFromUser(final int globalUserId) {
         CCLog.write(Event.COLLO_DO_UNBIND, "{globalUserId=" + globalUserId + "}");
 
         if(globalUserId == Instance.globalUserId) {
             return;
         }
 
-        mUsersBoundTo.remove(globalUserId);
-        mHeardFromAt.put(globalUserId, -1L);
-        Instance.users.unDrawUser(globalUserId);
+        if(mUsersBoundTo.get(globalUserId) == null) {
+            return;
+        }
+
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Instance.items.retestDrawing();
-                TimelineActivity.getInstance().redrawCentrelines();
+                TimelineActivity.getInstance().fadeOut(new AnimationReactor() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mUsersBoundTo.remove(globalUserId);
+
+                        Instance.users.unDrawUser(globalUserId);
+                        Instance.items.retestDrawing();
+
+                        TimelineActivity.getInstance().redrawCentrelines();
+                        TimelineActivity.getInstance().fadeIn(null);
+                    }
+                });
             }
         });
     }

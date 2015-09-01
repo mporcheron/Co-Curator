@@ -1,5 +1,7 @@
 package uk.porcheron.co_curator;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -21,8 +23,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.Animation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -41,6 +45,7 @@ import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
+import uk.porcheron.co_curator.util.AnimationReactor;
 import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.Event;
 import uk.porcheron.co_curator.util.Image;
@@ -62,9 +67,13 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private View.OnTouchListener mGestureDetector;
     public ScaleGestureDetector mScaleDetector;
 
+    private RelativeLayout mTimeline;
     private SurfaceHolder mSurfaceHolder;
     private ProgressDialog mProgressDialog;
     private FrameLayout mFrameLayout;
+
+    private static final int FADE_TIME_ITEMS = 1000;
+    private static final int FADE_TIME_CENTRELINE = 1000;
 
     public static final int PICK_PHOTO = 101;
 
@@ -116,6 +125,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Style.collectAttrs();
 
         // Begin preparation for drawing the UI
+        mTimeline = (RelativeLayout) findViewById(R.id.timeline);
         SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surface);
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
@@ -239,6 +249,40 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mProgressDialog = ProgressDialog.show(this, "", getText(str), true);
     }
 
+    public void fadeOut(final AnimationReactor listener) {
+        mFrameLayout.animate()
+                .alpha(0f)
+                .setDuration(FADE_TIME_ITEMS)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mFrameLayout.setVisibility(View.INVISIBLE);
+                        if(listener != null) {
+                            listener.onAnimationEnd(animation);
+                        }
+                    }
+                });
+    }
+
+    public void fadeIn(final AnimationReactor listener) {
+        mFrameLayout.animate()
+                .alpha(1f)
+                .setDuration(FADE_TIME_ITEMS)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        if(listener != null) {
+                            listener.onAnimationEnd(animation);
+                        }
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        mFrameLayout.setVisibility(View.VISIBLE);
+                    }
+                });
+    }
+
     public void hideLoadingDialog() {
         mProgressDialog.hide();
     }
@@ -306,14 +350,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     public boolean respond(String action, int globalUserId, String... data) {
         switch(action) {
             case ColloDict.ACTION_UNBIND:
-                Instance.users.unDrawUser(globalUserId);
-                TimelineActivity.getInstance().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Instance.items.retestDrawing();
-                        TimelineActivity.getInstance().redrawCentrelines();
-                    }
-                });
+                ColloManager.unBindFromUser(globalUserId);
                 return true;
         }
 

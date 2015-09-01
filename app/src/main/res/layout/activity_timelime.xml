@@ -6,6 +6,7 @@
     android:paddingRight="0dp"
     android:paddingTop="0dp"
     android:paddingBottom="0dp"
+    android:id="@+id/timeline"
     tools:context=".TimelimeActivity"
     android:background="@color/background">
 
