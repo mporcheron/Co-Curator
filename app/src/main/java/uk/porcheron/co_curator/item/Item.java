@@ -172,7 +172,7 @@ public abstract class Item extends View {
                 mOuterBounds.bottom - padding);
 
         //+ mRandomPadRight
-        mSlotBounds = new RectF(0, 0, mOuterBounds.width(), Style.itemFullHeight - top + Style.layoutCentreHeight);
+        mSlotBounds = new RectF(0, 0, mOuterBounds.width(), Style.itemFullHeight + Style.layoutCentreHeight);
 
         float offset = Style.itemStemNarrowBy +
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
