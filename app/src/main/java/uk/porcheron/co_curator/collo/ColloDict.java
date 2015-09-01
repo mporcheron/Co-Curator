@@ -10,6 +10,7 @@ public class ColloDict {
 
     public static final String ACTION_HEARTBEAT = "hello";
     public static final String ACTION_NEW = "new";
+    public static final String ACTION_POINT = "point";
     public static final String ACTION_UPDATE = "update";
     public static final String ACTION_DELETE = "delete";
     public static final String ACTION_BIND = "bind";

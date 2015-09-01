@@ -27,6 +27,7 @@ public enum Event {
     COLLO_RECEIVE,
     COLLO_DO_BIND,
     COLLO_DO_UNBIND,
+    COLLO_POINT,
 
     COLLO_BIND_REQUEST,
     COLLO_ROTATE,

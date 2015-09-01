@@ -150,11 +150,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         layoutBelow.setPadding(0, 0, padRight, 0);
         layoutBelow.setLayoutParams(params);
 
-        mFrameLayout.setOnLongClickListener(this);
-        layoutAbove.setOnLongClickListener(this);
-        layoutBelow.setOnLongClickListener(this);
-
         mGestureDetector = new TimelineGestureDetector();
+
+//        mFrameLayout.setOnLongClickListener(this);
+//        layoutAbove.setOnLongClickListener(this);
+//        layoutBelow.setOnLongClickListener(this);
+
 //        mFrameLayout.setOnTouchListener(mGestureDetector);
 
         // Pinch to overview
@@ -601,22 +602,50 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     };
 
     private static long LONG_PRESS_DELAY = 500;
+    private static float DOUBLE_TAP_POINT_LEEWAY = 10f;
+    private static long DOUBLE_TAP_TIME_LEEWAY = 450L;
+    private static long mLastTap = -1;
 
     private class TimelineGestureDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
 
         @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if(event.getAction() == MotionEvent.ACTION_DOWN) {
-                handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
-            }
+        public boolean onDoubleTap(MotionEvent e) {
+            CCLog.write(Event.COLLO_POINT, "{x=" + e.getX() + "}");
+            Log.v(TAG, "broadcast point");
+            ColloManager.broadcast(ColloDict.ACTION_POINT, e.getX());
+            return true;
+        }
 
-            if(event.getAction() == MotionEvent.ACTION_MOVE
-                    || event.getAction() == MotionEvent.ACTION_UP
-                    || event.getAction() == MotionEvent.ACTION_SCROLL) {
+        public boolean onDown(MotionEvent e) {
+            super.onDown(e);
+            return true;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent e) {
+            long now = System.currentTimeMillis();
+
+            if(e.getAction() == MotionEvent.ACTION_CANCEL
+                    || e.getAction() == MotionEvent.ACTION_UP
+                    || e.getAction() == MotionEvent.ACTION_SCROLL) {
                 handler.removeCallbacks(mLongPressed);
             }
 
-            mLayoutTouchX = event.getX();
+            if(e.getAction() == MotionEvent.ACTION_UP) {
+                if(Math.abs(mLayoutTouchX - e.getX()) < DOUBLE_TAP_POINT_LEEWAY) {
+                    if(now - mLastTap < DOUBLE_TAP_TIME_LEEWAY) {
+                        return onDoubleTap(e);
+                    }
+                }
+
+                mLastTap = now;
+            }
+
+            if(e.getAction() == MotionEvent.ACTION_DOWN) {
+                handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
+            }
+
+            mLayoutTouchX = e.getX();
 
             return false;
         }
