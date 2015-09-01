@@ -369,7 +369,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private void addNewNote(final boolean promptOnCancel) {
         CCLog.write(Event.TL_NEW_NOTE, "{promptOnCancel=" + promptOnCancel + "}");
 
-        new DialogNote()
+        new DialogNote(this)
                 .setAutoEdit(true)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override
@@ -409,7 +409,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private void addNewUrl(final boolean promptOnCancel) {
         CCLog.write(Event.TL_NEW_URL, "{promptOnCancel=" + promptOnCancel + "}");
 
-        new DialogUrl()
+        new DialogUrl(this)
                 .setAutoEdit(true)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override
@@ -489,7 +489,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void updateCanvas(SurfaceHolder holder) {
-        Log.v(TAG, "Redaw canvas");
+        Log.v(TAG, "Redraw canvas");
 
         Canvas canvas = holder.lockCanvas();
 

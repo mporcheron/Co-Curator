@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -68,7 +69,7 @@ public class ItemUrl extends ItemPhoto {
     }
 
     @Override
-    public boolean onTap() {
+    public boolean onTap(Activity activity) {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(mUrl));
         getContext().startActivity(browserIntent);
         return true;
@@ -111,16 +112,14 @@ public class ItemUrl extends ItemPhoto {
 
 
     @Override
-    protected boolean onLongPress() {
-        boolean userMatches = getUser().equals(Instance.user());
-        onSelect(userMatches, userMatches);
-
+    protected boolean onLongPress(Activity activity) {
+        onSelect(activity, true, true);
         return true;
     }
 
     @Override
-    protected void onSelect(boolean editable, boolean deletable) {
-        new DialogUrl()
+    protected void onSelect(Activity activity, boolean editable, boolean deletable) {
+        new DialogUrl(activity)
                 .setText(mUrl)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override

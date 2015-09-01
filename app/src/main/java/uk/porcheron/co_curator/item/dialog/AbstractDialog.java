@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item.dialog;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -31,7 +32,7 @@ import uk.porcheron.co_curator.val.Style;
 public abstract class AbstractDialog {
     private static final String TAG = "CC:AbstractDialog";
 
-    private TimelineActivity mActivity;
+    private Activity mActivity;
 
     private OnSubmitListener mOnSubmitListener = null;
     private OnCancelListener mOnCancelListener = null;
@@ -48,8 +49,8 @@ public abstract class AbstractDialog {
     private AlertDialog mDialog = null;
     private final GestureDetector mGestureDetector;
 
-    public AbstractDialog() {
-        mActivity = TimelineActivity.getInstance();
+    public AbstractDialog(Activity activity) {
+        mActivity = activity;
         mBuilder = new AlertDialog.Builder(mActivity);
         mGestureDetector = new GestureDetector(TimelineActivity.getInstance(), new DialogGestureListener());
     }
@@ -129,7 +130,7 @@ public abstract class AbstractDialog {
         return this;
     }
 
-    protected final TimelineActivity getActivity() {
+    protected final Activity getActivity() {
         return mActivity;
     }
 

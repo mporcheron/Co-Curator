@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.RectF;
@@ -193,7 +194,7 @@ public abstract class Item extends View {
         return mUser;
     }
 
-    protected final int getItemId() {
+    public final int getItemId() {
         return mItemId;
     }
 
@@ -211,9 +212,23 @@ public abstract class Item extends View {
 
     public final long getDateTime() { return mDateTime; }
 
-    protected abstract boolean onTap();
+    public final void simulateTap(Activity activity) {
+        onTap(activity);
+    }
 
-    protected abstract boolean onLongPress();
+    protected boolean onTap(Activity activity) {
+        return onLongPress(activity);
+    }
+
+    protected boolean onTap() {
+        return onTap(TimelineActivity.getInstance());
+    }
+
+    protected boolean onLongPress() {
+        return onLongPress(TimelineActivity.getInstance());
+    }
+
+    protected abstract boolean onLongPress(Activity activity);
 
     private boolean mCancelLongPress = false;
 
@@ -268,5 +283,5 @@ public abstract class Item extends View {
         }
     };
 
-    protected abstract void onSelect(boolean editable, boolean deletable);
+    protected abstract void onSelect(Activity activity, boolean editable, boolean deletable);
 }

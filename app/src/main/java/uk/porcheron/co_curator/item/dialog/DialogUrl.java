@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item.dialog;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,8 +31,8 @@ import uk.porcheron.co_curator.val.Style;
 public class DialogUrl extends DialogNote {
     private static final String TAG = "CC:DialogUrl";
 
-    public DialogUrl() {
-        super();
+    public DialogUrl(Activity activity) {
+        super(activity);
 
         getEditText().setInputType(InputType.TYPE_TEXT_VARIATION_URI);
     }

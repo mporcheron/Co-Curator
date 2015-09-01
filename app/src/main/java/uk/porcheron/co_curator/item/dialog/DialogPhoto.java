@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item.dialog;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -43,8 +44,8 @@ public class DialogPhoto extends AbstractDialog {
     private String mSource = "";
     private final ImageView mImageView;
 
-    public DialogPhoto() {
-        super();
+    public DialogPhoto(Activity activity) {
+        super(activity);
 
         mImageView = new ImageView(getActivity());
         setContentView(mImageView, true);

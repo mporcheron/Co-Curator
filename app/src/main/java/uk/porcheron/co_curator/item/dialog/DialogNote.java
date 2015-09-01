@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item.dialog;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -33,8 +34,8 @@ public class DialogNote extends AbstractDialog {
     private String mOriginalText = "";
     private final EditText mEditText;
 
-    public DialogNote() {
-        super();
+    public DialogNote(Activity activity) {
+        super(activity);
 
         mEditText = new EditText(getActivity());
         mEditText.setSingleLine(false);

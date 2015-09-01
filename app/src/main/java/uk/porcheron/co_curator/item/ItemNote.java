@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
@@ -85,20 +86,14 @@ public class ItemNote extends Item {
     }
 
     @Override
-    public boolean onTap() {
-        onSelect(true, true);
+    protected boolean onLongPress(Activity activity) {
+        onSelect(activity, true, true);
         return true;
     }
 
     @Override
-    protected boolean onLongPress() {
-        onSelect(true, true);
-        return true;
-    }
-
-    @Override
-    protected void onSelect(boolean editable, boolean deletable) {
-        new DialogNote()
+    protected void onSelect(Activity activity, boolean editable, boolean deletable) {
+        new DialogNote(activity)
                 .setText(mText)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
                     @Override

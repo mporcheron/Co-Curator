@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.item;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -93,22 +94,17 @@ public class ItemPhoto extends Item {
     }
 
     @Override
-    public boolean onTap() {
-        return onLongPress();
-    }
-
-    @Override
-    protected boolean onLongPress() {
-        onSelect(true, true);
+    protected boolean onLongPress(Activity activity) {
+        onSelect(activity, true, true);
         return true;
     }
 
     @Override
-    protected void onSelect(boolean editable, boolean deletable) {
+    protected void onSelect(Activity activity, boolean editable, boolean deletable) {
         boolean userMatches = getUser().equals(Instance.user());
 
         try {
-            new DialogPhoto()
+            new DialogPhoto(activity)
                     .setSource(mImagePath + ".png")
                     .setOnDeleteListener(new DialogNote.OnDeleteListener() {
                         @Override

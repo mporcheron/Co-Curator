@@ -40,67 +40,66 @@ public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHo
 
     @Override
     public int getItemViewType(int position) {
-        Item item = mItems.get(position);
-
-        if(item instanceof ItemUrl) {
-            return TYPE_URL;
-        } else if(item instanceof ItemPhoto) {
-            return TYPE_PHOTO;
-        } else {
-            return TYPE_NOTE;
-        }
+        return position;
     }
 
     public abstract static class ViewHolder extends RecyclerView.ViewHolder {
-        private View mView;
+        protected final Item mItem;
+        protected final User mUser;
+        private final View mView;
 
-        public ViewHolder(View v) {
+        public ViewHolder(View v, Item i) {
             super(v);
+
             mView = v;
-        }
+            mItem = i;
+            mUser = i.getUser();
 
-        abstract void setData(String data);
-
-        void setUser(int userId, int globalUserId) {
             int drawable;
-            if (userId == 3) {
+            if (mUser.userId == 3) {
                 drawable = R.drawable.overview_bg_3;
-            } else if (userId == 2) {
+            } else if (mUser.userId == 2) {
                 drawable = R.drawable.overview_bg_2;
-            } else if (userId == 1) {
+            } else if (mUser.userId == 1) {
                 drawable = R.drawable.overview_bg_1;
             } else {
                 drawable = R.drawable.overview_bg_0;
             }
             mView.setBackground(OverviewActivity.getInstance().getDrawable(drawable));
+
+            mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mItem.simulateTap(OverviewActivity.getInstance());
+                }
+            });
         }
+
+        abstract void setData(String data);
     }
 
     public static class NoteHolder extends ViewHolder {
         private final TextView mTextView;
 
-        public NoteHolder(View v) {
-            super(v);
+        public NoteHolder(View v, Item i) {
+            super(v, i);
 
             mTextView = (TextView) v.findViewById(R.id.textView);
             mTextView.setLineSpacing(0, 1.2f);
+
+            mTextView.setTextColor(mUser.fgColor);
         }
 
         public void setData(String data) {
             mTextView.setText(data);
-        }
-
-        void setUser(int userId, int globalUserId) {
-            super.setUser(userId, globalUserId);
-            mTextView.setTextColor(Instance.users.getByGlobalUserId(globalUserId).fgColor);
         }
     }
 
     public static class PhotoHolder extends ViewHolder {
         private final ImageView mImageView;
 
-        public PhotoHolder(View v) {
-            super(v);
+        public PhotoHolder(View v, Item i) {
+            super(v, i);
 
             mImageView = (ImageView) v.findViewById(R.id.imageView);
         }
@@ -118,25 +117,33 @@ public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHo
 
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
+    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
         // Create a new view.
+
+        Item item = mItems.get(position);
+        int type = TYPE_NOTE;
+        if(item instanceof ItemUrl) {
+            type = TYPE_URL;
+        } else if(item instanceof ItemPhoto) {
+            type = TYPE_PHOTO;
+        }
 
         View v;
         switch(type) {
             case TYPE_NOTE:
                 v = LayoutInflater.from(viewGroup.getContext()).inflate(
                         R.layout.overview_item_note, viewGroup, false);
-                return new NoteHolder(v);
+                return new NoteHolder(v, item);
 
             case TYPE_PHOTO:
                 v = LayoutInflater.from(viewGroup.getContext()).inflate(
                         R.layout.overview_item_photo, viewGroup, false);
-                return new PhotoHolder(v);
+                return new PhotoHolder(v, item);
 
             case TYPE_URL:
                 v = LayoutInflater.from(viewGroup.getContext()).inflate(
                         R.layout.overview_item_photo, viewGroup, false);
-                return new PhotoHolder(v);
+                return new PhotoHolder(v, item);
         }
 
         return null;
@@ -145,9 +152,6 @@ public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
         Item i = mItems.get(position);
-        User u = i.getUser();
-
-        viewHolder.setUser(u.userId, u.globalUserId);
         viewHolder.setData(i.getData());
     }
 
