@@ -683,12 +683,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             }
 
             if(e.getAction() == MotionEvent.ACTION_UP) {
-                Log.d(TAG, "mLayoutTouchX = " + mLayoutTouchX);
-                Log.d(TAG, "e.getX() = " + e.getX());
-                Log.d(TAG, "mLayoutTouchY = " + mLayoutTouchY);
-                Log.d(TAG, "e.getY() = " + (e.getY() + mYOffset));
-                Log.d(TAG, "__");
-
                 if(Math.abs(mLayoutTouchX - e.getX()) < DOUBLE_TAP_POINT_LEEWAY) {
                     if (now - mLastTap < DOUBLE_TAP_TIME_LEEWAY) {
                         float diffY = Math.abs(mLayoutTouchY - (e.getY() + mYOffset));

@@ -432,7 +432,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         mDrawn++;
 
         // Spacing
-        int randomPadRight = (int) Style.itemXGapMin + mRandom.nextInt((int) Style.itemXGapOffset);
+        int randomPadRight = (int) Style.itemXGapMin;// + mRandom.nextInt((int) Style.itemXGapOffset);
         int randomPadRightHalf = randomPadRight / 2;
 
         ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) item.getLayoutParams();
