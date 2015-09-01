@@ -29,8 +29,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -84,6 +82,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private boolean mUnbindAll = true;
 
     private float mLayoutTouchX = -1;
+    private float mLayoutTouchY = -1;
 
 
     @Override
@@ -627,7 +626,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 public void run() {
                     try {
                         ColloManager.beat(mUnbindAll);
-                        if(mUnbindAll) {
+                        if (mUnbindAll) {
                             mLoadedHandler.postDelayed(mLoadedRunner, DISMISS_LOADING_IN);
                             mUnbindAll = false;
                         }
@@ -640,7 +639,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     };
 
     private static long LONG_PRESS_DELAY = 500;
-    private static float DOUBLE_TAP_POINT_LEEWAY = 10f;
+    private static float DOUBLE_TAP_POINT_LEEWAY = 50f;
+    private static float SCALE_LEEWAY = 150f;
     private static long DOUBLE_TAP_TIME_LEEWAY = 450L;
     private static long mLastTap = -1;
 
@@ -683,13 +683,26 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             }
 
             if(e.getAction() == MotionEvent.ACTION_UP) {
+                Log.d(TAG, "mLayoutTouchX = " + mLayoutTouchX);
+                Log.d(TAG, "e.getX() = " + e.getX());
+                Log.d(TAG, "mLayoutTouchY = " + mLayoutTouchY);
+                Log.d(TAG, "e.getY() = " + (e.getY() + mYOffset));
+                Log.d(TAG, "__");
+
                 if(Math.abs(mLayoutTouchX - e.getX()) < DOUBLE_TAP_POINT_LEEWAY) {
-                    if(now - mLastTap < DOUBLE_TAP_TIME_LEEWAY) {
-                        return onDoubleTap(e);
+                    if (now - mLastTap < DOUBLE_TAP_TIME_LEEWAY) {
+                        float diffY = Math.abs(mLayoutTouchY - (e.getY() + mYOffset));
+                        if (diffY < DOUBLE_TAP_POINT_LEEWAY) {
+                            return onDoubleTap(e);
+                        } else if (diffY > SCALE_LEEWAY) {
+                            Intent i = new Intent(TimelineActivity.this, OverviewActivity.class);
+                            startActivity(i);
+                        }
                     }
                 }
 
                 mLastTap = now;
+                mLayoutTouchY = e.getY() + mYOffset;
             }
 
             if(e.getAction() == MotionEvent.ACTION_DOWN) {
