@@ -16,7 +16,7 @@ import uk.porcheron.co_curator.val.Style;
 public class Pointer extends View {
 
     private Paint mOuterPaint;
-    private Paint mInnerPaint;
+    private Paint mPaint;
 
     public Pointer(Context context) {
         super(context);
@@ -38,14 +38,9 @@ public class Pointer extends View {
         super(TimelineActivity.getInstance());
 
         int colorInt = Style.userMeBgColors[user.userId];
-        mInnerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mInnerPaint.setStyle(Paint.Style.FILL);
-        mInnerPaint.setColor(colorInt);
-
-        colorInt = Style.pointerBorderColor;
-        mOuterPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mOuterPaint.setStyle(Paint.Style.FILL);
-        mOuterPaint.setColor(colorInt);
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setColor(colorInt);
     }
 
     @Override
@@ -78,7 +73,7 @@ public class Pointer extends View {
             }
         }
 
-        canvas.drawCircle(maxR, maxR, minR, mInnerPaint);
+        canvas.drawCircle(maxR, maxR, minR, mPaint);
 
         this.postInvalidateDelayed(40 + (mPulseStep * STEP_PULSATE));
     }
