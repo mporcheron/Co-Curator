@@ -10,6 +10,11 @@
     tools:context=".TimelimeActivity"
     android:background="@color/background">
 
+    <FrameLayout
+        android:id="@+id/outerFrameLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
     <SurfaceView
         android:id="@+id/surface"
         android:layout_width="match_parent"
@@ -56,5 +61,7 @@
 
         </LinearLayout>
     </uk.porcheron.co_curator.item.ItemScrollView>
+
+    </FrameLayout>
 
 </RelativeLayout>

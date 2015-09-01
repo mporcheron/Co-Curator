@@ -71,10 +71,18 @@ public class Style {
 
     public static float pointerMaxSize;
     public static float pointerMinSize;
-    public static int pointerBorderColor;
     public static int pointerPulseSteps;
     public static float pointerPulseStepIncrement;
     public static int pointerVisibleFor;
+
+    public static float pointerPointerCircleSize;
+    public static float pointerPointerArrowLineWidth;
+    public static float pointerPointerArrowLength;
+    public static float pointerPointerArrowHeadDepth;
+    public static float pointerPointerArrowHeadHeight;
+    public static double pointerPointerArrowHeadArmLength;
+    public static float pointerPointerXOffset;
+    public static float pointerPointerYOffset;
 
 
     public static void collectAttrs() {
@@ -155,6 +163,15 @@ public class Style {
         pointerPulseSteps = res.getInteger(R.integer.pointerPulseSteps);
         pointerPulseStepIncrement = res.getDimension(R.dimen.pointerPulseStepIncrement);
         pointerVisibleFor = res.getInteger(R.integer.pointerVisibleFor);
+
+        pointerPointerCircleSize = res.getDimension(R.dimen.pointerPointerCircleSize);
+        pointerPointerArrowLineWidth = res.getDimension(R.dimen.pointerPointerArrowLineWidth);
+        pointerPointerArrowLength = res.getDimension(R.dimen.pointerPointerArrowLength);
+        pointerPointerArrowHeadDepth = res.getDimension(R.dimen.pointerPointerArrowHeadDepth);
+        pointerPointerArrowHeadHeight = res.getDimension(R.dimen.pointerPointerArrowHeadHeight);
+        pointerPointerArrowHeadArmLength = Math.sqrt((pointerPointerArrowHeadDepth * pointerPointerArrowHeadDepth) + (pointerPointerArrowHeadHeight * pointerPointerArrowHeadHeight));
+        pointerPointerXOffset = res.getDimension(R.dimen.pointerPointerXOffset);
+        pointerPointerYOffset = res.getDimension(R.dimen.pointerPointerYOffset);
 
     }
 }

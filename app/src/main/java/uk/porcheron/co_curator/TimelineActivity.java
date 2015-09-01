@@ -44,6 +44,7 @@ import uk.porcheron.co_curator.item.ItemUrl;
 import uk.porcheron.co_curator.item.dialog.DialogNote;
 import uk.porcheron.co_curator.item.dialog.DialogUrl;
 import uk.porcheron.co_curator.point.Pointer;
+import uk.porcheron.co_curator.point.PointerPointer;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.user.UserList;
 import uk.porcheron.co_curator.util.AnimationReactor;
@@ -70,12 +71,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     public ScaleGestureDetector mScaleDetector;
 
     private RelativeLayout mTimeline;
+    private ItemScrollView mScrollView;
     private SurfaceHolder mSurfaceHolder;
     private ProgressDialog mProgressDialog;
     private FrameLayout mFrameLayout;
+    private FrameLayout mOuterFrameLayout;
 
     private static final int FADE_TIME_ITEMS = 1000;
-    private static final int FADE_DELAY = 500;
+    private static final int FADE_POINTER_POINTER = 500;
 
     public static final int PICK_PHOTO = 101;
 
@@ -133,10 +136,11 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mSurfaceHolder = surfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
 
-        ItemScrollView scrollView = (ItemScrollView) findViewById(R.id.horizontalScrollView);
-        scrollView.setSmoothScrollingEnabled(true);
+        mScrollView = (ItemScrollView) findViewById(R.id.horizontalScrollView);
+        mScrollView.setSmoothScrollingEnabled(true);
 
         mFrameLayout = (FrameLayout) findViewById(R.id.frameLayout);
+        mOuterFrameLayout = (FrameLayout) findViewById(R.id.outerFrameLayout);
 
         LinearLayout layoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
         LinearLayout layoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
@@ -189,7 +193,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         // Load items
         Instance.users = new UserList();
-        Instance.items = new ItemList(scrollView, layoutAbove, layoutBelow);
+        Instance.items = new ItemList(mScrollView, layoutAbove, layoutBelow);
 
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_POINT, this);
@@ -647,6 +651,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     final SparseArray<Runnable> mPointerHandlerRunners = new SparseArray<>();
     final SparseArray<Handler> mPointerHandlers = new SparseArray<>();
     private SparseArray<Pointer> mPointers = new SparseArray<>();
+    private SparseArray<PointerPointer> mPointerPointers = new SparseArray<>();
 
     private class TimelineGestureDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
 
@@ -716,10 +721,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     };
 
-    public float getLayoutTouchX() {
-        return mLayoutTouchX;
-    }
-
     class OverviewDetector extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
@@ -739,7 +740,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     }
 
-    private void showPointer(User user, float x, float y) {
+    private void showPointer(final User user, float x, float y) {
         int userId = user.userId;
         Pointer existing = mPointers.get(userId);
         if(existing != null) {
@@ -758,15 +759,56 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         p.bringToFront();
         mPointers.put(userId, p);
 
-        if(Style.pointerLength > 0) {
+        if(x < mScrollView.getScrollX()) {
+            showPointerPointer(user, false);
+        } else if(x > mScrollView.getScrollX() + mScrollView.getWidth()) {
+            showPointerPointer(user, true);
+        } else {
+            hidePointerPointer(user);
+        }
+
+        if(Style.pointerVisibleFor > 0) {
             mPointerHandlerRunners.put(userId, new Runnable() {
                 @Override
                 public void run() {
                     mFrameLayout.removeView(p);
+                    hidePointerPointer(user);
                 }
             });
 
-            mPointerHandlers.get(userId, new Handler()).postDelayed(mPointerHandlerRunners.get(userId), Style.pointerLength);
+            mPointerHandlers.get(userId, new Handler()).postDelayed(mPointerHandlerRunners.get(userId), Style.pointerVisibleFor);
+        }
+    }
+
+    public void showPointerPointer(User user, boolean pointRight) {
+        hidePointerPointer(user);
+
+        final PointerPointer pp = new PointerPointer(user, pointRight);
+        if(pointRight) {
+            pp.setTranslationX(mOuterFrameLayout.getWidth() - Style.pointerPointerXOffset - Style.pointerPointerArrowLength - Style.pointerPointerCircleSize);
+        } else {
+            pp.setTranslationX(Style.pointerPointerXOffset);
+        }
+
+        pp.setTranslationY(Style.pointerPointerYOffset + (mPointerPointers.size() * (Style.pointerPointerYOffset + Style.pointerPointerCircleSize)));
+
+        mOuterFrameLayout.addView(pp);
+        pp.bringToFront();
+        mPointerPointers.put(user.userId, pp);
+    }
+
+    public void hidePointerPointer(final User user) {
+        final PointerPointer pp = mPointerPointers.get(user.userId);
+        if(pp != null) {
+            pp.animate().alpha(0f).setDuration(FADE_POINTER_POINTER).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+
+                    mOuterFrameLayout.removeView(pp);
+                    mPointerPointers.remove(user.userId);
+                }
+            });
         }
     }
 }

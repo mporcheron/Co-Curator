@@ -69,5 +69,13 @@
     <dimen name="pointerPulseStepIncrement">.5dp</dimen>
     <integer name="pointerVisibleFor">5000</integer>
 
+    <dimen name="pointerPointerCircleSize">@dimen/pointerMinSize</dimen>
+    <dimen name="pointerPointerArrowLineWidth">2.5dp</dimen>
+    <dimen name="pointerPointerArrowLength">@dimen/pointerMinSize</dimen>
+    <dimen name="pointerPointerArrowHeadHeight">@dimen/pointerMinSize</dimen>
+    <dimen name="pointerPointerArrowHeadDepth">8dp</dimen>
+    <dimen name="pointerPointerXOffset">10dp</dimen>
+    <dimen name="pointerPointerYOffset">10dp</dimen>
+
 
 </resources>
