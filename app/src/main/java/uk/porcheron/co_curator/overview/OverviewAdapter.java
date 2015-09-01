@@ -106,7 +106,7 @@ public class OverviewAdapter extends RecyclerView.Adapter<OverviewAdapter.ViewHo
 
         public void setData(String data) {
             try {
-                FileInputStream fis = OverviewActivity.getInstance().openFileInput(data + ".png");
+                FileInputStream fis = OverviewActivity.getInstance().openFileInput(data + "-thumb.png");
                 Bitmap bitmap = BitmapFactory.decodeStream(fis);
                 mImageView.setImageBitmap(bitmap);
             } catch (FileNotFoundException e) {
