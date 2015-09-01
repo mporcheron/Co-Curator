@@ -73,7 +73,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private FrameLayout mFrameLayout;
 
     private static final int FADE_TIME_ITEMS = 1000;
-    private static final int FADE_TIME_CENTRELINE = 1000;
+    private static final int FADE_DELAY = 500;
 
     public static final int PICK_PHOTO = 101;
 
@@ -215,8 +215,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             mUpdateTimer = new Timer();
             mUpdateTimer.schedule(mUpdateUserTask, 1000, ColloManager.BEAT_EVERY);
         } catch(IllegalStateException e) {
-
         }
+
+        // Fade in if not visible
+        if(mFrameLayout.getAlpha() == 0f) {
+            mFrameLayout.setVisibility(View.VISIBLE);
+            mFrameLayout.setAlpha(1f);
+        }
+
         super.onResume();
     }
 
@@ -257,7 +263,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         mFrameLayout.setVisibility(View.INVISIBLE);
-                        if(listener != null) {
+                        if (listener != null) {
                             listener.onAnimationEnd(animation);
                         }
                     }
@@ -625,8 +631,13 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
-            Intent i = new Intent(TimelineActivity.this, OverviewActivity.class);
-            startActivity(i);
+            TimelineActivity.this.fadeOut(new AnimationReactor() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    Intent i = new Intent(TimelineActivity.this, OverviewActivity.class);
+                    startActivity(i);
+                }
+            });
         }
 
     }
