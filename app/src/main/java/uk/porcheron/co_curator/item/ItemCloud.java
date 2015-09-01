@@ -84,7 +84,7 @@ class ItemCloud {
             db.close();
 
             // Tell collocated devices
-            ColloManager.broadcast(ColloDict.ACTION_NEW, mItemId);
+            ColloManager.broadcast(ColloDict.ACTION_NEW, mGlobalUserId, mItemId);
 
             return Boolean.TRUE;
         }

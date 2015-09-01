@@ -375,7 +375,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         // Notify clients
         if(notifyClients) {
-            ColloManager.broadcast(ColloDict.ACTION_UPDATE, itemId);
+            ColloManager.broadcast(ColloDict.ACTION_UPDATE, globalUserId, itemId);
         }
     }
 
