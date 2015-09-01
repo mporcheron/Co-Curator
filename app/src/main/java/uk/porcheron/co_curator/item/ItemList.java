@@ -336,7 +336,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
         // Notify neighbours
         if(notifyClients) {
-            ColloManager.broadcast(ColloDict.ACTION_DELETE, itemId);
+            ColloManager.broadcast(ColloDict.ACTION_DELETE, globalUserId, itemId);
         }
     }
 
@@ -534,10 +534,17 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
     @Override
     public boolean respond(String action, int globalUserId, String... data) {
-        int itemId = -1;
+        int otherGlobalUserId = -1, itemId = -1;
 
         try {
-            itemId = Integer.parseInt(data[0]);
+            otherGlobalUserId = Integer.parseInt(data[0]);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Invalid globalUserId received");
+            return false;
+        }
+
+        try {
+            itemId = Integer.parseInt(data[1]);
         } catch (NumberFormatException e) {
             Log.e(TAG, "Invalid itemId received");
             return false;
@@ -546,15 +553,15 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         switch(action) {
             case ColloDict.ACTION_NEW:
             case ColloDict.ACTION_UPDATE:
-                WebLoader.loadItemFromWeb(globalUserId, itemId);
+                WebLoader.loadItemFromWeb(otherGlobalUserId, itemId);
                 return true;
 
             case ColloDict.ACTION_DELETE:
-                Item item = getByItemId(globalUserId, itemId);
+                Item item = getByItemId(otherGlobalUserId, itemId);
                 if(item != null) {
                     remove(item, true, false, false);
                 } else {
-                    Log.e(TAG, "Received delete request for Item[" + globalUserId + "-" + itemId + "], but we don't have it");
+                    Log.e(TAG, "Received delete request for Item[" + otherGlobalUserId + "-" + itemId + "], but we don't have it");
                 }
                 return true;
         }

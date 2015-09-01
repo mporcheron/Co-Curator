@@ -99,9 +99,7 @@ public class ItemPhoto extends Item {
 
     @Override
     protected boolean onLongPress() {
-        boolean userMatches = getUser().equals(Instance.user());
-        onSelect(false, userMatches);
-
+        onSelect(true, true);
         return true;
     }
 

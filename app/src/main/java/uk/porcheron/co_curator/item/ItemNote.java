@@ -86,15 +86,13 @@ public class ItemNote extends Item {
 
     @Override
     public boolean onTap() {
-        onSelect(false, false);
+        onSelect(true, true);
         return true;
     }
 
     @Override
     protected boolean onLongPress() {
-        boolean userMatches = getUser().equals(Instance.user());
-        onSelect(userMatches, userMatches);
-
+        onSelect(true, true);
         return true;
     }
 
