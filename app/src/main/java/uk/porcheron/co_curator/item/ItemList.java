@@ -42,15 +42,13 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     private final Map<String, Boolean> mForthcomingItemIds = new HashMap<>();
     private final SparseArray<List<Item>> mItemGlobalUserIds = new SparseArray<>();
     private final List<Item> mDrawnItems = new ArrayList<>();
-    private final SparseArray<Item> mDrawnAboveX = new SparseArray<>();
-    private final SparseArray<Item> mDrawnBelowX = new SparseArray<>();
+    private final List<Item> mDrawnAboveX = new ArrayList<>();
+    private final List<Item> mDrawnBelowX = new ArrayList<>();
     private final Map<Long,Float> mTimestampX = new HashMap<>();
 
     private final ItemScrollView mScrollView;
     private final LinearLayout mLayoutAbove;
     private final LinearLayout mLayoutBelow;
-
-    private final static boolean DRAW_NOTES_AT_X = false;
 
     private int mDrawn = 0;
 
@@ -114,11 +112,11 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         return mItemIds.get(globalUserId + "-" + itemId);
     }
 
-    public synchronized boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
-        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
-    }
+//    public synchronized boolean add(int itemId, ItemType type, User user, String data, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
+//        return add(itemId, type, user, data, (int) (System.currentTimeMillis() / 1000L), deleted, addToLocalDb, addToCloud);
+//    }
 
-    public synchronized boolean add(int itemId, ItemType type, User user, String data, int dateTime, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
+    public synchronized boolean add(int itemId, ItemType type, User user, String data, long dateTime, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
         String uniqueItemId = user.globalUserId + "-" + itemId;
 
         Log.v(TAG, "Item[" + uniqueItemId + "]: Add to List (type=" + type + ",user=" + user.globalUserId +
@@ -143,54 +141,34 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         item.setData(data);
         item.setDeleted(deleted);
 
-        int insertAt = 0, insertAtAbove = 0, insertAtBelow = 0;
+        int insertAt = 0;
         Iterator<Item> it = iterator();
-        float targetX = TimelineActivity.getInstance().getLayoutTouchX();
-        if(DRAW_NOTES_AT_X && type == ItemType.NOTE && targetX > 0) {
-            Item lastItem = null; float diff = Float.MAX_VALUE;
-            while (it.hasNext()) {
-                Item j = it.next();
-                Log.d(TAG, "Test Item[" + j.getUniqueItemId() + "]'s X[" + j.getDrawnX() + "]");
-
-                float newdiff = j.getDrawnX() - targetX;
-                if(newdiff < 0) {
-                    continue;
-                } else if (newdiff < diff) {
-                    lastItem = j;
-                    diff = newdiff;
-                }
-
-                insertAt++;
-                if (user.above && user.draw()) {
-                    insertAtAbove++;
-                } else if (user.draw()) {
-                    insertAtBelow++;
-                }
+        while (it.hasNext()) {
+            Item j = it.next();
+            if (j.getDateTime() > dateTime) {
+                break;
             }
 
-            if(lastItem != null) {
-                float lastX = lastItem.getDrawnX();
-                if(((targetX - lastX) / 2) < lastItem.getSlotBounds().width()) {
-                    item.setDateTime(lastItem.getDateTime() - 1);
-                } else {
-                    item.setDateTime(lastItem.getDateTime() + 1);
-                }
-            }
-        } else {
-            while (it.hasNext()) {
-                Item j = it.next();
-                if (j.getDateTime() > dateTime) {
-                    break;
-                }
-
-                insertAt++;
-                if (user.above && user.draw()) {
-                    insertAtAbove++;
-                } else if (user.draw()) {
-                    insertAtBelow++;
-                }
-            }
+            insertAt++;
         }
+
+//        SparseArray halfPosition = user.above ? mDrawnAboveX : mDrawnBelowX;
+//        for(int j = 0; j < halfPosition.size(); j++) {
+//
+//        }
+//        while (it.hasNext()) {
+//            Item j = it.next();
+//            if (j.getDateTime() > dateTime) {
+//                break;
+//            }
+//
+//            insertAt++;
+//            if (user.above && user.draw()) {
+//                insertAtAbove++;
+//            } else if (user.draw()) {
+//                insertAtBelow++;
+//            }
+//        }
 
         mItemIds.put(uniqueItemId, item);
         add(insertAt, item);
@@ -209,11 +187,10 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         items.add(item);
 
         // Drawing
-        final int layoutPosition = user.above ? insertAtAbove : insertAtBelow;
         if(!user.draw() || deleted) {
             Log.v(TAG, "Item[" + uniqueItemId + "]: Won't draw as user is not connected or us or is deleted");
         } else {
-            drawItem(user, item, layoutPosition);
+            drawItem(user, item);
         }
 
         // Save to the Local Database or just draw?
@@ -342,6 +319,59 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         }
     }
 
+    public long getDateTimeClosestTo(float x) {
+        long dateTime = (System.currentTimeMillis() / 1000L);
+
+        int itemX = -1;
+        float diff = Integer.MAX_VALUE;
+        Item item = null;
+
+        for(Item i : mDrawnItems) {
+            int[] pos = new int[2];
+            i.getLocationInWindow(pos);
+
+            pos[0] += mScrollView.getScrollX();
+            float testDiff = Math.abs(pos[0] - x);
+            if(testDiff < diff) {
+                itemX = pos[0];
+                diff = testDiff;
+                item = i;
+            }
+        }
+
+        if(item == null) {
+            return dateTime;
+        }
+
+        float midPointX = itemX + (item.getWidth() / 2);
+        if(x >= midPointX) {
+            dateTime = item.getDateTime() + 1;
+        } else {
+            dateTime = item.getDateTime() - 1;
+        }
+
+        return dateTime;
+    }
+
+    public Item getItemClosestTo(float x) {
+        float diff = Integer.MAX_VALUE;
+        Item item = null;
+
+        for(Item i : mDrawnItems) {
+            int[] pos = new int[2];
+            i.getLocationInWindow(pos);
+
+            pos[0] += mScrollView.getScrollX();
+            float testDiff = Math.abs(pos[0] - x);
+            if(testDiff < diff) {
+                diff = testDiff;
+                item = i;
+            }
+        }
+
+        return item;
+    }
+
     public synchronized void update(Item item, String data, boolean updateCloud, boolean notifyClients) {
         int globalUserId = item.getUser().globalUserId;
         int itemId = item.getItemId();
@@ -382,7 +412,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
     }
 
 
-    private void drawItem(User user, Item item, int pos) {
+    private void drawItem(User user, Item item) {
         Log.d(TAG, "Go forth and draw Item[" + item.getUniqueItemId() + "]");
         if(mDrawnItems.contains(item)) {
             Log.e(TAG, "Item is already drawn");
@@ -390,31 +420,18 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         }
 
         Log.d(TAG, "Go forth and draw Item[" + item.getUniqueItemId() + "]");
-        int minWidth = Phone.screenWidth;
+        int scrollTo = Phone.screenWidth;
 
         if (user.above) {
-            minWidth = drawInFold(pos, mLayoutAbove, mDrawnAboveX, item, minWidth);
+            scrollTo = drawInFold(mLayoutAbove, mDrawnAboveX, item, scrollTo);
         } else {
-            minWidth = drawInFold(pos, mLayoutBelow, mDrawnBelowX, item, minWidth);
+            scrollTo = drawInFold(mLayoutBelow, mDrawnBelowX, item, scrollTo);
         }
 
         mDrawnItems.add(item);
         mDrawn++;
 
-        float minAutoScrollWidth = minWidth - Style.autoscrollSlack - Phone.screenWidth;
-        if (user.globalUserId == Instance.globalUserId || minAutoScrollWidth <= mScrollView.getScrollX()) {
-            final int targetX = minWidth;
-            mScrollView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScrollView.smoothScrollTo(targetX, 0);
-                }
-            }, 500);
-        }
-
-        item.setDrawn(true);
-
-
+        // Spacing
         int randomPadRight = (int) Style.itemXGapMin + mRandom.nextInt((int) Style.itemXGapOffset);
         int randomPadRightHalf = randomPadRight / 2;
 
@@ -425,27 +442,46 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             p.setMargins(randomPadRightHalf, 0, randomPadRightHalf, (int) item.getOuterMargin());
         }
         item.requestLayout();
+
+        // Scroll?
+        if(user.globalUserId == Instance.globalUserId) {
+            //float minAutoScrollWidth = scrollTo - Style.autoscrollSlack - Phone.screenWidth;
+            //if (minAutoScrollWidth <= mScrollView.getScrollX()) {
+                final int targetX = scrollTo;
+                mScrollView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mScrollView.smoothScrollTo(targetX, 0);
+                    }
+                }, 500);
+            //}
+        }
+
+        item.setDrawn(true);
     }
 
-    private int drawInFold(int pos, LinearLayout layout, SparseArray<Item> drawnItems, Item item, int minWidth) {
-        pos =  Math.min(layout.getChildCount(), pos);
+    private int drawInFold(LinearLayout layout, List<Item> drawnItems, Item item, int minWidth) {
+        int pos = 0, x = 0;
+
+        Item prev = null;
+        for(int tPos = pos; tPos < layout.getChildCount(); tPos++) {
+            Item compare = (Item) layout.getChildAt(pos);
+            if(item.getDateTime() > compare.getDateTime()) {
+                pos = tPos + 1;
+            }
+
+            x += compare.getMeasuredWidth();
+        }
 
         layout.addView(item, pos);
-        drawnItems.put(pos, item);
+        drawnItems.add(pos, item);
+        item.setDrawnX(x);
 
-//        int xStart = 0;
-//        if(pos > 0) {
-//            Item prev = drawnItems.get(pos - 1);
-//            xStart += (int) prev.getDrawnX() + prev.getSlotBounds().width();
-//        }
-//
-//        for (int i = pos; i < drawnItems.size() - pos; i++) {
-//            Item thisItem = drawnItems.get(i);
-//            item.setDrawnX(xStart);
-//            xStart += thisItem.getSlotBounds().width();
-//        }
-
-        return Math.max(layout.getWidth() + item.getMeasuredWidth(), minWidth);
+        if(pos == layout.getChildCount() - 1) {
+            return Math.max(minWidth, layout.getWidth() + item.getMeasuredWidth());
+        } else {
+            return (int) item.getDrawnX();
+        }
     }
 
 //    private void calculateSpacing(Item item, int pos, LinearLayout layout) {
@@ -506,11 +542,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             if(user.draw() && !item.isDeleted()) {
                 if(!item.isDrawn()) {
                     Log.v(TAG, "User[" + user.globalUserId + "] is " + Instance.drawnUsers + "th user, offset=" + user.offset);
-                    if(user.above) {
-                        drawItem(user, item, insertAtAbove);
-                    } else {
-                        drawItem(user, item, insertAtBelow);
-                    }
+                    drawItem(user, item);
                 }
             } else {
                 if(item.isDrawn()) {

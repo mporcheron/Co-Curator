@@ -45,7 +45,7 @@ public class ItemUrl extends ItemPhoto {
 
     public ItemUrl(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public ItemUrl(int itemId, User user, int dateTime) {
+    public ItemUrl(int itemId, User user, long dateTime) {
         super(itemId, user, dateTime);
 
         setBounds(Style.photoWidth, Style.photoHeight, Style.photoPadding);

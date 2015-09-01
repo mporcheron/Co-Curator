@@ -36,6 +36,7 @@ import uk.porcheron.co_curator.collo.ColloDict;
 import uk.porcheron.co_curator.collo.ColloGesture;
 import uk.porcheron.co_curator.collo.ColloManager;
 import uk.porcheron.co_curator.db.DbLoader;
+import uk.porcheron.co_curator.item.Item;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemScrollView;
@@ -277,7 +278,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 .setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        if(listener != null) {
+                        if (listener != null) {
                             listener.onAnimationEnd(animation);
                         }
                     }
@@ -297,6 +298,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         CCLog.write(Event.APP_PROMPT_ADD, "{x=" + mLayoutTouchX + "}");
         Log.v(TAG, "User long press at (" + x + ")");
         promptNewItem(Instance.items.isEmpty());
+
     }
 
     @Override
@@ -341,7 +343,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 Image.file2file(filename, destination, width, height, new Runnable() {
                     @Override
                     public void run() {
-                        if (!Instance.items.add(itemId, ItemType.PHOTO, Instance.user(), destination, false, true, true)) {
+                        long dateTime = (System.currentTimeMillis() / 1000L);
+                        if (!Instance.items.add(itemId, ItemType.PHOTO, Instance.user(), destination, dateTime, false, true, true)) {
                             Log.e(TAG, "Failed to save image");
                         }
 
@@ -427,7 +430,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
                         synchronized (Instance.items) {
                             final int itemId = Instance.items.size();
-                            boolean create = Instance.items.add(itemId, ItemType.NOTE, Instance.user(), text, false, true, true);
+
+                            long dateTime = Instance.items.getDateTimeClosestTo(mLayoutTouchX);
+
+                            boolean create = Instance.items.add(itemId, ItemType.NOTE, Instance.user(), text, dateTime, false, true, true);
                             if (promptOnCancel && !create) {
                                 promptNewItem(true);
                             }
@@ -485,7 +491,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             Image.url2File(fetchFrom, filename, width, height, new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (!Instance.items.add(itemId, ItemType.URL, Instance.user(), url, false, true, true)) {
+                                    long dateTime = (System.currentTimeMillis() / 1000L);
+                                    if (!Instance.items.add(itemId, ItemType.URL, Instance.user(), url, dateTime, false, true, true)) {
                                         Log.e(TAG, "Failed to save URL + screenshot");
                                         if (promptOnCancel) {
                                             promptNewItem(true);

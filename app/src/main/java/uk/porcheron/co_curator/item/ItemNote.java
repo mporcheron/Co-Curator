@@ -40,7 +40,7 @@ public class ItemNote extends Item {
 
     public ItemNote(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public ItemNote(int itemId, User user, int dateTime) {
+    public ItemNote(int itemId, User user, long dateTime) {
         super(user, itemId, dateTime);
 
         mPaintFg = new TextPaint(Paint.ANTI_ALIAS_FLAG);

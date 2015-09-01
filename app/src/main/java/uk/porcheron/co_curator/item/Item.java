@@ -57,7 +57,7 @@ public abstract class Item extends View {
 
     public Item(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); }
 
-    public Item(User user, int itemId, int dateTime) {
+    public Item(User user, int itemId, long dateTime) {
         super(TimelineActivity.getInstance());
 
         mUser = user;
@@ -241,7 +241,7 @@ public abstract class Item extends View {
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
-        public boolean onSingleTapUp(MotionEvent e) {
+        public boolean onSingleTapConfirmed(MotionEvent e) {
             Log.d(TAG, "Single tap on Item[" + getUniqueItemId() + "]");
             CCLog.write(Event.ITEM_SINGLE_TAP, "{uniqueItemId=" + getUniqueItemId() + "}");
 

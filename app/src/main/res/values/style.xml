@@ -29,7 +29,7 @@
     <dimen name="dialogMinYSpace">10dp</dimen>
     <dimen name="dialogMinXSpace">30dp</dimen>
 
-    <dimen name="autoscrollSlack">100dp</dimen>
+    <dimen name="autoscrollSlack">300dp</dimen>
     <integer name="autoscrollExtra">25</integer>
 
     <dimen name="itemXGapMin">25dp</dimen>
