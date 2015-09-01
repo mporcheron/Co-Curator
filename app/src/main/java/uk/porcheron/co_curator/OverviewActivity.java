@@ -1,5 +1,7 @@
 package uk.porcheron.co_curator;
 
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -16,7 +18,7 @@ public class OverviewActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         View decorView = getWindow().getDecorView();
-// Hide the status bar.
+
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
