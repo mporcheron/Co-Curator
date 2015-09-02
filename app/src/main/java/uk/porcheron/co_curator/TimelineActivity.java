@@ -834,7 +834,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         for(int index = 0; index < mPointers.size(); index++) {
             int userId = mPointers.keyAt(index);
             Pointer p = mPointers.get(userId);
-            Log.d(TAG, "PPT pointer for userId=" + userId + " is at (" + p.getTriggeredX() + ")");
+            
             boolean left = x1 > (p.getTriggeredX() - Style.pointerPointerCircleSize - Style.pointerPointerArrowLength);
             boolean right = (p.getTriggeredX() + Style.pointerPointerCircleSize + Style.pointerPointerArrowLength) > x2;
 
