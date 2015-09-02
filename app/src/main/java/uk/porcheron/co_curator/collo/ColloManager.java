@@ -268,8 +268,7 @@ public class ColloManager {
                 TimelineActivity.getInstance().fadeOut(new AnimationReactor() {
 
                     @Override
-                    public void onAnimationEnd(Animator animation) {
-
+                    public void onAnimationEnd() {
                         mUsersBoundTo.put(globalUserId, true);
                         mHeardFromAt.put(globalUserId, -1L);
 
@@ -282,6 +281,12 @@ public class ColloManager {
                 });
             }
         });
+    }
+
+    public static void unBindFromUsers() {
+        for(int pos = 0; pos < Instance.users.size(); pos++) {
+            unBindFromUser(Instance.users.get(pos).globalUserId);
+        }
     }
 
     public static void unBindFromUser(final int globalUserId) {
@@ -302,7 +307,7 @@ public class ColloManager {
                 TimelineActivity.getInstance().hidePointer(user);
                 TimelineActivity.getInstance().fadeOut(new AnimationReactor() {
                     @Override
-                    public void onAnimationEnd(Animator animation) {
+                    public void onAnimationEnd() {
                         mUsersBoundTo.remove(globalUserId);
 
                         Instance.users.unDrawUser(globalUserId);

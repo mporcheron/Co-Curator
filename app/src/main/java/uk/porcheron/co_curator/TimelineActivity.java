@@ -18,6 +18,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
@@ -25,6 +26,9 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -76,8 +80,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private ProgressDialog mProgressDialog;
     private FrameLayout mFrameLayout;
     private FrameLayout mOuterFrameLayout;
+    private LinearLayout mLayoutAbove;
+    private LinearLayout mLayoutBelow;
 
-    private static final int FADE_TIME_ITEMS = 1000;
+    private static final long FADE_TIME_ITEMS = 1000L;
     private static final int FADE_POINTERS = 50;
 
     public static final int PICK_PHOTO = 101;
@@ -142,8 +148,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mFrameLayout = (FrameLayout) findViewById(R.id.frameLayout);
         mOuterFrameLayout = (FrameLayout) findViewById(R.id.outerFrameLayout);
 
-        LinearLayout layoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
-        LinearLayout layoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
+        mLayoutAbove = (LinearLayout) findViewById(R.id.layoutAboveCentre);
+        mLayoutBelow = (LinearLayout) findViewById(R.id.layoutBelowCentre);
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -152,9 +158,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         params.setMargins(0, Style.layoutHalfPadding, 0, 0);
 
         final int padRight = (int) (Phone.screenWidth * Style.autoscrollExtra);
-        layoutAbove.setPadding(0, 0, padRight, Style.layoutHalfPadding);
-        layoutBelow.setPadding(0, 0, padRight, 0);
-        layoutBelow.setLayoutParams(params);
+        mLayoutAbove.setPadding(0, 0, padRight, Style.layoutHalfPadding);
+        mLayoutBelow.setPadding(0, 0, padRight, 0);
+        mLayoutBelow.setLayoutParams(params);
 
         // Gesture recognition
         float bottomOffset = Style.layoutHalfHeight - (2 * Style.layoutCentreHeight);
@@ -168,14 +174,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 //            }
 //        });
 
-        layoutAbove.setOnTouchListener(new View.OnTouchListener() {
+        mLayoutAbove.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
                 mGestureDetectorAbove.onTouch(view, event);
                 return mScaleDetector.onTouchEvent(event);
             }
         });
-        layoutBelow.setOnTouchListener(new View.OnTouchListener() {
+        mLayoutBelow.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(final View view, final MotionEvent event) {
                 mGestureDetectorBelow.onTouch(view, event);
@@ -193,7 +199,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         // Load items
         Instance.users = new UserList();
-        Instance.items = new ItemList(mScrollView, layoutAbove, layoutBelow);
+        Instance.items = new ItemList(mScrollView, mLayoutAbove, mLayoutBelow);
 
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
         ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_POINT, this);
@@ -264,37 +270,78 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     public void fadeOut(final AnimationReactor listener) {
-        mFrameLayout.animate()
-                .alpha(0f)
-                .setDuration(FADE_TIME_ITEMS)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        mFrameLayout.setVisibility(View.INVISIBLE);
-                        if (listener != null) {
-                            listener.onAnimationEnd(animation);
-                        }
-                    }
-                });
+        mLayoutAbove.setVisibility(View.INVISIBLE);
+        mLayoutBelow.setVisibility(View.INVISIBLE);
+//        final Animation fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+//        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+//            @Override
+//            public void onAnimationStart(Animation animation) {
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animation animation) {
+                if (listener != null) {
+                    listener.onAnimationEnd();
+                }
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat(Animation animation) {
+//
+//            }
+//        });
+//
+//        mLayoutAbove.startAnimation(fadeOut);
+//        mLayoutBelow.startAnimation(fadeOut);
+
+//        mLayoutAbove.animate()
+//                .alpha(0f)
+//                .setDuration(FADE_TIME_ITEMS)
+//                .setListener(new AnimatorListenerAdapter() {
+//                    @Override
+//                    public void onAnimationEnd(Animator animation) {
+//                        mLayoutAbove.setVisibility(View.INVISIBLE);
+//                        if (listener != null) {
+//                            listener.onAnimationEnd(animation);
+//                        }
+//                    }
+//                });
+//        mLayoutBelow.animate()
+//                .alpha(0f)
+//                .setDuration(FADE_TIME_ITEMS)
+//                .setListener(new AnimatorListenerAdapter() {
+//                    @Override
+//                    public void onAnimationEnd(Animator animation) {
+//                        mLayoutBelow.setVisibility(View.INVISIBLE);
+//                        if (listener != null) {
+//                            listener.onAnimationEnd(animation);
+//                        }
+//                    }
+//                });
     }
 
     public void fadeIn(final AnimationReactor listener) {
-        mFrameLayout.animate()
-                .alpha(1f)
-                .setDuration(FADE_TIME_ITEMS)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (listener != null) {
-                            listener.onAnimationEnd(animation);
-                        }
-                    }
+//        final Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+//        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+//            @Override
+//            public void onAnimationStart(Animation animation) {
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animation animation) {
 
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        mFrameLayout.setVisibility(View.VISIBLE);
-                    }
-                });
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat(Animation animation) {
+//
+//            }
+//        });
+//
+//        mLayoutAbove.startAnimation(fadeIn);
+//        mLayoutBelow.startAnimation(fadeIn);
+        mLayoutAbove.setVisibility(View.VISIBLE);
+        mLayoutBelow.setVisibility(View.VISIBLE);
     }
 
     public void hideLoadingDialog() {
@@ -730,7 +777,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         public void onScaleEnd(ScaleGestureDetector detector) {
             TimelineActivity.this.fadeOut(new AnimationReactor() {
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd() {
                     Intent i = new Intent(TimelineActivity.this, OverviewActivity.class);
                     startActivity(i);
                 }
@@ -794,7 +841,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         if(pp == null || pp.getPointRight() != pointRight) {
             hidePointerPointer(user, new AnimationReactor() {
                 @Override
-                public void onAnimationEnd(Animator animation) {
+                public void onAnimationEnd() {
                     final PointerPointer pp = new PointerPointer(user, pointRight);
                     if (pointRight) {
                         pp.setTranslationX(mOuterFrameLayout.getWidth() - Style.pointerPointerXOffset - Style.pointerPointerArrowLength - Style.pointerPointerCircleSize);
@@ -825,7 +872,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     mOuterFrameLayout.removeView(pp);
 
                     if (animationReactor != null) {
-                        animationReactor.onAnimationEnd(animation);
+                        animationReactor.onAnimationEnd();
                     }
                 }
             });
@@ -877,5 +924,17 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             }
         }
     }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            ColloManager.broadcast(ColloDict.ACTION_UNBIND);
+            ColloManager.unBindFromUsers();
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
+
 }
 

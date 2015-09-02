@@ -44,9 +44,13 @@ public abstract class Item extends View {
     private RectF mOuterBounds;
     private RectF mInnerBounds;
     private RectF mStemBounds;
+    private float mStemStepChangeT;
+    private float mStemStepChangeB;
+    private long mStemRedraw;
 
     private boolean mDrawn = false;
     private boolean mDeleted = false;
+    private int mStemGrowth = 0;
 
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
@@ -122,13 +126,20 @@ public abstract class Item extends View {
 
     @Override
     public void onDraw(Canvas canvas) {
+        //if(mStemGrowth == 0) {
         canvas.drawRoundRect(mOuterBounds,
                 Style.itemRoundedCorners,
                 Style.itemRoundedCorners,
                 getUser().bgPaint);
+        //}
 
-        canvas.drawRect(mStemBounds,
-                getUser().bgPaint);
+        canvas.drawRect(mStemBounds, getUser().bgPaint);
+//        mStemBounds.set(mStemBounds.left, mStemBounds.top + mStemStepChangeT,
+//                mStemBounds.right, mStemBounds.bottom + mStemStepChangeB);
+//
+//        if(mStemGrowth++ < Style.itemStemGrowSteps) {
+//            this.postInvalidateDelayed(mStemRedraw);
+//        }
     }
 
     protected final void setDrawnX(float x) {
@@ -178,12 +189,32 @@ public abstract class Item extends View {
                 mRandom.nextInt((int) (mInnerBounds.width() - (2 * Style.itemStemNarrowBy)));
 
         if (mUser.above) {
-            mStemBounds = new RectF(offset, mOuterBounds.bottom, offset + Style.lineWidth, Style.layoutHalfPadding + mUser.centrelineOffset - mOuterMargin + 1);
+            float finalTop =  mOuterBounds.bottom;
+            float finalBottom = Style.layoutHalfPadding + mUser.centrelineOffset - mOuterMargin + 1;
+            float startTop = finalBottom - finalTop;
+
+            //mStemBounds = new RectF(offset, finalTop, offset + Style.lineWidth, finalTop);
+            mStemBounds = new RectF(offset, finalTop, offset + Style.lineWidth, finalBottom);
+            mStemStepChangeT = 0;
+            mStemStepChangeB = -((finalTop - finalBottom) / Style.itemStemGrowSteps);
         } else {
-            mStemBounds = new RectF(offset, mUser.centrelineOffset + Style.lineWidth - 1, offset + Style.lineWidth, mOuterBounds.top);
+            float finalTop = mUser.centrelineOffset + Style.lineWidth - 3;
+            float finalBottom = mOuterBounds.top;
+            float startBottom = finalBottom + (finalBottom - finalTop);
+
+            mStemBounds = new RectF(offset, finalBottom, offset + Style.lineWidth, finalBottom);
+            mStemBounds = new RectF(offset, finalTop, offset + Style.lineWidth, finalBottom);
+            //mStemStepChangeT = (finalTop - finalBottom) / Style.itemStemGrowSteps;
+            mStemStepChangeB = 0;
         }
+        mStemRedraw = Style.itemStemGrowOver / Style.itemStemGrowSteps;
+
 
         return mInnerBounds;
+    }
+
+    protected void drawStem(Canvas canvas) {
+
     }
 
     public final void reassessBounds() {

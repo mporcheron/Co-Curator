@@ -37,6 +37,8 @@
     <dimen name="itemOutlineSize">2dp</dimen>
     <dimen name="itemStemNarrowBy">4dp</dimen>
     <dimen name="itemRoundedCorners">4dp</dimen>
+    <integer name="itemStemGrowOver">1000</integer>
+    <integer name="itemStemGrowSteps">50</integer>
 
     <dimen name="noteWidth">78dp</dimen>
     <dimen name="noteHeight">78dp</dimen>

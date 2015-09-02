@@ -42,6 +42,8 @@ public class Style {
     public static int itemRoundedCorners;
     public static float itemStemNarrowBy;
     public static float itemFullHeight;
+    public static int itemStemGrowOver;
+    public static int itemStemGrowSteps;
 
     public static float photoWidth;
     public static float photoHeight;
@@ -130,6 +132,8 @@ public class Style {
         itemRoundedCorners = (int) res.getDimension(R.dimen.itemRoundedCorners);
         itemStemNarrowBy = res.getDimension(R.dimen.itemStemNarrowBy);
         itemFullHeight = ((Phone.screenHeight / 2) - (res.getDimension(R.dimen.layoutCentreHeight) / 2));
+        itemStemGrowOver = res.getInteger(R.integer.itemStemGrowOver);
+        itemStemGrowSteps = res.getInteger(R.integer.itemStemGrowSteps);
 
         photoWidth = res.getDimension(R.dimen.photoWidth);
         photoHeight = res.getDimension(R.dimen.photoHeight);

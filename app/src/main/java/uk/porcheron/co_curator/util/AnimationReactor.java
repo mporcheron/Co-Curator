@@ -10,43 +10,37 @@ public abstract class AnimationReactor extends android.animation.AnimatorListene
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void onAnimationCancel(Animator animation) {
+    public void onAnimationCancel() {
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void onAnimationEnd(Animator animation) {
+    public void onAnimationEnd() {
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void onAnimationRepeat(Animator animation) {
+    public void onAnimationRepeat() {
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void onAnimationStart(Animator animation) {
+    public void onAnimationStart() {
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void onAnimationPause(Animator animation) {
+    public void onAnimationPause() {
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void onAnimationResume(Animator animation) {
+    public void onAnimationResume() {
     }
 
 }
