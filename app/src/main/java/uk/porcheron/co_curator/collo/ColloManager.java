@@ -298,6 +298,8 @@ public class ColloManager {
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                User user = Instance.users.getByGlobalUserId(globalUserId);
+                TimelineActivity.getInstance().hidePointer(user);
                 TimelineActivity.getInstance().fadeOut(new AnimationReactor() {
                     @Override
                     public void onAnimationEnd(Animator animation) {

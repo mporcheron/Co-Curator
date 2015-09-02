@@ -117,6 +117,10 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 //    }
 
     public synchronized boolean add(int itemId, ItemType type, User user, String data, long dateTime, boolean deleted, boolean addToLocalDb, boolean addToCloud) {
+        if(user == null) {
+            return false;
+        }
+
         String uniqueItemId = user.globalUserId + "-" + itemId;
 
         Log.v(TAG, "Item[" + uniqueItemId + "]: Add to List (type=" + type + ",user=" + user.globalUserId +
@@ -444,7 +448,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         item.requestLayout();
 
         // Scroll?
-        if(user.globalUserId == Instance.globalUserId) {
+        if(user.globalUserId == Instance.globalUserId && !(item instanceof ItemNote)) {
             //float minAutoScrollWidth = scrollTo - Style.autoscrollSlack - Phone.screenWidth;
             //if (minAutoScrollWidth <= mScrollView.getScrollX()) {
                 final int targetX = scrollTo;

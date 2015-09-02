@@ -739,26 +739,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     }
 
-    public void showPointer(View b, ViewGroup bg) {
-
-    }
-
     private synchronized void showPointer(final User user, float x, float y) {
         final int userId = user.userId;
-        Pointer existing = mPointers.get(userId);
 
-        if(existing != null) {
-            Log.d(TAG, "Pointer for user " + userId + " exists");
-            mFrameLayout.removeView(existing);
-            mPointers.remove(userId);
-
-            Handler h = mPointerHandlers.get(userId);
-            if(h != null) {
-                h.removeCallbacks(mPointerHandlerRunners.get(userId));
-            }
-        } else {
-            Log.d(TAG, "Pointer for user " + userId + " does not exist");
-        }
+        hidePointer(user);
 
         final Pointer p = new Pointer(user, x, y);
         p.setTranslationX(x);
@@ -787,6 +771,21 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             });
 
             mPointerHandlers.get(userId, new Handler()).postDelayed(mPointerHandlerRunners.get(userId), Style.pointerVisibleFor);
+        }
+    }
+
+    public synchronized void hidePointer(final User user) {
+        int userId = user.userId;
+
+        Pointer p = mPointers.get(userId);
+        if(p != null) {
+            mFrameLayout.removeView(p);
+            mPointers.remove(userId);
+        }
+
+        Handler h = mPointerHandlers.get(userId);
+        if(h != null) {
+            h.removeCallbacks(mPointerHandlerRunners.get(userId));
         }
     }
 
