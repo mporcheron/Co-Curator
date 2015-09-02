@@ -41,17 +41,17 @@ public class ItemScrollView extends HorizontalScrollView {
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         super.onTouchEvent(ev);
-        //TimelineActivity.getInstance().testPointers(e.getScrollX(), e.getScrollY());
+        TimelineActivity.getInstance().testPointers(getScrollX(), getScrollX() + this.getWidth());
         return true;
     }
 
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-        TimelineActivity.getInstance().testPointers(l, t);
+        TimelineActivity.getInstance().testPointers(getScrollX(), getScrollX() + this.getWidth());
     }
 
-    protected void cancelLongPress(int l, int t, int oldl, int oldt) {
-        super.onScrollChanged(l, t, oldl, oldt);
-        Instance.items.cancelLongPress();
-    }
+//    protected void cancelLongPress(int l, int t, int oldl, int oldt) {
+//        super.onScrollChanged(l, t, oldl, oldt);
+//        Instance.items.cancelLongPress();
+//    }
 
 }

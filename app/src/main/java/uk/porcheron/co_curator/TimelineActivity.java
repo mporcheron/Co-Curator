@@ -750,6 +750,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             if(h != null) {
                 h.removeCallbacks(mPointerHandlerRunners.get(userId));
             }
+            mPointers.remove(userId);
         }
 
         final Pointer p = new Pointer(user, x, y);
@@ -781,7 +782,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     }
 
-    public void showPointerPointer(final User user, final boolean pointRight) {
+    public synchronized void showPointerPointer(final User user, final boolean pointRight) {
         final PointerPointer pp = mPointerPointers.get(user.userId);
         if(pp == null || pp.getPointRight() != pointRight) {
             hidePointerPointer(user, new AnimationReactor() {
@@ -804,16 +805,16 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     }
 
-    public void hidePointerPointer(final User user, final AnimationReactor animationReactor) {
+    public synchronized void hidePointerPointer(final User user, final AnimationReactor animationReactor) {
         final PointerPointer pp = mPointerPointers.get(user.userId);
         if(pp != null) {
+            mPointerPointers.remove(user.userId);
             pp.animate().alpha(0f).setDuration(FADE_POINTER_POINTER).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
 
                     mOuterFrameLayout.removeView(pp);
-                    mPointerPointers.remove(user.userId);
 
                     if(animationReactor != null) {
                         animationReactor.onAnimationEnd(animation);
@@ -827,13 +828,15 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     public void testPointers(int x1, int x2) {
         for(int index = 0; index < mPointers.size(); index++) {
-            Pointer p = mPointers.get(mPointers.keyAt(index));
+            int userId = mPointers.keyAt(index);
+            Pointer p = mPointers.get(userId);
+            Log.d(TAG, "PPT pointer for userId=" + userId + " is at (" + p.getTriggeredX() + ")");
             boolean left = x1 > p.getTriggeredX();
             boolean right = p.getTriggeredX() > x2;
 
             if (!left && !right) {
                 hidePointerPointer(p.getUser(), null);
-            } else if(left) {
+            } else if(!left) {
                 showPointerPointer(p.getUser(), true);
             } else {
                 showPointerPointer(p.getUser(), false);
