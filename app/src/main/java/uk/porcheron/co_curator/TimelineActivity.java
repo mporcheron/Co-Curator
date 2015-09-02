@@ -78,7 +78,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private FrameLayout mOuterFrameLayout;
 
     private static final int FADE_TIME_ITEMS = 1000;
-    private static final int FADE_POINTER_POINTER = 500;
+    private static final int FADE_POINTERS = 50;
 
     public static final int PICK_PHOTO = 101;
 
@@ -234,9 +234,13 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     public void onPause() {
         ColloCompass.getInstance().pauseListening();
 
+        // Pause timers
         mUpdateUserTask.cancel();
         mUpdateTimer.cancel();
         mUpdateTimer.purge();
+
+        // Clean up pointers
+        cleanUpPointers();
 
         super.onPause();
     }
@@ -739,17 +743,21 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     }
 
-    private void showPointer(final User user, float x, float y) {
+    private synchronized void showPointer(final User user, float x, float y) {
         final int userId = user.userId;
         Pointer existing = mPointers.get(userId);
+
         if(existing != null) {
+            Log.d(TAG, "Pointer for user " + userId + " exists");
             mFrameLayout.removeView(existing);
+            mPointers.remove(userId);
 
             Handler h = mPointerHandlers.get(userId);
             if(h != null) {
                 h.removeCallbacks(mPointerHandlerRunners.get(userId));
             }
-            mPointers.remove(userId);
+        } else {
+            Log.d(TAG, "Pointer for user " + userId + " does not exist");
         }
 
         final Pointer p = new Pointer(user, x, y);
@@ -771,6 +779,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             mPointerHandlerRunners.put(userId, new Runnable() {
                 @Override
                 public void run() {
+                    Log.d(TAG, "Remove pointer for userId=" + userId);
                     mPointers.remove(userId);
                     mFrameLayout.removeView(p);
                     hidePointerPointer(user, null);
@@ -798,12 +807,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                     //pp.setTranslationY(Style.pointerPointerYOffset + (mPointerPointers.size() * (Style.pointerPointerYOffset + Style.pointerPointerCircleSize)));
 
                     mPointerPointers.put(user.userId, pp);
-                    pp.setAlpha(0);
                     mOuterFrameLayout.addView(pp);
                     pp.bringToFront();
-                    pp.animate()
-                            .alpha(1f)
-                            .setDuration(FADE_POINTER_POINTER);
                 }
             });
         }
@@ -813,14 +818,14 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         final PointerPointer pp = mPointerPointers.get(user.userId);
         if(pp != null) {
             mPointerPointers.remove(user.userId);
-            pp.animate().alpha(0f).setDuration(FADE_POINTER_POINTER).setListener(new AnimatorListenerAdapter() {
+            pp.animate().alpha(0f).setDuration(FADE_POINTERS).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
 
                     mOuterFrameLayout.removeView(pp);
 
-                    if(animationReactor != null) {
+                    if (animationReactor != null) {
                         animationReactor.onAnimationEnd(animation);
                     }
                 }
@@ -834,9 +839,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         for(int index = 0; index < mPointers.size(); index++) {
             int userId = mPointers.keyAt(index);
             Pointer p = mPointers.get(userId);
-            
-            boolean left = x1 > (p.getTriggeredX() - Style.pointerPointerCircleSize - Style.pointerPointerArrowLength);
-            boolean right = (p.getTriggeredX() + Style.pointerPointerCircleSize + Style.pointerPointerArrowLength) > x2;
+
+            boolean left = (x1 - Style.pointerPointerCircleSize - Style.pointerPointerArrowLength) > p.getTriggeredX();
+            boolean right = p.getTriggeredX() > x2; // + Style.pointerPointerCircleSize + Style.pointerPointerArrowLength)
 
             if (!left && !right) {
                 hidePointerPointer(p.getUser(), null);
@@ -844,6 +849,32 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 showPointerPointer(p.getUser(), p.getTriggeredY(), true);
             } else {
                 showPointerPointer(p.getUser(), p.getTriggeredY(), false);
+            }
+        }
+    }
+
+    private void cleanUpPointers() {
+        for(int index = 0; index < mPointers.size(); index++) {
+            int userId = mPointers.keyAt(index);
+
+            // Remove cleanup handler
+            Handler h = mPointerHandlers.get(userId);
+            if (h != null) {
+                h.removeCallbacks(mPointerHandlerRunners.get(userId));
+            }
+
+            // Remove pointer
+            Pointer p = mPointers.get(userId);
+            if(p != null) {
+                mPointers.remove(userId);
+                mFrameLayout.removeView(p);
+            }
+
+            // Remove pointer pointer
+            PointerPointer pp = mPointerPointers.get(userId);
+            if(pp != null) {
+                mPointerPointers.remove(userId);
+                mOuterFrameLayout.removeView(pp);
             }
         }
     }
