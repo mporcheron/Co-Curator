@@ -171,7 +171,7 @@ public class Style {
         pointerPointerArrowHeadHeight = res.getDimension(R.dimen.pointerPointerArrowHeadHeight);
         pointerPointerArrowHeadArmLength = Math.sqrt((pointerPointerArrowHeadDepth * pointerPointerArrowHeadDepth) + (pointerPointerArrowHeadHeight * pointerPointerArrowHeadHeight));
         pointerPointerXOffset = res.getDimension(R.dimen.pointerPointerXOffset);
-        pointerPointerYOffset = res.getDimension(R.dimen.pointerPointerYOffset);
+        pointerPointerYOffset = (Style.pointerMaxSize - Style.pointerMinSize) / 2;
 
     }
 }

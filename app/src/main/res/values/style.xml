@@ -75,7 +75,6 @@
     <dimen name="pointerPointerArrowHeadHeight">@dimen/pointerMinSize</dimen>
     <dimen name="pointerPointerArrowHeadDepth">8dp</dimen>
     <dimen name="pointerPointerXOffset">10dp</dimen>
-    <dimen name="pointerPointerYOffset">10dp</dimen>
 
 
 </resources>

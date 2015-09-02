@@ -664,7 +664,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             CCLog.write(Event.COLLO_POINT, "{x=" + e.getX() + ",y=" + mYOffset + e.getY() + "}");
-            Log.v(TAG, "broadcast point");
             ColloManager.broadcast(ColloDict.ACTION_POINT, e.getX(), mYOffset + e.getY());
 
             showPointer(Instance.user(), e.getX(), mYOffset + e.getY());
@@ -761,9 +760,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mPointers.put(userId, p);
 
         if(x < mScrollView.getScrollX()) {
-            showPointerPointer(user, false);
+            showPointerPointer(user, y, false);
         } else if(x > mScrollView.getScrollX() + mScrollView.getWidth()) {
-            showPointerPointer(user, true);
+            showPointerPointer(user, y, true);
         } else {
             hidePointerPointer(user, null);
         }
@@ -782,7 +781,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     }
 
-    public synchronized void showPointerPointer(final User user, final boolean pointRight) {
+    public synchronized void showPointerPointer(final User user, final float y, final boolean pointRight) {
         final PointerPointer pp = mPointerPointers.get(user.userId);
         if(pp == null || pp.getPointRight() != pointRight) {
             hidePointerPointer(user, new AnimationReactor() {
@@ -795,11 +794,16 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         pp.setTranslationX(Style.pointerPointerXOffset);
                     }
 
-                    pp.setTranslationY(Style.pointerPointerYOffset + (mPointerPointers.size() * (Style.pointerPointerYOffset + Style.pointerPointerCircleSize)));
+                    pp.setTranslationY(y + Style.pointerPointerYOffset);
+                    //pp.setTranslationY(Style.pointerPointerYOffset + (mPointerPointers.size() * (Style.pointerPointerYOffset + Style.pointerPointerCircleSize)));
 
+                    mPointerPointers.put(user.userId, pp);
+                    pp.setAlpha(0);
                     mOuterFrameLayout.addView(pp);
                     pp.bringToFront();
-                    mPointerPointers.put(user.userId, pp);
+                    pp.animate()
+                            .alpha(1f)
+                            .setDuration(FADE_POINTER_POINTER);
                 }
             });
         }
@@ -831,15 +835,15 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             int userId = mPointers.keyAt(index);
             Pointer p = mPointers.get(userId);
             Log.d(TAG, "PPT pointer for userId=" + userId + " is at (" + p.getTriggeredX() + ")");
-            boolean left = x1 > p.getTriggeredX();
-            boolean right = p.getTriggeredX() > x2;
+            boolean left = x1 > (p.getTriggeredX() - Style.pointerPointerCircleSize - Style.pointerPointerArrowLength);
+            boolean right = (p.getTriggeredX() + Style.pointerPointerCircleSize + Style.pointerPointerArrowLength) > x2;
 
             if (!left && !right) {
                 hidePointerPointer(p.getUser(), null);
             } else if(!left) {
-                showPointerPointer(p.getUser(), true);
+                showPointerPointer(p.getUser(), p.getTriggeredY(), true);
             } else {
-                showPointerPointer(p.getUser(), false);
+                showPointerPointer(p.getUser(), p.getTriggeredY(), false);
             }
         }
     }
