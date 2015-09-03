@@ -2,6 +2,7 @@ package uk.porcheron.co_curator.collo;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.SparseArray;
@@ -13,6 +14,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.db.WebLoader;
 import uk.porcheron.co_curator.user.User;
@@ -264,6 +266,11 @@ public class ColloManager {
             return;
         }
 
+        MediaPlayer mp = MediaPlayer.create(TimelineActivity.getInstance().getApplicationContext(), R.raw.connect);
+        if(mp != null) {
+            mp.start();
+        }
+
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -301,6 +308,12 @@ public class ColloManager {
 
         if(mUsersBoundTo.get(globalUserId) == null) {
             return;
+        }
+
+        MediaPlayer mp = MediaPlayer.create(TimelineActivity.getInstance().getApplicationContext(), R.raw.disconnect);
+
+        if(mp != null) {
+            mp.start();
         }
 
         TimelineActivity.getInstance().runOnUiThread(new Runnable() {

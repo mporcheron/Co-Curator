@@ -2,6 +2,7 @@ package uk.porcheron.co_curator.item;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.MediaPlayer;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.collo.ColloDict;
 import uk.porcheron.co_curator.collo.ColloManager;
@@ -302,6 +304,20 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
             }
 
             db.close();
+        }
+
+
+        // Play delete sound
+        if(item.isDrawn()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    MediaPlayer mp = MediaPlayer.create(TimelineActivity.getInstance().getApplicationContext(), R.raw.deleteitem);
+                    if (mp != null) {
+                        mp.start();
+                    }
+                }
+            }).start();
         }
 
         // Remove from view
