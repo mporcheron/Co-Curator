@@ -10,9 +10,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -33,6 +36,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -76,6 +81,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     private RelativeLayout mTimeline;
     private ItemScrollView mScrollView;
+    private SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceHolder;
     private ProgressDialog mProgressDialog;
     private FrameLayout mFrameLayout;
@@ -138,8 +144,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         // Begin preparation for drawing the UI
         mTimeline = (RelativeLayout) findViewById(R.id.timeline);
-        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surface);
-        mSurfaceHolder = surfaceView.getHolder();
+        mSurfaceView = (SurfaceView) findViewById(R.id.surface);
+        mSurfaceView.setDrawingCacheEnabled(true);
+        mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
 
         mScrollView = (ItemScrollView) findViewById(R.id.horizontalScrollView);
@@ -228,10 +235,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
 
         // Fade in if not visible
-        if(mFrameLayout.getAlpha() == 0f) {
-            mFrameLayout.setVisibility(View.VISIBLE);
-            mFrameLayout.setAlpha(1f);
-        }
+        fadeIn(null);
 
         super.onResume();
     }
@@ -253,6 +257,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     @Override
     public void onDestroy() {
+        saveAsImage(null);
         ColloManager.broadcast(ColloDict.ACTION_UNBIND);
         super.onDestroy();
     }
@@ -266,6 +271,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     public void showLoadingDialog(int str) {
+        Log.d(TAG, "Show loading dialog");
         mProgressDialog = ProgressDialog.show(this, "", getText(str), true);
     }
 
@@ -564,11 +570,16 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                             final String url = text;
                             final String b64Url = Web.b64encode(text);
                             final String filename = itemId + "-" + b64Url;
-                            String fetchFrom = Web.GET_URL_SCREENSHOT + b64Url;
+                            final String fetchFrom = Web.GET_URL_SCREENSHOT + b64Url;
 
                             boolean isVideo = ItemUrl.isVideo(url);
-                            int width = ItemUrl.getThumbnailWidth(isVideo);
-                            int height = ItemUrl.getThumbnailHeight(isVideo);
+                            final int width = ItemUrl.getThumbnailWidth(isVideo);
+                            final int height = ItemUrl.getThumbnailHeight(isVideo);
+
+                            new Thread(new Runnable() {
+
+                                @Override
+                                public void run() {
 
                             Image.url2File(fetchFrom, filename, width, height, new Runnable() {
                                 @Override
@@ -585,6 +596,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                                     TimelineActivity.getInstance().hideLoadingDialog();
                                 }
                             });
+                                }
+                            }).start();
                         }
                     }
                 })
@@ -624,7 +637,15 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Log.v(TAG, "Redraw canvas");
 
         Canvas canvas = holder.lockCanvas();
+        drawCanvas(canvas);
+        try {
+            holder.unlockCanvasAndPost(canvas);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Error unlocking and posting canvas: " + e.getMessage());
+        }
+    }
 
+    private void drawCanvas(Canvas canvas) {
         try {
             canvas.drawColor(Style.backgroundColor);
 
@@ -641,12 +662,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             }
         } catch(NullPointerException e) {
             Log.e(TAG, "NullPointer in canvas update: " + e.getMessage());
-        } finally {
-            try {
-                holder.unlockCanvasAndPost(canvas);
-            } catch(IllegalStateException e) {
-                Log.e(TAG, "Error unlocking and posting canvas: " + e.getMessage());
-            }
         }
     }
 
@@ -842,6 +857,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             hidePointerPointer(user, new AnimationReactor() {
                 @Override
                 public void onAnimationEnd() {
+                    Log.d(TAG, "Show Pointer Pointer");
                     final PointerPointer pp = new PointerPointer(user, pointRight);
                     if (pointRight) {
                         pp.setTranslationX(mOuterFrameLayout.getWidth() - Style.pointerPointerXOffset - Style.pointerPointerArrowLength - Style.pointerPointerCircleSize);
@@ -867,8 +883,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             pp.animate().alpha(0f).setDuration(FADE_POINTERS).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-
                     mOuterFrameLayout.removeView(pp);
 
                     if (animationReactor != null) {
@@ -877,7 +891,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                 }
             });
         } else if(animationReactor != null) {
-            animationReactor.onAnimationEnd(null);
+            animationReactor.onAnimationEnd();
         }
     }
 
@@ -891,10 +905,13 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
             if (!left && !right) {
                 hidePointerPointer(p.getUser(), null);
+                Log.d(TAG, "Visible");
             } else if(!left) {
                 showPointerPointer(p.getUser(), p.getTriggeredY(), true);
+                Log.d(TAG, "To the right");
             } else {
                 showPointerPointer(p.getUser(), p.getTriggeredY(), false);
+                Log.d(TAG, "To the left");
             }
         }
     }
@@ -928,13 +945,79 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            ColloManager.broadcast(ColloDict.ACTION_UNBIND);
-            ColloManager.unBindFromUsers();
-            return true;
+            if(ColloManager.totalBoundTo() > 0) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showLoadingDialog(R.string.dialogScreenshot);
+                        saveAsImage(new OnCompleteRunner() {
+                            @Override
+                            public void run() {
+                                ColloManager.broadcast(ColloDict.ACTION_UNBIND);
+                                ColloManager.unBindFromUsers();
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        hideLoadingDialog();
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+                return true;
+            }
         }
+
         return super.onKeyUp(keyCode, event);
     }
 
+    private void saveAsImage(final OnCompleteRunner onCompleteRunner) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Bitmap bitmap = Bitmap.createBitmap(mFrameLayout.getWidth(), mFrameLayout.getHeight(), Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bitmap);
+
+                    drawCanvas(canvas);
+                    mFrameLayout.draw(canvas);
+
+                    // Create directory
+                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                    if (!dir.exists() && !dir.mkdirs()) {
+                        Log.e(TAG, "Directory not created");
+                        return;
+                    }
+
+                    // Save file
+                    String file = "/timeline-" + Instance.groupId + "-" + Instance.userId + "-" + Instance.globalUserId + "-" + System.currentTimeMillis() + ".png";
+                    Log.d(TAG, "Save screenshot to " + dir.getPath() + file);
+                    FileOutputStream fileOutputStream = new FileOutputStream(dir.getPath() + file);
+
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+
+                    Log.d(TAG, "Saved screenshot!");
+                } catch (Exception e) {
+                    // TODO: handle exception
+                    Log.e(TAG, "Error saving file - " + e.getMessage());
+                } finally {
+                    mFrameLayout.destroyDrawingCache();
+                    if(onCompleteRunner != null) {
+                        onCompleteRunner.run();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    public interface OnCompleteRunner {
+        void run();
+    }
 
 }
 

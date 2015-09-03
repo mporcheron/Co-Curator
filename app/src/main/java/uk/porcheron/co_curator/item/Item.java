@@ -243,7 +243,7 @@ public abstract class Item extends View {
 
     public final long getDateTime() { return mDateTime; }
 
-    public final void simulateTap(Activity activity) {
+    public void simulateTap(Activity activity) {
         onTap(activity);
     }
 
@@ -251,11 +251,11 @@ public abstract class Item extends View {
         return onLongPress(activity);
     }
 
-    protected boolean onTap() {
+    protected final boolean onTap() {
         return onTap(TimelineActivity.getInstance());
     }
 
-    protected boolean onLongPress() {
+    protected final boolean onLongPress() {
         return onLongPress(TimelineActivity.getInstance());
     }
 

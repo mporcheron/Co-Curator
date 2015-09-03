@@ -86,9 +86,20 @@ public class ItemNote extends Item {
     }
 
     @Override
+    protected boolean onTap(Activity activity) {
+        onSelect(activity, true, false);
+        return true;
+    }
+
+    @Override
     protected boolean onLongPress(Activity activity) {
         onSelect(activity, true, true);
         return true;
+    }
+
+    @Override
+    public void simulateTap(Activity activity) {
+        onSelect(activity, false, false);
     }
 
     @Override

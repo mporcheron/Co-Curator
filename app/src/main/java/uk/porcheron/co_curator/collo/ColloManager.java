@@ -256,6 +256,8 @@ public class ColloManager {
         }
     }
 
+    private static int mBoundTo = 0;
+
     public static void bindToUser(final int globalUserId) {
         if(globalUserId == Instance.globalUserId) {
             Log.e(TAG, "Can't bind to yourself");
@@ -270,6 +272,7 @@ public class ColloManager {
                     @Override
                     public void onAnimationEnd() {
                         mUsersBoundTo.put(globalUserId, true);
+                        mBoundTo++;
                         mHeardFromAt.put(globalUserId, -1L);
 
                         Instance.users.drawUser(globalUserId);
@@ -309,6 +312,7 @@ public class ColloManager {
                     @Override
                     public void onAnimationEnd() {
                         mUsersBoundTo.remove(globalUserId);
+                        mBoundTo--;
 
                         Instance.users.unDrawUser(globalUserId);
                         Instance.items.retestDrawing();
@@ -328,5 +332,9 @@ public class ColloManager {
 
         Boolean boundTo = mUsersBoundTo.get(globalUserId);
         return boundTo != null && boundTo.booleanValue() && Instance.users.getByGlobalUserId(globalUserId).draw();
+    }
+
+    public static int totalBoundTo() {
+        return mBoundTo;
     }
 }

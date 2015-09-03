@@ -12,6 +12,7 @@
     <string name="dialogAddingImage">Adding image to timeline…</string>
     <string name="dialogAddingUrl">Downloading screenshot of webpage…</string>
     <string name="dialogLoading">Loading timeline items…</string>
+    <string name="dialogScreenshot">Disconnecting from other users…</string>
 
     <!-- Login Activity -->
     <string name="promptGlobalUserId">Participant ID</string>

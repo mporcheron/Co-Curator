@@ -75,6 +75,11 @@ public class ItemUrl extends ItemPhoto {
         return true;
     }
 
+    @Override
+    public void simulateTap(Activity activity) {
+        onTap();
+    }
+
     public static boolean isVideo(String url) {
         for (String youtubeUrl : YOUTUBE_URLS) {
             if (url.startsWith(youtubeUrl)) {

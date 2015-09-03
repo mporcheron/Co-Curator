@@ -94,6 +94,12 @@ public class ItemPhoto extends Item {
     }
 
     @Override
+    protected boolean onTap(Activity activity) {
+        onSelect(activity, true, false);
+        return true;
+    }
+
+    @Override
     protected boolean onLongPress(Activity activity) {
         onSelect(activity, true, true);
         return true;
