@@ -198,7 +198,7 @@ public abstract class Item extends View {
             mStemStepChangeT = 0;
             mStemStepChangeB = -((finalTop - finalBottom) / Style.itemStemGrowSteps);
         } else {
-            float finalTop = mUser.centrelineOffset + Style.lineWidth - 3;
+            float finalTop = mUser.centrelineOffset + Style.lineWidth - 1;
             float finalBottom = mOuterBounds.top;
             float startBottom = finalBottom + (finalBottom - finalTop);
 
