@@ -853,12 +853,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
     public synchronized void showPointerPointer(final User user, final float y, final boolean pointRight) {
         final PointerPointer pp = mPointerPointers.get(user.userId);
-        if(pp == null || pp.getPointRight() != pointRight) {
+        if(pp == null || pp.getPointRight() != pointRight || y != pp.getYPosition()) {
             hidePointerPointer(user, new AnimationReactor() {
                 @Override
                 public void onAnimationEnd() {
                     Log.d(TAG, "Show Pointer Pointer");
-                    final PointerPointer pp = new PointerPointer(user, pointRight);
+                    final PointerPointer pp = new PointerPointer(user, y, pointRight);
                     if (pointRight) {
                         pp.setTranslationX(mOuterFrameLayout.getWidth() - Style.pointerPointerXOffset - Style.pointerPointerArrowLength - Style.pointerPointerCircleSize);
                     } else {
@@ -974,6 +974,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void saveAsImage(final OnCompleteRunner onCompleteRunner) {
+        if(mFrameLayout == null) {
+            return;
+        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {

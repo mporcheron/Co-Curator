@@ -19,6 +19,7 @@ public class PointerPointer extends View {
     private Paint mFillPaint;
     private Paint mLinePaint;
     private boolean mPointRight;
+    private float mYPosition;
 
     public PointerPointer(Context context) {
         super(context);
@@ -36,7 +37,7 @@ public class PointerPointer extends View {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public PointerPointer(User user, boolean pointRight) {
+    public PointerPointer(User user, float yPosition, boolean pointRight) {
         super(TimelineActivity.getInstance());
 
         int colorInt = Style.userMeBgColors[user.userId];
@@ -49,7 +50,12 @@ public class PointerPointer extends View {
         mLinePaint.setStrokeWidth(Style.pointerPointerArrowLineWidth);
         mLinePaint.setColor(colorInt);
 
+        mYPosition = yPosition;
         mPointRight = pointRight;
+    }
+
+    public float getYPosition() {
+        return mYPosition;
     }
 
     public boolean getPointRight() {
