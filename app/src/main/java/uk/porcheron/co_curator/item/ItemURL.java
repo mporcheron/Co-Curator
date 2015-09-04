@@ -136,19 +136,25 @@ public class ItemUrl extends ItemPhoto {
                         final String url = text;
                         final String b64Url = Web.b64encode(text);
                         final String filename = getItemId() + "-" + b64Url;
-                        String requestUrl = Web.GET_URL_SCREENSHOT + b64Url;
+                        final String requestUrl = Web.GET_URL_SCREENSHOT + b64Url;
 
                         boolean isVideo = ItemUrl.isVideo(text);
-                        int width = ItemUrl.getThumbnailWidth(isVideo);
-                        int height = ItemUrl.getThumbnailHeight(isVideo);
+                        final int width = ItemUrl.getThumbnailWidth(isVideo);
+                        final int height = ItemUrl.getThumbnailHeight(isVideo);
 
-                        Image.url2File(requestUrl, filename, width, height, new Runnable() {
+                        new Thread(new Runnable() {
+
                             @Override
                             public void run() {
-                                Log.d(TAG, "Screenshot saved as " + filename);
-                                Instance.items.update(ItemUrl.this, url, true, true);
+                                Image.url2File(requestUrl, filename, width, height, new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Log.d(TAG, "Screenshot saved as " + filename);
+                                        Instance.items.update(ItemUrl.this, url, true, true);
+                                    }
+                                });
                             }
-                        });
+                        }).start();
                     }
                 })
                 .setOnDeleteListener(new DialogNote.OnDeleteListener() {
