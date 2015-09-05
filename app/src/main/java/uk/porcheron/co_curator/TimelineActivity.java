@@ -709,6 +709,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private static float DOUBLE_TAP_POINT_LEEWAY = 50f;
     private static float SCALE_LEEWAY = 150f;
     private static long DOUBLE_TAP_TIME_LEEWAY = 450L;
+    private static long PINCH_TAP_TIME_LEEWAY = 100L;
     private static long mLastTap = -1;
 
     private final static SparseArray<Runnable> mPointerHandlerRunners = new SparseArray<>();
@@ -751,14 +752,12 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
             if(e.getAction() == MotionEvent.ACTION_UP) {
                 if(Math.abs(mLayoutTouchX - e.getX()) < DOUBLE_TAP_POINT_LEEWAY) {
-                    if (now - mLastTap < DOUBLE_TAP_TIME_LEEWAY) {
-                        float diffY = Math.abs(mLayoutTouchY - (e.getY() + mYOffset));
-                        if (diffY < DOUBLE_TAP_POINT_LEEWAY) {
-                            return onDoubleTap(e);
-                        } else if (diffY > SCALE_LEEWAY) {
-                            Intent i = new Intent(TimelineActivity.this, OverviewActivity.class);
-                            startActivity(i);
-                        }
+                    float diffY = Math.abs(mLayoutTouchY - (e.getY() + mYOffset));
+                    if(now - mLastTap < PINCH_TAP_TIME_LEEWAY && diffY > SCALE_LEEWAY) {
+                        Intent i = new Intent(TimelineActivity.this, OverviewActivity.class);
+                        startActivity(i);
+                    } else if (now - mLastTap < DOUBLE_TAP_TIME_LEEWAY && diffY < DOUBLE_TAP_POINT_LEEWAY) {
+                        return onDoubleTap(e);
                     }
                 }
 
