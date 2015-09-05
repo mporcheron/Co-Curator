@@ -73,10 +73,10 @@
 
     <dimen name="pointerPointerCircleSize">@dimen/pointerMinSize</dimen>
     <dimen name="pointerPointerArrowLineWidth">2.5dp</dimen>
-    <dimen name="pointerPointerArrowLength">@dimen/pointerMinSize</dimen>
-    <dimen name="pointerPointerArrowHeadHeight">@dimen/pointerMinSize</dimen>
-    <dimen name="pointerPointerArrowHeadDepth">8dp</dimen>
-    <dimen name="pointerPointerXOffset">10dp</dimen>
+    <dimen name="pointerPointerArrowLength">0dp</dimen>
+    <dimen name="pointerPointerArrowHeadHeight">0dp</dimen>
+    <dimen name="pointerPointerArrowHeadDepth">0dp</dimen>
+    <dimen name="pointerPointerXOffset">5dp</dimen>
 
 
 </resources>

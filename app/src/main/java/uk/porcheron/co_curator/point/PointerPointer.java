@@ -89,23 +89,24 @@ public class PointerPointer extends View {
         float y2 = midY + halfLineHeight;
         canvas.drawRect(x1, y1, x2, y2, mFillPaint);
 
+        if(Style.pointerPointerArrowHeadDepth != 0 && Style.pointerPointerArrowHeadHeight != 0) {
+            Path p = new Path();
+            if (mPointRight) {
+                float backBy = x2 - Style.pointerPointerArrowHeadDepth;
 
-        Path p = new Path();
-        if(mPointRight) {
-            float backBy = x2 - Style.pointerPointerArrowHeadDepth;
+                p.moveTo(backBy, midY - Style.pointerPointerArrowHeadHeight);
+                p.lineTo(x2, midY);
+                p.lineTo(backBy, midY + Style.pointerPointerArrowHeadHeight);
+            } else {
+                float backBy = x1 + Style.pointerPointerArrowHeadDepth;
 
-            p.moveTo(backBy, midY - Style.pointerPointerArrowHeadHeight);
-            p.lineTo(x2, midY);
-            p.lineTo(backBy, midY + Style.pointerPointerArrowHeadHeight);
-        } else {
-            float backBy = x1 + Style.pointerPointerArrowHeadDepth;
+                p.moveTo(backBy, midY - Style.pointerPointerArrowHeadHeight);
+                p.lineTo(x1, midY);
+                p.lineTo(backBy, midY + Style.pointerPointerArrowHeadHeight);
+            }
 
-            p.moveTo(backBy, midY - Style.pointerPointerArrowHeadHeight);
-            p.lineTo(x1, midY);
-            p.lineTo(backBy, midY + Style.pointerPointerArrowHeadHeight);
+            canvas.drawPath(p, mLinePaint);
         }
-
-        canvas.drawPath(p, mLinePaint);
     }
 
 }
