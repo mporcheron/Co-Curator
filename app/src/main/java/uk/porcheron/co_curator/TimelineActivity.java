@@ -900,8 +900,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
             int userId = mPointers.keyAt(index);
             Pointer p = mPointers.get(userId);
 
-            boolean left = (x1 - Style.pointerPointerCircleSize - Style.pointerPointerArrowLength) > p.getTriggeredX();
-            boolean right = p.getTriggeredX() > x2; // + Style.pointerPointerCircleSize + Style.pointerPointerArrowLength)
+            boolean left = x1 > p.getTriggeredX();
+            boolean right = p.getTriggeredX() > (x2 - Style.pointerPointerCircleSize - Style.pointerPointerXOffset);// + Style.pointerPointerArrowLength)
 
             if (!left && !right) {
                 hidePointerPointer(p.getUser(), null);
