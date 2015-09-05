@@ -118,12 +118,12 @@ public class ItemUrl extends ItemPhoto {
 
     @Override
     protected boolean onLongPress(Activity activity) {
-        onSelect(activity, true, true);
+        onSelect(activity, false, true, true);
         return true;
     }
 
     @Override
-    protected void onSelect(Activity activity, boolean editable, boolean deletable) {
+    protected void onSelect(Activity activity, boolean fullScreen,boolean editable, boolean deletable) {
         new DialogUrl(activity)
                 .setText(mUrl)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
@@ -164,6 +164,7 @@ public class ItemUrl extends ItemPhoto {
                         Instance.items.remove(ItemUrl.this, true, true, true);
                     }
                 })
+                .setFullScreen(fullScreen)
                 .setUser(getUser())
                 .isDeletable(deletable)
                 .isEditable(editable)

@@ -46,7 +46,7 @@
     <integer name="noteLines">6</integer>
     <integer name="noteFontSize">4</integer>
     <integer name="noteLineSpacing">12</integer>
-    <integer name="noteLength">110</integer>
+    <integer name="noteLength">140</integer>
 
     <dimen name="photoWidth">65dp</dimen>
     <dimen name="photoHeight">65dp</dimen>

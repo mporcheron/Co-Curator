@@ -87,23 +87,23 @@ public class ItemNote extends Item {
 
     @Override
     protected boolean onTap(Activity activity) {
-        onSelect(activity, true, false);
+        onSelect(activity, true, false, false);
         return true;
     }
 
     @Override
     protected boolean onLongPress(Activity activity) {
-        onSelect(activity, true, true);
+        onSelect(activity, false, true, true);
         return true;
     }
 
     @Override
     public void simulateTap(Activity activity) {
-        onSelect(activity, false, false);
+        onSelect(activity, true, false, false);
     }
 
     @Override
-    protected void onSelect(Activity activity, boolean editable, boolean deletable) {
+    protected void onSelect(Activity activity, boolean fullScreen, boolean editable, boolean deletable) {
         new DialogNote(activity)
                 .setText(mText)
                 .setOnSubmitListener(new DialogNote.OnSubmitListener() {
@@ -120,6 +120,7 @@ public class ItemNote extends Item {
                         Instance.items.remove(ItemNote.this, true, true, true);
                     }
                 })
+                .setFullScreen(fullScreen)
                 .setUser(getUser())
                 .isDeletable(deletable)
                 .isEditable(editable)

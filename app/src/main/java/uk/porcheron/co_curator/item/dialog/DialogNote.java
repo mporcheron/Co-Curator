@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import java.lang.reflect.Field;
 
+import uk.porcheron.co_curator.val.Phone;
 import uk.porcheron.co_curator.val.Style;
 
 /**
@@ -25,9 +26,10 @@ import uk.porcheron.co_curator.val.Style;
 public class DialogNote extends AbstractDialog {
     private static final String TAG = "CC:DialogNote";
 
-    private static int LINES = 10;
+    private static int LINES = 15;
     private static float ALERT_SCALE_SIZE = 2.5f;
-    private static float TEXT_SCALE_SIZE = 2f;
+    private static float TEXT_SCALE_FULL_SCREEN_SIZE = 2f;
+    private static float TEXT_SCALE_SIZE = 1.5f;
 
     private boolean mAutoEdit = false;
 
@@ -45,12 +47,20 @@ public class DialogNote extends AbstractDialog {
 
     @Override
     protected int width() {
-        return (int) (ALERT_SCALE_SIZE * Style.noteWidth);
+        if(isFullScreen()) {
+            return (int) (Phone.screenHeight * (Style.noteWidth / Style.noteHeight));
+        } else {
+            return (int) (ALERT_SCALE_SIZE * Style.noteWidth);
+        }
     }
 
     @Override
     protected int height() {
-        return (int) (ALERT_SCALE_SIZE * Style.noteHeight);
+        if(isFullScreen()) {
+            return Phone.screenHeight;
+        } else {
+            return (int) (ALERT_SCALE_SIZE * Style.noteHeight);
+        }
     }
 
     protected EditText getEditText() {
@@ -94,7 +104,11 @@ public class DialogNote extends AbstractDialog {
         mEditText.setPadding(padding, padding, padding, padding);
         mEditText.setGravity(View.TEXT_ALIGNMENT_CENTER);
         mEditText.setLineSpacing(0, Style.noteLineSpacing);
-        mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PT, TEXT_SCALE_SIZE * Style.noteFontSize);
+        if(isFullScreen()) {
+            mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PT, TEXT_SCALE_FULL_SCREEN_SIZE * Style.noteFontSize);
+        } else {
+            mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PT, TEXT_SCALE_SIZE * Style.noteFontSize);
+        }
         mEditText.setSelection(mEditText.getText().toString().length());
 
         int maxLength = Style.noteLength;
@@ -117,6 +131,7 @@ public class DialogNote extends AbstractDialog {
 
         if(!isEditable()) {
             mEditText.setInputType(InputType.TYPE_NULL);
+            mEditText.setHorizontallyScrolling(false);
         }
 
         mEditText.setLines(LINES);

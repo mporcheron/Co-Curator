@@ -321,5 +321,5 @@ public abstract class Item extends View {
         }
     };
 
-    protected abstract void onSelect(Activity activity, boolean editable, boolean deletable);
+    protected abstract void onSelect(Activity activity, boolean fullScreen, boolean editable, boolean deletable);
 }

@@ -16,8 +16,11 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
@@ -47,6 +50,7 @@ public abstract class AbstractDialog {
     private User mUser = null;
     private boolean mEditable = false;
     private boolean mDeletable = false;
+    private boolean mFullScreen = false;
 
     private final AlertDialog.Builder mBuilder;
     private AlertDialog mDialog = null;
@@ -73,6 +77,15 @@ public abstract class AbstractDialog {
     public final AbstractDialog setUser(User user) {
         mUser = user;
         return this;
+    }
+
+    public final AbstractDialog setFullScreen(boolean fullScreen) {
+        mFullScreen = fullScreen;
+        return this;
+    }
+
+    protected final boolean isFullScreen() {
+        return mFullScreen;
     }
 
     public final AbstractDialog isEditable(boolean editable) {
@@ -147,7 +160,6 @@ public abstract class AbstractDialog {
             }
         });
 
-
         mDialog = mBuilder.create();
         mDialog.setOnKeyListener(new Dialog.OnKeyListener() {
 
@@ -160,6 +172,11 @@ public abstract class AbstractDialog {
                 return false;
             }
         });
+
+        if(isFullScreen()) {
+            mDialog.getWindow().setDimAmount(1.0f);
+            mDialog.setCanceledOnTouchOutside(false);
+        }
 
         return this;
     }

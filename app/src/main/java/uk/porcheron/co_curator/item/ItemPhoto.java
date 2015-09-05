@@ -95,18 +95,18 @@ public class ItemPhoto extends Item {
 
     @Override
     protected boolean onTap(Activity activity) {
-        onSelect(activity, true, false);
+        onSelect(activity, true, true, false);
         return true;
     }
 
     @Override
     protected boolean onLongPress(Activity activity) {
-        onSelect(activity, true, true);
+        onSelect(activity, false, true, true);
         return true;
     }
 
     @Override
-    protected void onSelect(Activity activity, boolean editable, boolean deletable) {
+    protected void onSelect(Activity activity, boolean fullScreen, boolean editable, boolean deletable) {
         boolean userMatches = getUser().equals(Instance.user());
 
         try {
@@ -119,6 +119,7 @@ public class ItemPhoto extends Item {
                             Instance.items.remove(ItemPhoto.this, true, true, true);
                         }
                     })
+                    .setFullScreen(fullScreen)
                     .setUser(getUser())
                     .isDeletable(deletable)
                     .isEditable(editable)
