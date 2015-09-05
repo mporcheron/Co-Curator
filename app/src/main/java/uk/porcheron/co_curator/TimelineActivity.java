@@ -905,13 +905,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
             if (!left && !right) {
                 hidePointerPointer(p.getUser(), null);
-                Log.d(TAG, "Visible");
             } else if(!left) {
                 showPointerPointer(p.getUser(), p.getTriggeredY(), true);
-                Log.d(TAG, "To the right");
             } else {
                 showPointerPointer(p.getUser(), p.getTriggeredY(), false);
-                Log.d(TAG, "To the left");
             }
         }
     }
