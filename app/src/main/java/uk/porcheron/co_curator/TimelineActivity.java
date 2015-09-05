@@ -249,9 +249,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         mUpdateTimer.cancel();
         mUpdateTimer.purge();
 
-        // Clean up pointers
-        cleanUpPointers();
-
         super.onPause();
     }
 
@@ -714,10 +711,10 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     private static long DOUBLE_TAP_TIME_LEEWAY = 450L;
     private static long mLastTap = -1;
 
-    final SparseArray<Runnable> mPointerHandlerRunners = new SparseArray<>();
-    final SparseArray<Handler> mPointerHandlers = new SparseArray<>();
-    private SparseArray<Pointer> mPointers = new SparseArray<>();
-    private SparseArray<PointerPointer> mPointerPointers = new SparseArray<>();
+    private final static SparseArray<Runnable> mPointerHandlerRunners = new SparseArray<>();
+    private final static SparseArray<Handler> mPointerHandlers = new SparseArray<>();
+    private static SparseArray<Pointer> mPointers = new SparseArray<>();
+    private static SparseArray<PointerPointer> mPointerPointers = new SparseArray<>();
 
     private class TimelineGestureDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
 
@@ -895,7 +892,7 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         }
     }
 
-    public void testPointers(int x1, int x2) {
+    public synchronized void testPointers(int x1, int x2) {
         for(int index = 0; index < mPointers.size(); index++) {
             int userId = mPointers.keyAt(index);
             Pointer p = mPointers.get(userId);
@@ -1019,6 +1016,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     public interface OnCompleteRunner {
         void run();
     }
+
+
 
 }
 
