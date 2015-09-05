@@ -75,7 +75,6 @@ public class ServerManager {
         public void run() {
             Socket socket = null;
             DataInputStream dataInputStream = null;
-            DataOutputStream dataOutputStream = null;
 
             try {
                 mServerSocket = new ServerSocket(mPort);
@@ -85,7 +84,6 @@ public class ServerManager {
                     while (true) {
                         socket = mServerSocket.accept();
                         dataInputStream = new DataInputStream(socket.getInputStream());
-                        dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
                         String messageFromClient = dataInputStream.readUTF();
 
@@ -95,8 +93,6 @@ public class ServerManager {
 
                         process(messageFromClient);
 
-                        String msgReply = "Thank you.";
-                        dataOutputStream.writeUTF(msgReply);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -114,15 +110,6 @@ public class ServerManager {
                     if (dataInputStream != null) {
                         try {
                             dataInputStream.close();
-                        } catch (IOException e) {
-                            Log.e(TAG, e.toString());
-                            e.printStackTrace();
-                        }
-                    }
-
-                    if (dataOutputStream != null) {
-                        try {
-                            dataOutputStream.close();
                         } catch (IOException e) {
                             Log.e(TAG, e.toString());
                             e.printStackTrace();
