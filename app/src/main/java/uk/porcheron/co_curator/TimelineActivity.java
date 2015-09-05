@@ -804,7 +804,8 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         final Pointer p = new Pointer(user, x, y);
         p.setTranslationX(x);
-        p.setTranslationY(y);
+        //p.setTranslationY(y);
+        p.setTranslationY(Style.layoutHalfPadding + user.centrelineOffset - (Style.pointerMinSize / 2) - 3);
         mFrameLayout.addView(p);
         p.bringToFront();
         mPointers.put(userId, p);
@@ -861,7 +862,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
                         pp.setTranslationX(Style.pointerPointerXOffset);
                     }
 
-                    pp.setTranslationY(y + Style.pointerPointerYOffset);
+
+                    pp.setTranslationY(Style.layoutHalfPadding + user.centrelineOffset - (Style.pointerPointerCircleSize / 2) + 4);
+                    //pp.setTranslationY(y + Style.pointerPointerYOffset);
                     //pp.setTranslationY(Style.pointerPointerYOffset + (mPointerPointers.size() * (Style.pointerPointerYOffset + Style.pointerPointerCircleSize)));
 
                     mPointerPointers.put(user.userId, pp);
