@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,11 +26,7 @@ import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -50,8 +45,8 @@ import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemScrollView;
 import uk.porcheron.co_curator.item.ItemType;
 import uk.porcheron.co_curator.item.ItemUrl;
-import uk.porcheron.co_curator.item.dialog.DialogNote;
-import uk.porcheron.co_curator.item.dialog.DialogUrl;
+import uk.porcheron.co_curator.dialog.DialogNote;
+import uk.porcheron.co_curator.dialog.DialogUrl;
 import uk.porcheron.co_curator.point.Pointer;
 import uk.porcheron.co_curator.point.PointerPointer;
 import uk.porcheron.co_curator.user.User;
@@ -208,9 +203,6 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
         Instance.users = new UserList();
         Instance.items = new ItemList(mScrollView, mLayoutAbove, mLayoutBelow);
 
-        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
-        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_POINT, this);
-
         new DbLoader().execute();
     }
 
@@ -236,6 +228,9 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
         // Fade in if not visible
         fadeIn(null);
+
+        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_UNBIND, this);
+        ColloManager.ResponseManager.registerHandler(ColloDict.ACTION_POINT, this);
 
         super.onResume();
     }
