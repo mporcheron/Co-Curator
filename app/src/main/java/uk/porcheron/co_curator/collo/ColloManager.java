@@ -91,25 +91,21 @@ public class ColloManager {
 
         mPreviousMessage = message;
 
-        Client c = mClients.get(user.globalUserId);
-        if(c != null) {
-            while (c.getStatus() == AsyncTask.Status.RUNNING) {
-                Log.e(TAG, "Waiting for previous message (" + mPreviousMessage + ") to end");
-                c.cancel(true);
-                c = null;
-                break;
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-            }
-        }
+//        Client c = mClients.get(user.globalUserId);
+//        if(c != null) {
+//            if(c.isAlive()) {
+//                c = null;
+////                try {
+////                    Thread.sleep(1000);
+////                } catch (InterruptedException e) {
+////                    e.printStackTrace();
+////                }
+//            }
+//        }
 
-        c = new Client(user.globalUserId, user.ip, Collo.cPort(user.globalUserId));
+        Client c = new Client(user.globalUserId, user.ip, Collo.cPort(user.globalUserId), message);
         mClients.put(user.globalUserId, c);
-
-        c.execute(message);
+        c.start();
     }
 
     /**
@@ -155,23 +151,26 @@ public class ColloManager {
     /**
      * Created by map on 14/08/15.
      */
-    public static class Client extends AsyncTask<String, Void, Void> {
+    public static class Client extends Thread {
         private static final String TAG = "CC:ColloClient";
 
         private int mGlobalUserId;
         private String mDestinationIp;
         private int mDestinationPort;
+        private String mMessage;
 
         private static final int TIMEOUT = 500;
 
-        Client(int globalUserId, String ip, int port) {
+        Client(int globalUserId, String ip, int port, String message) {
             mGlobalUserId = globalUserId;
             mDestinationIp = ip;
             mDestinationPort = port;
+            mMessage = message;
+            this.setPriority(9);
         }
 
         @Override
-        protected Void doInBackground(String... message) {
+        public void run() {
 
 //            BlockedIp blockedIp = mClientBlacklist.get(mGlobalUserId);
 //            if(blockedIp != null && blockedIp.attempts > 0 && mDestinationIp.equals(blockedIp.ip)) {
@@ -182,18 +181,18 @@ public class ColloManager {
 
             int attempts = 2;
             while(attempts-- > 0) {
-                Log.v(TAG, "User[" + Instance.globalUserId + "] Send message[" + message[0] + "] to User[" + mGlobalUserId + "] at " + mDestinationIp + ":" + mDestinationPort);
+                Log.v(TAG, "User[" + Instance.globalUserId + "] Send message[" + mMessage + "] to User[" + mGlobalUserId + "] at " + mDestinationIp + ":" + mDestinationPort);
 
-                CCLog.write(Event.COLLO_SEND, "{globalUserId=" + mGlobalUserId + ",message=" + message + "}");
+                CCLog.write(Event.COLLO_SEND, "{globalUserId=" + mGlobalUserId + ",message=" + mMessage + "}");
 
                 try (Socket socket = new Socket()) {
                     socket.connect(new InetSocketAddress(mDestinationIp, mDestinationPort), TIMEOUT);
                     DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                    dataOutputStream.writeUTF(message[0]);
+                    dataOutputStream.writeUTF(mMessage);
                     break;
                 } catch (IOException e) {
                     Log.e(TAG, e.toString());
-                    CCLog.write(Event.COLLO_SEND_FAIL, "{globalUserId=" + mGlobalUserId + ",message=" + message + "}");
+                    CCLog.write(Event.COLLO_SEND_FAIL, "{globalUserId=" + mGlobalUserId + ",message=" + mMessage + "}");
 
 
 //                Boolean boundTo = mUsersBoundTo.get(mGlobalUserId);
@@ -202,8 +201,6 @@ public class ColloManager {
 //                }
                 }
             }
-
-            return null;
         }
 
 
