@@ -75,17 +75,17 @@ public abstract class Item extends View {
                 if (mOuterBounds.contains(e.getX(), e.getY())) {
                     gD.onTouchEvent(e);
 
+                    if(e.getAction() == MotionEvent.ACTION_CANCEL
+                            || e.getAction() == MotionEvent.ACTION_UP
+                            || e.getAction() == MotionEvent.ACTION_SCROLL) {
+                        handler.removeCallbacks(mLongPressed);
+                    }
+
                     if (e.getAction() == MotionEvent.ACTION_DOWN) {
                         handler.postDelayed(mLongPressed, LONG_PRESS_DELAY);
                         mLongPressX = e.getX();
                         mCancelLongPress = false;
                         return true;
-                    }
-
-                    if (mCancelLongPress || e.getAction() == MotionEvent.ACTION_MOVE
-                            || e.getAction() == MotionEvent.ACTION_UP
-                            || e.getAction() == MotionEvent.ACTION_SCROLL) {
-                        handler.removeCallbacks(mLongPressed);
                     }
 
                     return false;
