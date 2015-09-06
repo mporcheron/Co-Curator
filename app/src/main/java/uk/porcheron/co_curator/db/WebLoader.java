@@ -216,11 +216,18 @@ public class WebLoader {
         Instance.items.update(item, data, false, false);
     }
 
-    private static void updatePhotoItem(final int globalUserId, final Item item, final String data, String url, String filename, final int width, final int height) {
-        Image.url2File(url, filename, width, height, new Runnable() {
+    private static void updatePhotoItem(final int globalUserId, final Item item, final String data, final String url, final String filename, final int width, final int height) {
+        new Thread(new Runnable() {
+
             @Override
             public void run() {
-                updateTextItem(item, data);
+
+                Image.url2File(url, filename, width, height, new Runnable() {
+                    @Override
+                    public void run() {
+                        updateTextItem(item, data);
+                    }
+                });
             }
         });
     }
