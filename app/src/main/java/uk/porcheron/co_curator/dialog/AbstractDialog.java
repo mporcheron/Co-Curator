@@ -1,26 +1,17 @@
-package uk.porcheron.co_curator.item.dialog;
+package uk.porcheron.co_curator.dialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
-import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import java.lang.reflect.Field;
@@ -29,8 +20,6 @@ import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.TimelineActivity;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.val.Instance;
-import uk.porcheron.co_curator.val.Phone;
-import uk.porcheron.co_curator.val.Style;
 
 /**
  * Abstract custom dialog.
@@ -151,6 +140,12 @@ public abstract class AbstractDialog {
     }
 
     protected abstract void onClose(DialogInterface dialog, OnSubmitListener onSubmitListener, OnCancelListener onCancelListener, OnDeleteListener onDeleteListener, boolean flung);
+
+    void cancel() {
+        if(mDialog != null) {
+            mDialog.cancel();
+        }
+    }
 
     public AbstractDialog create() {
         mBuilder.setOnCancelListener(new DialogInterface.OnCancelListener() {

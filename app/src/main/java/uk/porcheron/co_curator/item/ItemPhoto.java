@@ -3,29 +3,22 @@ package uk.porcheron.co_curator.item;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.RectF;
-import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import uk.porcheron.co_curator.ImageDialogActivity;
-import uk.porcheron.co_curator.R;
 import uk.porcheron.co_curator.TimelineActivity;
-import uk.porcheron.co_curator.item.dialog.DialogNote;
-import uk.porcheron.co_curator.item.dialog.DialogPhoto;
-import uk.porcheron.co_curator.item.dialog.DialogUrl;
+import uk.porcheron.co_curator.dialog.DialogNote;
+import uk.porcheron.co_curator.dialog.DialogPhoto;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.Event;
-import uk.porcheron.co_curator.util.Image;
-import uk.porcheron.co_curator.util.Web;
 import uk.porcheron.co_curator.val.Instance;
 import uk.porcheron.co_curator.val.Style;
 

@@ -9,12 +9,11 @@ import android.graphics.RectF;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 
 import uk.porcheron.co_curator.TimelineActivity;
-import uk.porcheron.co_curator.item.dialog.DialogNote;
+import uk.porcheron.co_curator.dialog.DialogNote;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.EllipsizingTextView;

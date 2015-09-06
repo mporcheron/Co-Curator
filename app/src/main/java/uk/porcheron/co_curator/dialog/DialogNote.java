@@ -1,4 +1,4 @@
-package uk.porcheron.co_curator.item.dialog;
+package uk.porcheron.co_curator.dialog;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -6,11 +6,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -34,12 +38,12 @@ public class DialogNote extends AbstractDialog {
     private boolean mAutoEdit = false;
 
     private String mOriginalText = "";
-    private final EditText mEditText;
+    private final DialogEditText mEditText;
 
     public DialogNote(Activity activity) {
         super(activity);
 
-        mEditText = new EditText(getActivity());
+        mEditText = new DialogEditText(getActivity());
         mEditText.setSingleLine(false);
         mEditText.setHorizontallyScrolling(false);
         setContentView(mEditText);
@@ -69,6 +73,24 @@ public class DialogNote extends AbstractDialog {
 
     public DialogNote setAutoEdit(boolean value) {
         mAutoEdit = value;
+        if(value) {
+            mEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            mEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        DialogNote.this.cancel();
+                    }
+                    return false;
+                }
+            });
+            mEditText.setOnBackListener(new DialogEditText.OnBackListener() {
+                @Override
+                public void onBackPressed() {
+                    DialogNote.this.cancel();
+                }
+            });
+        }
         return this;
     }
 
@@ -132,6 +154,28 @@ public class DialogNote extends AbstractDialog {
         if(!isEditable()) {
             mEditText.setInputType(InputType.TYPE_NULL);
             mEditText.setHorizontallyScrolling(false);
+        }
+
+        if(mAutoEdit) {
+            mEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+                    int result = actionId & EditorInfo.IME_MASK_ACTION;
+                    switch(result) {
+                        case EditorInfo.IME_ACTION_DONE:
+                            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            DialogNote.this.cancel();
+                            // done stuff
+                            break;
+                        case EditorInfo.IME_ACTION_NEXT:
+                            Log.d(TAG, "NEXT");
+                            // next stuff
+                            break;
+                    }
+                    return false;
+                }
+            });
         }
 
         mEditText.setLines(LINES);

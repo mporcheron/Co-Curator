@@ -8,9 +8,8 @@ import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
 
-import uk.porcheron.co_curator.TimelineActivity;
-import uk.porcheron.co_curator.item.dialog.DialogNote;
-import uk.porcheron.co_curator.item.dialog.DialogUrl;
+import uk.porcheron.co_curator.dialog.DialogNote;
+import uk.porcheron.co_curator.dialog.DialogUrl;
 import uk.porcheron.co_curator.user.User;
 import uk.porcheron.co_curator.util.CCLog;
 import uk.porcheron.co_curator.util.Event;
