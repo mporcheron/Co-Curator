@@ -13,6 +13,8 @@ if ($stmt = $db->prepare('SELECT `globalUserId`, `userId`, `ip`, `userLastChecki
 		while($row = $res->fetchArray()) {
 			if($row['userLastCheckin'] != '' && $row['userLastCheckin'] >= \time() - USER_LOGGED_IN_FOR) {
 				$data[] = ['globalUserId' => $row['globalUserId'], 'userId' => $row['userId'], 'ip' => $row['ip']];
+			} else {
+				$data[] = ['globalUserId' => $row['globalUserId'], 'userId' => $row['userId'], 'ip' => ''];
 			}
 		}
 

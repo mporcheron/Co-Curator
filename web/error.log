@@ -232,3 +232,126 @@
 2015-08-25T10:33:12+01:00	Can't get screenshot of http://www.google.com
 2015-08-27T13:55:36+01:00	Could not get screenshot: sh: wkhtmltoimage: command not found
 2015-08-27T13:56:19+01:00	Could not get screenshot: sh: wkhtmltoimage: command not found
+2015-08-28T09:33:43+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:33:44+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:33:50+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:33:50+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:34:14+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:34:14+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:34:46+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:34:46+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:35:57+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:35:57+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:45:43+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:45:43+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:46:41+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:46:41+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:47:37+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:47:37+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:48:56+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:48:56+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http://ahr0cdovl3d3dy5nb29nbguuy29t (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:49:06+01:00	Could not get screenshot: Loading page (1/2)
+[>                                                           ] 0%[======>                                                     ] 10%Error: Failed loading page http: (sometimes it will work just to ignore this error with --load-error-handling ignore)
+Exit with code 1 due to network error: HostNotFoundError
+2015-08-28T09:50:48+01:00	Could not get screenshot: Unknown long argument ----load-error-handling
+
+Name:
+  wkhtmltoimage 0.12.2.1 (with patched qt)
+
+Synopsis:
+  wkhtmltoimage [OPTIONS]... <input file> <output file>
+  
+Description:
+  Converts an HTML page into an image, 
+
+General Options:
+      --crop-h <int>                  Set height for cropping
+      --crop-w <int>                  Set width for cropping
+      --crop-x <int>                  Set x coordinate for cropping
+      --crop-y <int>                  Set y coordinate for cropping
+  -H, --extended-help                 Display more extensive help, detailing                                      less common command switches
+  -f, --format <format>               Output file format
+      --height <int>                  Set screen height (default is calculated                                      from page content) (default 1024)
+  -h, --help                          Display help
+      --license                       Output license information and exit
+      --quality <int>                 Output image quality (between 0 and 100)                                      (default 94)
+  -q, --quiet                         Be less verbose
+  -V, --version                       Output version information and exit
+      --width <int>                   Set screen width, note that this is used                                      only as a guide line. Use                                      --disable-smart-width to make it strict.                                      (default 1024)
+Contact:
+  If you experience bugs or want to request new features please visit 
+  <https://github.com/wkhtmltopdf/wkhtmltopdf/issues>
+2015-08-28T09:52:13+01:00	Could not get screenshot: sh: /-load-error-handling: No such file or directory
+2015-08-28T10:40:32+01:00	database is locked
+2015-09-01T09:39:49+01:00	database is locked
+2015-09-04T08:56:44+01:00	attempt to write a readonly database
+2015-09-04T08:56:46+01:00	attempt to write a readonly database
+2015-09-04T09:20:37+01:00	attempt to write a readonly database
+2015-09-04T09:21:00+01:00	attempt to write a readonly database
+2015-09-04T10:41:22+01:00	database is locked
+2015-09-04T13:17:19+01:00	database is locked
+2015-09-04T13:17:20+01:00	database is locked
+2015-09-04T13:17:20+01:00	database is locked
+2015-09-04T14:43:11+01:00	database is locked
+2015-09-06T17:31:21+01:00	database is locked
+2015-09-06T17:31:21+01:00	database is locked
+2015-09-06T17:32:59+01:00	database is locked
+2015-09-06T17:35:09+01:00	database is locked
+2015-09-06T17:37:49+01:00	database is locked
+2015-09-06T17:42:00+01:00	database is locked
+2015-09-06T17:42:01+01:00	database is locked
+2015-09-06T17:43:22+01:00	database is locked
+2015-09-06T17:43:23+01:00	database is locked
+2015-09-06T17:48:07+01:00	database is locked
+2015-09-06T17:48:07+01:00	database is locked
+2015-09-06T17:50:51+01:00	database is locked
+2015-09-06T17:51:41+01:00	database is locked
+2015-09-06T17:53:54+01:00	database is locked
+2015-09-06T17:53:54+01:00	database is locked
+2015-09-06T17:53:54+01:00	database is locked
+2015-09-07T09:30:16+01:00	No text-based item data provided
+2015-09-07T11:19:13+01:00	attempt to write a readonly database
+2015-09-07T11:19:26+01:00	attempt to write a readonly database
+2015-09-07T11:19:28+01:00	attempt to write a readonly database
+2015-09-07T11:19:30+01:00	attempt to write a readonly database
+2015-09-07T12:12:16+01:00	database is locked
+2015-09-07T13:23:26+01:00	database is locked
+2015-09-07T13:23:28+01:00	database is locked
+2015-09-07T19:45:33+01:00	Could not get screenshot of 
+2015-09-07T20:27:32+01:00	Could not get screenshot of http://www.abc.net.au/radionational/programs/bydesign/

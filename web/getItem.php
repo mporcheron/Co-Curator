@@ -16,7 +16,7 @@ if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDat
 	if($res = $stmt->execute()) {
 		$data = [];
 		if($row = $res->fetchArray()) {
-			$row['itemData'] = \removeUnicodeSequences($row['itemData']);
+			$row['itemData'] = \utf8_encode($row['itemData']);
 
 			$data = ['id' => $row['localItemId'],
 				'type' => $row['itemType'],

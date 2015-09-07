@@ -9,7 +9,7 @@
 
 \define('ERROR_LOG', \dirname(__FILE__) .'/error.log');
 
-\define('USER_LOGGED_IN_FOR', 120);
+\define('USER_LOGGED_IN_FOR', 600);
 
 $data = $_REQUEST;
 

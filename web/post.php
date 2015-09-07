@@ -4,8 +4,8 @@ require_once 'db.php';
 
 \header('Content-type: application/json');
 
-\requireInput('Must provide user credentials', ['globalUserId']);
-\requireInput('Must provide item details', ['itemId', 'itemType', 'itemDateTime']);
+//\requireInput('Must provide user credentials', ['globalUserId']);
+//\requireInput('Must provide item details', ['itemId', 'itemType', 'itemDateTime']);
 
 $globalUserId = \intval($data['globalUserId']);
 $itemId = \intval($data['itemId']);
@@ -30,7 +30,7 @@ if ($itemType == 0 && isset($_FILES['itemData'])) {
 } else if (!isset($data['itemData'])) {
 	\dieError('No text-based item data provided', 'Must provide item data');
 } else {
-	$itemData = SQLite3::escapeString($data['itemData']);
+	$itemData = SQLite3::escapeString(\utf8_encode($data['itemData']));
 }
 
 // Save to database

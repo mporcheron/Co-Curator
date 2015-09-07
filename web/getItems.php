@@ -8,13 +8,13 @@ require_once 'db.php';
 
 $globalUserId = \intval($data['globalUserId']);
 
-if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDateTime`, `itemDeleted` FROM `item` WHERE `globalUserId`=:globalUserId')) {
+if ($stmt = $db->prepare('SELECT `localItemId`, `itemType`, `itemData`, `itemDateTime`, `itemDeleted` FROM `item` WHERE `globalUserId`=:globalUserId AND `itemDeleted`=0')) {
 	$stmt->bindParam(':globalUserId', $globalUserId, SQLITE3_INTEGER);
 
 	if($res = $stmt->execute()) {
 		$data = [];
 		while($row = $res->fetchArray()) {
-			$row['itemData'] = \removeUnicodeSequences($row['itemData']);
+			$row['itemData'] = \utf8_encode($row['itemData']);
 
 			$data[] = ['id' => $row['localItemId'],
 				'type' => $row['itemType'],

@@ -11,8 +11,9 @@ $globalUserId = \intval($data['globalUserId']);
 $groupId = \intval($data['groupId']);
 $ip = SQLite3::escapeString($data['ip']);
 
-if ($stmt = $db->prepare('UPDATE `user` SET `ip`=:ip WHERE `globalUserId`=:globalUserId AND `groupId`=:groupId')) {
+if ($stmt = $db->prepare('UPDATE `user` SET `ip`=:ip, `userLastCheckin`=:userLastCheckin WHERE `globalUserId`=:globalUserId AND `groupId`=:groupId')) {
 	$stmt->bindParam(':ip', $ip, SQLITE3_TEXT);
+	$stmt->bindValue(':userLastCheckin', \time(), SQLITE3_INTEGER);
 	$stmt->bindParam(':globalUserId', $globalUserId, SQLITE3_INTEGER);
 	$stmt->bindParam(':groupId', $groupId, SQLITE3_INTEGER);
 

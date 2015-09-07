@@ -13,6 +13,14 @@ use mikehaertl\wkhtmlto\Image;
 $filename = $url = \base64_decode($data['url']);
 $type = TYPE_URL;
 
+
+$file = URL_DIR . $data['url'] .'.png';
+if(\is_file($file)) {
+	\header('Content-Type: image/png');
+	\readfile($file);
+	exit;
+}
+
 foreach ($youtubeUrls as $youtubeUrl) {
 	if (strpos($filename, $youtubeUrl) === 0) {
 		$type = TYPE_VIDEO;
@@ -35,20 +43,48 @@ foreach ($youtubeUrls as $youtubeUrl) {
 }
 
 if($type === TYPE_URL) {
-	$file = URL_DIR . base64_encode($data['url']) .'.png';
+	$file = URL_DIR . $data['url'] .'.png';
 	if(!\is_file($file)) {
 		
-		$image = new Image($data['url']);
-		$image->setOptions(['binary' => '/usr/local/bin/wkhtmltoimage', 'width' => 1024, 'height' => 1024]);
+		$image = new Image($url);
+		$image->setOptions(['binary' => '/usr/local/bin/wkhtmltoimage', 'width' => 600, 'height' => 600]);
 
 		if(!$image->saveAs($file)) {
-			\dieError('Could not get screenshot: '. $image->getError(), 'Could not get screenshot');
+			\errorLog('Could not get screenshot of '. $url);
+			\header('Content-type: image/png');
+
+			$w = 600;
+			$h = 600;
+
+			$img = @\imagecreatetruecolor($w, $h);
+			if(!$img) {
+				\readfile(URL_DIR . 'error.png');
+				exit;
+			}
+
+			\imagesavealpha($img, true);
+			$trans_colour = imagecolorallocatealpha($img, 0, 0, 0, 127);
+    		\imagefill($img, 0, 0, $trans_colour);
+
+			$font = 'Arial.ttf';
+			$colour = \imagecolorallocate($img, 255, 255, 255);
+			$text = \str_replace('http://', '', \base64_decode($data['url']));
+			$size = 12;
+			$angle = 0;
+
+			$dimens = imagettfbbox($size, $angle, $font, $text);
+			$x = ($w - $dimens[2])/2;
+			$y = ($h - $dimens[3])/2;
+			\imagettftext($img, $size, $angle, $x, $y, $colour, $font, $text);
+
+			\imagepng($img);
+			\imagedestroy($img);
+			exit;
 		}
 		
 		$image->send();
 		exit;
 	}
-	//\errorLog('Can\'t get screenshot of ' . $url);
 
 	\header('Content-type: image/png');
 	\readfile($file);
