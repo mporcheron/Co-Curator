@@ -139,7 +139,9 @@ public abstract class AbstractDialog {
         return mActivity;
     }
 
-    protected abstract void onClose(DialogInterface dialog, OnSubmitListener onSubmitListener, OnCancelListener onCancelListener, OnDeleteListener onDeleteListener, boolean flung);
+    protected void onClose(DialogInterface dialog, OnSubmitListener onSubmitListener, OnCancelListener onCancelListener, OnDeleteListener onDeleteListener, boolean flung) {
+        DialogManager.delayShown(false);
+    }
 
     void cancel() {
         if(mDialog != null) {
@@ -161,6 +163,7 @@ public abstract class AbstractDialog {
             @Override
             public boolean onKey(DialogInterface arg0, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    DialogManager.delayShown(false);
                     mDialog.dismiss();
                     return true;
                 }
@@ -179,7 +182,10 @@ public abstract class AbstractDialog {
     protected abstract int width();
     protected abstract int height();
 
+
     public void show() {
+        DialogManager.isShown(true);
+
         if(mDialog == null) {
             create();
         }

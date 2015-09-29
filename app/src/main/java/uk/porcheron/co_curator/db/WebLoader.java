@@ -209,7 +209,7 @@ public class WebLoader {
             public void run() {
                 newTextItem(globalUserId, itemId, type, user, data, dateTime, deleted);
             }
-        });
+        }, null);
     }
 
     private static void updateTextItem(Item item, final String data) {
@@ -227,7 +227,7 @@ public class WebLoader {
                     public void run() {
                         updateTextItem(item, data);
                     }
-                });
+                }, null);
             }
         });
     }

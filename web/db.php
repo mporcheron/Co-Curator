@@ -5,6 +5,7 @@
 \define('IMG_DIR', \dirname(__FILE__) . '/uploads/');
 \define('IMG_WWW', 'http://'. $_SERVER['SERVER_ADDR'] . \dirname($_SERVER['REQUEST_URI']) . '/uploads/');
 
+\define('URL_WWW', 'http://'. $_SERVER['SERVER_ADDR'] . \dirname($_SERVER['REQUEST_URI']) . '/url/');
 \define('URL_DIR', \dirname(__FILE__) . '/url/');
 
 \define('ERROR_LOG', \dirname(__FILE__) .'/error.log');

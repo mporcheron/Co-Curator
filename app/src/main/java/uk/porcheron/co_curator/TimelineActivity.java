@@ -30,6 +30,7 @@ import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,6 +41,7 @@ import uk.porcheron.co_curator.collo.ColloCompass;
 import uk.porcheron.co_curator.collo.ColloDict;
 import uk.porcheron.co_curator.collo.ColloManager;
 import uk.porcheron.co_curator.db.DbLoader;
+import uk.porcheron.co_curator.dialog.DialogManager;
 import uk.porcheron.co_curator.item.ItemList;
 import uk.porcheron.co_curator.item.ItemPhoto;
 import uk.porcheron.co_curator.item.ItemScrollView;
@@ -587,6 +589,19 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
 
                                     TimelineActivity.getInstance().hideLoadingDialog();
                                 }
+                            }, new Runnable() {
+                                @Override
+                                public void run() {
+                                    TimelineActivity.getInstance().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+
+                                    Toast.makeText(TimelineActivity.getInstance(), R.string.toastFailedSaveUrl, Toast.LENGTH_LONG).show();
+                                    TimelineActivity.getInstance().hideLoadingDialog();
+
+                                        }
+                                    });
+                                }
                             });
                                 }
                             }).start();
@@ -936,29 +951,29 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if(ColloManager.totalBoundTo() > 0) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showLoadingDialog(R.string.dialogScreenshot);
-                        saveAsImage(new OnCompleteRunner() {
-                            @Override
-                            public void run() {
-                                ColloManager.broadcast(ColloDict.ACTION_UNBIND);
-                                ColloManager.unBindFromUsers();
+            if(!DialogManager.dialogShown() && ColloManager.totalBoundTo() > 0) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showLoadingDialog(R.string.dialogScreenshot);
+                            saveAsImage(new OnCompleteRunner() {
+                                @Override
+                                public void run() {
+                                    ColloManager.broadcast(ColloDict.ACTION_UNBIND);
+                                    ColloManager.unBindFromUsers();
 
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        hideLoadingDialog();
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-                return true;
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            hideLoadingDialog();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
             }
+            return true;
         }
 
         return super.onKeyUp(keyCode, event);

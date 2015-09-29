@@ -151,7 +151,7 @@ public class ItemUrl extends ItemPhoto {
                                         Log.d(TAG, "Screenshot saved as " + filename);
                                         Instance.items.update(ItemUrl.this, url, true, true);
                                     }
-                                });
+                                }, null);
                             }
                         }).start();
                     }

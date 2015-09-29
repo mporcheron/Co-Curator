@@ -232,5 +232,7 @@ public class DialogNote extends AbstractDialog {
         } else if(onSubmitListener != null) {
             onSubmitListener.onSubmit(dialog, text);
         }
+
+        super.onClose(dialog, onSubmitListener, onCancelListener, onDeleteListener, flung);
     }
 }

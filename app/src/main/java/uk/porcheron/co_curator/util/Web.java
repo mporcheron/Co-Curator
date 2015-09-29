@@ -43,6 +43,7 @@ public class Web {
     public static final String UPDATE = Instance.serverAddress + "/update.php";
 
     public static final String GET_URL_SCREENSHOT = Instance.serverAddress + "/getScreenshot.php?url=";
+    public static final String GET_URL_SCREENSHOT_STORE = Instance.serverAddress + "/url/";
 
     public static JSONObject requestObj(String uri, List<NameValuePair> data) {
         String response = request(uri, data);

@@ -113,6 +113,8 @@ public class DialogPhoto extends AbstractDialog {
         } else if(onCancelListener != null) {
             onCancelListener.onCancel(dialog);
         }
+
+        super.onClose(dialog, onSubmitListener, onCancelListener, onDeleteListener, flung);
     }
 
     @Override

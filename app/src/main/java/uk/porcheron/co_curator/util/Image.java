@@ -1,5 +1,6 @@
 package uk.porcheron.co_curator.util;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -27,7 +28,7 @@ public class Image {
         void run(String filename);
     }
 
-    public static void url2File(final String url, final String destination, final int thumbWidth, final int thumbHeight, final Runnable onCompleteRunner) {
+    public static void url2File(final String url, final String destination, final int thumbWidth, final int thumbHeight, final Runnable onCompleteRunner, final Runnable onFailedRunner) {
         Log.v(TAG, "Download " + url + " and save as " + destination);
 
 //        new Thread(new Runnable() {
@@ -38,11 +39,18 @@ public class Image {
 
                 try {
                     // Download and save the bitmap
+                    ValuePair[] pairs = {new ValuePair("url", url)};
                     Bitmap bitmap = Image.getBitmapFromURL(url);
 
                     if(bitmap == null) {
-                        Log.e(TAG, "Could not get bitmap from " + url);
-                        return;
+//                        bitmap = Image.getBitmapFromURL(Web.GET_URL_SCREENSHOT_STORE + url + ".png", null);
+//                        if(bitmap == null) {
+//                            Log.e(TAG, "Could not get bitmap from " + url);
+                            if(onFailedRunner != null) {
+                                onFailedRunner.run();
+                            }
+                            return;
+                        //}
                     }
 
                     Image.save(activity, bitmap, destination);
@@ -91,15 +99,32 @@ public class Image {
     // Below here are helper methods; they do NOT handle threading //
     /////////////////////////////////////////////////////////////////
 
+    public static class ValuePair {
+        public final String key;
+        public final String value;
+        public ValuePair(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
     private static Bitmap getBitmapFromURL(String src) {
         try {
             Log.v(TAG, "Download image from " + src);
-            HttpURLConnection connection =
-                    (HttpURLConnection) (new URL(src)).openConnection();
-            connection.setDoInput(true);
-            connection.connect();
 
-            InputStream input = connection.getInputStream();
+            System.setProperty("http.keepAlive", "false");
+
+            HttpURLConnection conn =
+                    (HttpURLConnection) (new URL(src)).openConnection();
+            conn.setInstanceFollowRedirects(true);
+            conn.setDoInput(true);
+            conn.setUseCaches(false);
+            conn.setUseCaches(false);
+            conn.setDefaultUseCaches(false);
+            conn.setAllowUserInteraction(false);
+            conn.connect();
+
+            InputStream input = conn.getInputStream();
             return BitmapFactory.decodeStream(input);
         } catch (IOException e) {
             Log.e(TAG, "Failed to get image from URL: " + e.getMessage());
