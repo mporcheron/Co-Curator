@@ -279,7 +279,12 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
         db.close();
     }
 
+
     public synchronized void remove(Item item, boolean removeFromLocalDb, boolean removeFromCloud, boolean notifyClients) {
+        remove(item, removeFromLocalDb, removeFromCloud, notifyClients, true);
+    }
+
+    public synchronized void remove(Item item, boolean removeFromLocalDb, boolean removeFromCloud, boolean notifyClients, boolean sound) {
         int globalUserId = item.getUser().globalUserId;
         int itemId = item.getItemId();
 
@@ -308,7 +313,7 @@ public class ItemList extends ArrayList<Item> implements ColloManager.ResponseHa
 
 
         // Play delete sound
-        if(item.isDrawn()) {
+        if(item.isDrawn() && sound) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {

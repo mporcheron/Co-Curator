@@ -52,6 +52,8 @@ public class Web {
             return null;
         }
 
+        Log.v(TAG, response);
+
         try {
             return new JSONObject(response);
         } catch (JSONException e) {

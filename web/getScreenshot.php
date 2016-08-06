@@ -10,11 +10,12 @@ use mikehaertl\wkhtmlto\Image;
 \define('TYPE_URL', 0);
 \define('TYPE_VIDEO', 1);
 
-$data['url'] = str_replace('http://10.94.12.247/~map/cocurator/getScreenshot.php', '', $data['url']);
+$data['url'] = str_replace('http://192.168.1.100/getScreenshot.php', '', $data['url']);
 
 $filename = $url = \base64_decode($data['url']);
 $type = TYPE_URL;
 
+error_reporting(E_ALL);
 
 
 $file = URL_DIR . $data['url'] .'.png';
@@ -49,12 +50,12 @@ if(\is_file($file)) {
 		if(!\is_file($file)) {
 			
 			$image = new Image($url);
-			$image->setOptions(['binary' => '/usr/local/bin/wkhtmltoimage', 'width' => 600, 'height' => 600]);
+			$image->setOptions(['binary' => '/usr/bin/wkhtmltoimage', 'use-xserver', 'width' => 600, 'height' => 600, 'commandOptions' => ['enableXvfb' => true]]);
 
 			if(!$image->saveAs($file)) {
-				\errorLog('Could not get screenshot of '. $url);
+				\errorLog('Could not get screenshot of '. $url .':'. $image->getError());
 
-			    \header('Content-Type: image/png');
+				\header('Content-Type: image/png');
 
 				$w = 600;
 				$h = 600;
@@ -69,7 +70,16 @@ if(\is_file($file)) {
 				$trans_colour = imagecolorallocatealpha($img, 0, 0, 0, 127);
 	    		\imagefill($img, 0, 0, $trans_colour);
 
-				$font = 'Arial.ttf';
+	    		$line_colour = imagecolorallocatealpha($img, 10, 10, 10, 63);
+	    		\imageline($img, 0, 0, $w, 0, $line_colour);
+	    		\imageline($img, $w-1, 0, $w-1, $h-1, $line_colour);
+	    		\imageline($img, $w-1, $h-1, 0, $h-1, $line_colour);
+	    		\imageline($img, 0, $h-1, 0, 0, $line_colour);
+
+	    		\imageline($img, 0, 0, $w, $h, $line_colour);
+	    		\imageline($img, 0, $h-1, $w, 0, $line_colour);
+
+				$font = './Arial.ttf';
 				$colour = \imagecolorallocate($img, 255, 255, 255);
 				$text = \str_replace('http://', '', \base64_decode($data['url']));
 				$size = 48;
@@ -93,7 +103,11 @@ if(\is_file($file)) {
 		\readfile($file);
 	} elseif ($type === TYPE_VIDEO) {
 		\header('Content-type: image/jpeg');
-		\readfile('http://img.youtube.com/vi/'. $filename .'/0.jpg');
+		$res = \readfile('http://img.youtube.com/vi/'. $filename .'/0.jpg');
+		if(!$res) {
+				\errorLog('Could not get screenshot of http://img.youtube.com/vi/'. $filename .'/0.jpg');
+
+		}
 	}
 }
 // https://img.youtube.com/vi/cxLG2wtE7TM/0.jpg

@@ -13,8 +13,12 @@ $itemType = \intval($data['itemType']);
 $itemData = null;
 $itemDateTime = \intval($data['itemDateTime']);
 
+error_reporting(E_ALL);
+
 // If the item type is an image, save the image, otherwise grab the text
+
 if ($itemType == 0 && isset($_FILES['itemData'])) {
+
 	$check = \getimagesize($_FILES['itemData']['tmp_name']);
     if($check !== false) {
     	$target_file = $globalUserId . '-' . $itemId . '-' . \basename($_FILES['itemData']['name']);

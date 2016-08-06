@@ -135,7 +135,9 @@ public class WebLoader {
                 int width = ItemPhoto.getThumbnailWidth();
                 int height = ItemPhoto.getThumbnailHeight();
 
-                newPhotoItem(globalUserId, itemId, type, user, data, url, filename, width, height, dateTime, deleted);
+                if (!deleted) {
+                    newPhotoItem(globalUserId, itemId, type, user, data, url, filename, width, height, dateTime, deleted);
+                }
             } else if (type == ItemType.URL) {
                 String b64Url = Web.b64encode(data);
                 String filename = itemId + "-" + b64Url;
@@ -145,9 +147,13 @@ public class WebLoader {
                 int width = ItemUrl.getThumbnailWidth(isVideo);
                 int height = ItemUrl.getThumbnailHeight(isVideo);
 
-                newPhotoItem(globalUserId, itemId, type, user, data, url, filename, width, height, dateTime, deleted);
+                if (!deleted) {
+                    newPhotoItem(globalUserId, itemId, type, user, data, url, filename, width, height, dateTime, deleted);
+                }
             } else {
-                newTextItem(globalUserId, itemId, type, user, data, dateTime, deleted);
+                if (!deleted) {
+                    newTextItem(globalUserId, itemId, type, user, data, dateTime, deleted);
+                }
             }
         } else {
             Log.v(TAG, "Item[" + globalUserId + ":" + itemId + "] already exists, update it");
@@ -157,7 +163,7 @@ public class WebLoader {
                     final Item item = Instance.items.getByItemId(globalUserId, itemId);
 
                     if (deleted && !item.isDeleted()) {
-                        Instance.items.remove(item, true, false, false);
+                        Instance.items.remove(item, true, false, false, false);
                     } else if (!deleted && item.isDeleted()) {
                         Instance.items.unremove(item);
                     }

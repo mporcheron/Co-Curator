@@ -58,10 +58,10 @@ public class ParticipantActivity extends Activity {
 
         mSharedPreferences = getSharedPreferences(getString(R.string.prefFile), Context.MODE_PRIVATE);
         mGlobalUserIdField = (EditText) findViewById(R.id.globalUserId);
-        mGroupIdField = (EditText) findViewById(R.id.groupId);
+        //mGroupIdField = (EditText) findViewById(R.id.groupId);
         mServerAddressField = (EditText) findViewById(R.id.serverAddress);
 
-        mGroupIdField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mGlobalUserIdField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
@@ -71,6 +71,15 @@ public class ParticipantActivity extends Activity {
                 return false;
             }
         });
+
+        SharedPreferences sharedPrefs = getSharedPreferences(getString(R.string.prefFile), Context.MODE_PRIVATE);
+        int globalUserId = sharedPrefs.getInt(getString(R.string.prefGlobalUserId), -1);
+
+        if(globalUserId >= 0) {
+            mGlobalUserIdField.setText("" + globalUserId);
+        }
+
+        mGlobalUserIdField.requestFocus();
 
         mButtonSignIn = (Button) findViewById(R.id.buttonSignIn);
         mButtonSignIn.setOnClickListener(new OnClickListener() {
@@ -96,12 +105,13 @@ public class ParticipantActivity extends Activity {
 
         // Reset errors.
         mGlobalUserIdField.setError(null);
-        mGroupIdField.setError(null);
+        //mGroupIdField.setError(null);
 
         // Store values at the time of the login attempt.
         String globalUserIdS = mGlobalUserIdField.getText().toString();
-        String groupIdS = mGroupIdField.getText().toString();
+        //String groupIdS = mGroupIdField.getText().toString();
         String serverAddress = mServerAddressField.getText().toString();
+        Log.v(TAG, serverAddress);
 
         // Validate data
         boolean cancel = false;
@@ -117,13 +127,14 @@ public class ParticipantActivity extends Activity {
             cancel = true;
         }
 
-        try {
-            groupId = Integer.parseInt(groupIdS);
-        } catch(Exception e) {
-            mGroupIdField.setError(getString(R.string.errorGroupId));
-            focusView = mGroupIdField;
-            cancel = true;
-        }
+        groupId=1;
+//        try {
+//            groupId = Integer.parseInt(groupIdS);
+//        } catch(Exception e) {
+//            mGroupIdField.setError(getString(R.string.errorGroupId));
+//            focusView = mGroupIdField;
+//            cancel = true;
+//        }
 
         if (cancel) {
             // There was an error; don't attempt login and focus the first
@@ -245,6 +256,14 @@ public class ParticipantActivity extends Activity {
                 Instance.groupId = mGroupId;
                 Instance.userId = mUserId;
                 Instance.serverAddress = mServerAddress;
+
+
+                SharedPreferences sharedPrefs = getSharedPreferences(getString(R.string.prefFile), Context.MODE_PRIVATE);
+                int globalUserId = sharedPrefs.getInt(getString(R.string.prefGlobalUserId), -1);
+
+                if(globalUserId >= 0 && globalUserId != mGlobalUserId) {
+                    // flush DB
+                }
 
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putInt(getString(R.string.prefGlobalUserId), mGlobalUserId);

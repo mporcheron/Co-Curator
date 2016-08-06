@@ -980,49 +980,49 @@ public class TimelineActivity extends Activity implements View.OnLongClickListen
     }
 
     private void saveAsImage(final OnCompleteRunner onCompleteRunner) {
-        if(mFrameLayout == null) {
-            return;
-        }
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Bitmap bitmap = Bitmap.createBitmap(mFrameLayout.getWidth(), mFrameLayout.getHeight(), Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bitmap);
-
-                    drawCanvas(canvas);
-                    mFrameLayout.draw(canvas);
-
-                    // Create directory
-                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                    if (!dir.exists() && !dir.mkdirs()) {
-                        Log.e(TAG, "Directory not created");
-                        return;
-                    }
-
-                    // Save file
-                    String file = "/timeline-" + Instance.groupId + "-" + Instance.userId + "-" + Instance.globalUserId + "-" + System.currentTimeMillis() + ".png";
-                    Log.d(TAG, "Save screenshot to " + dir.getPath() + file);
-                    FileOutputStream fileOutputStream = new FileOutputStream(dir.getPath() + file);
-
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
-
-                    fileOutputStream.flush();
-                    fileOutputStream.close();
-
-                    Log.d(TAG, "Saved screenshot!");
-                } catch (Exception e) {
-                    // TODO: handle exception
-                    Log.e(TAG, "Error saving file - " + e.getMessage());
-                } finally {
-                    mFrameLayout.destroyDrawingCache();
-                    if(onCompleteRunner != null) {
-                        onCompleteRunner.run();
-                    }
-                }
-            }
-        }).start();
+//        if(mFrameLayout == null) {
+//            return;
+//        }
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Bitmap bitmap = Bitmap.createBitmap(mFrameLayout.getWidth(), mFrameLayout.getHeight(), Bitmap.Config.ARGB_8888);
+//                    Canvas canvas = new Canvas(bitmap);
+//
+//                    drawCanvas(canvas);
+//                    mFrameLayout.draw(canvas);
+//
+//                    // Create directory
+//                    File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+//                    if (!dir.exists() && !dir.mkdirs()) {
+//                        Log.e(TAG, "Directory not created");
+//                        return;
+//                    }
+//
+//                    // Save file
+//                    String file = "/timeline-" + Instance.groupId + "-" + Instance.userId + "-" + Instance.globalUserId + "-" + System.currentTimeMillis() + ".png";
+//                    Log.d(TAG, "Save screenshot to " + dir.getPath() + file);
+//                    FileOutputStream fileOutputStream = new FileOutputStream(dir.getPath() + file);
+//
+//                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
+//
+//                    fileOutputStream.flush();
+//                    fileOutputStream.close();
+//
+//                    Log.d(TAG, "Saved screenshot!");
+//                } catch (Exception e) {
+//                    // TODO: handle exception
+//                    Log.e(TAG, "Error saving file - " + e.getMessage());
+//                } finally {
+//                    mFrameLayout.destroyDrawingCache();
+//                    if(onCompleteRunner != null) {
+//                        onCompleteRunner.run();
+//                    }
+//                }
+//            }
+//        }).start();
     }
 
     public interface OnCompleteRunner {
