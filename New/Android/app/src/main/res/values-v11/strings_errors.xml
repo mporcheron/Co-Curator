@@ -1,0 +1,3 @@
+<resources>
+    <string name="errorBtNotEnabled">Bluetooth is not enabled</string>
+</resources>
